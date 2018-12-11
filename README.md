@@ -53,7 +53,7 @@ MRUBY.mrb_load_string(@"
 MRUBY.mrb_close(MRUBY.mrb_state);
 ```
 
-### And how to build?
+### So, how to build?
 - mruby-sharedlib
 (https://github.com/mattn/mruby-sharedlib)
 - mruby

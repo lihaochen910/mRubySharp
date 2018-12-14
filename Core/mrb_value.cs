@@ -34,60 +34,63 @@ namespace CandyFramework.mRuby
         public mrb_vtype mrb_type => tt;
 
         public static readonly mrb_value DEFAULT = new mrb_value() { tt = mrb_vtype.MRB_TT_UNDEF };
+        public static readonly mrb_value TRUE = mRubyDLL.mrb_true_value_ex();
+        public static readonly mrb_value FALSE = mRubyDLL.mrb_false_value_ex();
+        public static readonly mrb_value NIL = mRubyDLL.mrb_nil_value_ex();
 
-        static public mrb_value Create(int i) { return MRUBY.mrb_fixnum_value_ex(i); }
-        static public mrb_value Create(float i) { return MRUBY.mrb_float_value_ex(MRUBY.mrb_state, i); }
-        static public mrb_value Create(double dbl) { return MRUBY.mrb_float_value_ex(MRUBY.mrb_state, dbl); }
-        static public mrb_value Create(bool b) { return b ? MRUBY.mrb_true_value_ex() : MRUBY.mrb_false_value_ex(); }
-        static public mrb_value Create(string str)
+        static public mrb_value Create(int i) { return mRubyDLL.mrb_fixnum_value_ex(i); }
+        static public mrb_value Create(IntPtr mrb_state, float i) { return mRubyDLL.mrb_float_value_ex(mrb_state, i); }
+        static public mrb_value Create(IntPtr mrb_state, double dbl) { return mRubyDLL.mrb_float_value_ex(mrb_state, dbl); }
+        static public mrb_value Create(bool b) { return b ? mRubyDLL.mrb_true_value_ex() : mRubyDLL.mrb_false_value_ex(); }
+        static public mrb_value Create(IntPtr mrb_state, string str)
         {
-            var cbytes = MRUBY.ToCBytes(str);
-            return MRUBY.mrb_str_new_static(MRUBY.mrb_state, cbytes, cbytes.Length);
+            var cbytes = mRubyDLL.ToCBytes(str);
+            return mRubyDLL.mrb_str_new_static(mrb_state, cbytes, cbytes.Length);
         }
 
         static public mrb_value CreateNIL()
         {
-            return MRUBY.mrb_nil_value_ex();
+            return mRubyDLL.mrb_nil_value_ex();
         }
         static public mrb_value CreateUNDEF()
         {
-            return MRUBY.mrb_undef_value_ex();
+            return mRubyDLL.mrb_undef_value_ex();
         }
         static public mrb_value CreateOBJ(IntPtr p)
         {
-            return MRUBY.mrb_obj_value_ex(p);
+            return mRubyDLL.mrb_obj_value_ex(p);
         }
 
 
-        static public implicit operator string(mrb_value value)
-        {
-            int length = 0;
-            IntPtr ptr = MRUBY.mrb_string_value_cstr(MRUBY.mrb_state, ref value);
-            unsafe
-            {
-                byte* p = (byte*)ptr;
-                while (*p != 0)
-                {
-                    length++;
-                    p++;
-                }
-            }
-            byte[] bytes = new byte[length];
-            Marshal.Copy(ptr, bytes, 0, length);
-            return MRUBY.Encoding.GetString(bytes);
+        //static public implicit operator string(mrb_value value)
+        //{
+        //    int length = 0;
+        //    IntPtr ptr = mRubyDLL.mrb_string_value_cstr(mRubyDLL.mrb_state, ref value);
+        //    unsafe
+        //    {
+        //        byte* p = (byte*)ptr;
+        //        while (*p != 0)
+        //        {
+        //            length++;
+        //            p++;
+        //        }
+        //    }
+        //    byte[] bytes = new byte[length];
+        //    Marshal.Copy(ptr, bytes, 0, length);
+        //    return mRubyDLL.Encoding.GetString(bytes);
 
-            //IntPtr stringPtr = IntPtr.Zero;
+        //    //IntPtr stringPtr = IntPtr.Zero;
 
-            //if (value.tt == mrb_vtype.MRB_TT_STRING)
-            //{
-            //    stringPtr = MRUBY.mrb_string_value_ptr(MRUBY.mrb_state, value);
-            //}
-            //else
-            //{
-            //    stringPtr = MRUBY.mrb_string_value_ptr(MRUBY.mrb_state, MRUBY.mrb_obj_as_string(MRUBY.mrb_state, value));
-            //}
-            //return Marshal.PtrToStringAuto(stringPtr);
-        }
+        //    //if (value.tt == mrb_vtype.MRB_TT_STRING)
+        //    //{
+        //    //    stringPtr = MRUBY.mrb_string_value_ptr(MRUBY.mrb_state, value);
+        //    //}
+        //    //else
+        //    //{
+        //    //    stringPtr = MRUBY.mrb_string_value_ptr(MRUBY.mrb_state, MRUBY.mrb_obj_as_string(MRUBY.mrb_state, value));
+        //    //}
+        //    //return Marshal.PtrToStringAuto(stringPtr);
+        //}
 
         static public implicit operator int(mrb_value value)
         {
@@ -132,22 +135,42 @@ namespace CandyFramework.mRuby
             return value.value.p;
         }
 
-        public override string ToString()
-        {
-            //IntPtr stringPtr = IntPtr.Zero;
+        //public override string ToString()
+        //{
+        //    //IntPtr stringPtr = IntPtr.Zero;
 
-            //if (tt == mrb_vtype.MRB_TT_STRING)
-            //{
-            //    stringPtr = MRUBY.mrb_string_value_ptr(MRUBY.mrb_state, this);
-            //}
-            //else
-            //{
-            //    stringPtr = MRUBY.mrb_string_value_ptr(MRUBY.mrb_state, MRUBY.mrb_obj_as_string(MRUBY.mrb_state, this));
-            //}
-            //return Marshal.PtrToStringAuto(stringPtr);
-            var str = MRUBY.mrb_obj_as_string(MRUBY.mrb_state, this);
+        //    //if (tt == mrb_vtype.MRB_TT_STRING)
+        //    //{
+        //    //    stringPtr = MRUBY.mrb_string_value_ptr(MRUBY.mrb_state, this);
+        //    //}
+        //    //else
+        //    //{
+        //    //    stringPtr = MRUBY.mrb_string_value_ptr(MRUBY.mrb_state, MRUBY.mrb_obj_as_string(MRUBY.mrb_state, this));
+        //    //}
+        //    //return Marshal.PtrToStringAuto(stringPtr);
+
+        //    var str = mRubyDLL.mrb_obj_as_string(mRubyDLL.mrb_state, this);
+        //    int length = 0;
+        //    IntPtr ptr = mRubyDLL.mrb_string_value_cstr(mRubyDLL.mrb_state, ref str);
+        //    unsafe
+        //    {
+        //        byte* p = (byte*)ptr;
+        //        while (*p != 0)
+        //        {
+        //            length++;
+        //            p++;
+        //        }
+        //    }
+        //    byte[] bytes = new byte[length];
+        //    Marshal.Copy(ptr, bytes, 0, length);
+        //    return mRubyDLL.Encoding.GetString(bytes);
+        //}
+
+        public string ToString(IntPtr mrb_state)
+        {
+            var str = mRubyDLL.mrb_obj_as_string(mrb_state, this);
             int length = 0;
-            IntPtr ptr = MRUBY.mrb_string_value_cstr(MRUBY.mrb_state, ref str);
+            IntPtr ptr = mRubyDLL.mrb_string_value_cstr(mrb_state, ref str);
             unsafe
             {
                 byte* p = (byte*)ptr;
@@ -159,7 +182,7 @@ namespace CandyFramework.mRuby
             }
             byte[] bytes = new byte[length];
             Marshal.Copy(ptr, bytes, 0, length);
-            return MRUBY.Encoding.GetString(bytes);
+            return mRubyDLL.Encoding.GetString(bytes);
         }
     }
 }

@@ -41,12 +41,14 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\Module.cs" />
     <Compile Include="Core\mrb_args.cs" />
     <Compile Include="Core\mrb_state.cs" />
     <Compile Include="Core\mrb_value.cs" />
     <Compile Include="Core\mrb_vtype.cs" />
-    <Compile Include="Core\MRUBY.cs" />
+    <Compile Include="Core\mRubyClass.cs" />
+    <Compile Include="Core\mRubyDLL.cs" />
+    <Compile Include="Core\mRubyModule.cs" />
+    <Compile Include="Core\mRubyState.cs" />
     <Compile Include="Core\RBasic.cs" />
     <Compile Include="Core\RObject.cs" />
     <Compile Include="Program.cs" />

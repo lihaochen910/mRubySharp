@@ -16,7 +16,7 @@ namespace CandyFramework.mRuby
     /// <remarks>
     /// 行き当たりばったりで機能を追加しています。
     /// </remarks>
-    public static class MRUBY
+    public static class mRubyDLL
     {
         /// <summary>
         /// DLL ファイルのパスです。
@@ -26,12 +26,23 @@ namespace CandyFramework.mRuby
         /// <summary>
         /// mruby VM
         /// </summary>
-        public static IntPtr mrb_state { get; set; }
+        //public static IntPtr mrb_state { get; set; }
 
         /// <summary>
         /// Ruby スクリプトを解釈するときのエンコーディングを取得または設定します。
         /// </summary>
         public static System.Text.Encoding Encoding { get; set; } = System.Text.Encoding.UTF8;
+
+
+        /// <summary>
+        /// 从mruby中调用C#方法委托
+        /// </summary>
+        /// <param name="state"></param>
+        /// <param name="instance"></param>
+        /// <returns></returns>
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate mrb_value MRubyCSFunction(IntPtr state, mrb_value instance);
+
 
         /// <summary>
         /// C 用に文字列を byte の配列に変換します。
@@ -43,34 +54,6 @@ namespace CandyFramework.mRuby
             return Encoding.GetBytes(str + '\0');
         }
 
-
-        /// <summary>
-        /// mruby Object Class
-        /// </summary>
-        public static mrb_value mrb_cObject
-        {
-            get
-            {
-                if (mrb_cObject_.mrb_type == mrb_vtype.MRB_TT_UNDEF)
-                    mrb_cObject_ = mrb_load_string("Object");
-                return mrb_cObject_;
-            }
-        }
-        private static mrb_value mrb_cObject_ = mrb_value.DEFAULT;
-
-        /// <summary>
-        /// mruby Kernel Module
-        /// </summary>
-        public static mrb_value mrb_cKernel
-        {
-            get
-            {
-                if (mrb_cKernel_.mrb_type == mrb_vtype.MRB_TT_UNDEF)
-                    mrb_cKernel_ = mrb_load_string("Kernel");
-                return mrb_cKernel_;
-            }
-        }
-        private static mrb_value mrb_cKernel_ = mrb_value.DEFAULT;
 
         //
         // ruby_*
@@ -94,11 +77,14 @@ namespace CandyFramework.mRuby
         // mruby 运行函数
         // 
         [DllImport(MRubyDll)]
-        private static extern mrb_value mrb_load_string(IntPtr mrb_state, byte[] script_string);
-        public static mrb_value mrb_load_string(string script_string)
-        {
-            return mrb_load_string(mrb_state, ToCBytes(script_string));
-        }
+        public static extern mrb_value mrb_load_string(IntPtr mrb_state, byte[] script_string);
+        //public static mrb_value mrb_load_string(string script_string)
+        //{
+        //    return mrb_load_string(mrb_state, ToCBytes(script_string));
+        //}
+
+        [DllImport(MRubyDll)]
+        public static extern mrb_value mrb_load_string_cxt(IntPtr mrb_state, byte[] script_string, IntPtr mrbc_context);
 
         /// <summary>
         /// 加载mrbc字节码
@@ -111,11 +97,6 @@ namespace CandyFramework.mRuby
 
         [DllImport(MRubyDll)]
         private static extern mrb_value mrb_load_nstring(IntPtr mrb_state, byte[] script_string, long len);
-        public static mrb_value mrb_load_nstring(string script_string)
-        {
-            var cbytes = ToCBytes(script_string);
-            return mrb_load_nstring(mrb_state, cbytes, cbytes.Length);
-        }
 
 
         //
@@ -234,20 +215,20 @@ namespace CandyFramework.mRuby
         /// mruby value to C# string
         /// </summary>
         /// <param name="obj"></param>
-        public static string mrb_value_to_csstr(mrb_value obj)
-        {
-            if (obj.mrb_type == mrb_vtype.MRB_TT_STRING)
-                return Marshal.PtrToStringAuto(mrb_string_value_ptr(mrb_state, obj));
-            else
-            {
-                return Marshal.PtrToStringAuto(mrb_string_value_ptr(mrb_state, mrb_obj_as_string(mrb_state, obj))); 
-            }
-        }
+        //public static string mrb_value_to_csstr(mrb_value obj)
+        //{
+        //    if (obj.mrb_type == mrb_vtype.MRB_TT_STRING)
+        //        return Marshal.PtrToStringAuto(mrb_string_value_ptr(mrb_state, obj));
+        //    else
+        //    {
+        //        return Marshal.PtrToStringAuto(mrb_string_value_ptr(mrb_state, mrb_obj_as_string(mrb_state, obj))); 
+        //    }
+        //}
 
 
         [DllImport(MRubyDll)]
         public static extern IntPtr mrb_string_value_cstr(IntPtr mrb_state, ref mrb_value v_ptr);
-        public static string StringValuePtr(mrb_value v)
+        public static string StringValuePtr(IntPtr mrb_state, mrb_value v)
         {
             int length = 0;
             IntPtr ptr = mrb_string_value_cstr(mrb_state, ref v);
@@ -275,10 +256,10 @@ namespace CandyFramework.mRuby
         private static extern mrb_sym mrb_intern_cstr(IntPtr mrb_state, byte[] name);
         [DllImport(MRubyDll)]
         private static extern mrb_sym mrb_intern_static(IntPtr mrb_state, byte[] name, UInt64 s);
-        public static mrb_sym mrb_intern(string name)
-        {
-            return mrb_intern_cstr(MRUBY.mrb_state, ToCBytes(name));
-        }
+        //public static mrb_sym mrb_intern(string name)
+        //{
+        //    return mrb_intern_cstr(mRubyDLL.mrb_state, ToCBytes(name));
+        //}
 
 
         [DllImport(MRubyDll)]
@@ -296,28 +277,24 @@ namespace CandyFramework.mRuby
         public static extern void mrb_define_global_const(IntPtr mrb_state, string name, mrb_value val);
         [DllImport(MRubyDll)]
         public static extern mrb_value mrb_const_get(IntPtr mrb_state, mrb_value obj, mrb_sym sym);
-        public static mrb_value mrb_const_get(mrb_value obj, string name)
-        {
-            return mrb_const_get(MRUBY.mrb_state, obj, MRUBY.mrb_intern(name));
-        }
+        //public static mrb_value mrb_const_get(mrb_value obj, string name)
+        //{
+        //    return mrb_const_get(mRubyDLL.mrb_state, obj, mRubyDLL.mrb_intern(name));
+        //}
 
 
         //
         // module, class
         //
         [DllImport(MRubyDll)]
-        private static extern IntPtr mrb_define_class(IntPtr mrb_state, string name, IntPtr super);
-        public static IntPtr mrb_define_class(string name)
-        {
-            return mrb_define_class(mrb_state, name, mrb_class_get("Object"));
-        }
+        public static extern IntPtr mrb_define_class(IntPtr mrb_state, string name, IntPtr super);
 
         [DllImport(MRubyDll)]
         private static extern IntPtr mrb_class_get(IntPtr mrb_state, string name);
-        public static IntPtr mrb_class_get(string name)
-        {
-            return mrb_class_get(mrb_state, name);
-        }
+        //public static IntPtr mrb_class_get(string name)
+        //{
+        //    return mrb_class_get(mrb_state, name);
+        //}
 
         
 
@@ -328,7 +305,7 @@ namespace CandyFramework.mRuby
         public static extern IntPtr mrb_module_get(IntPtr mrb_state, string name);
 
 
-        public delegate mrb_value Func(IntPtr state, mrb_value instance);
+        
 
         [DllImport(MRubyDll)]
         public static extern void mrb_get_args(IntPtr state, string format, out IntPtr argv, out int argc, out mrb_value block);
@@ -349,19 +326,19 @@ namespace CandyFramework.mRuby
         // メソッド
         //
         [DllImport(MRubyDll)]
-        private static extern void mrb_define_method(IntPtr state, IntPtr klass, string name, Func func, mrb_args aspec);
+        public static extern void mrb_define_method(IntPtr state, IntPtr klass, string name, MRubyCSFunction func, mrb_args aspec);
         [DllImport(MRubyDll)]
-        private static extern void mrb_define_class_method(IntPtr state, IntPtr klass, string name, Func func, mrb_args aspec);
+        public static extern void mrb_define_class_method(IntPtr state, IntPtr klass, string name, MRubyCSFunction func, mrb_args aspec);
         [DllImport(MRubyDll)]
-        public static extern void mrb_define_module_function(IntPtr state, IntPtr klass, string name, Func func, mrb_args aspec);
+        public static extern void mrb_define_module_function(IntPtr state, IntPtr klass, string name, MRubyCSFunction func, mrb_args aspec);
         [DllImport(MRubyDll)]
-        public static extern void mrb_define_singleton_method(IntPtr state, IntPtr klass, string name, Func func, mrb_args aspec);
+        public static extern void mrb_define_singleton_method(IntPtr state, IntPtr klass, string name, MRubyCSFunction func, mrb_args aspec);
 
-        public static void mrb_define_method(IntPtr klass, string name, Func func, mrb_args aspec)
-        {
-            MethodDelegates.Add(func);
-            mrb_define_method(MRUBY.mrb_state, klass, name, func, aspec);
-        }
+        //public static void mrb_define_method(IntPtr klass, string name, MRubyCSFunction func, mrb_args aspec)
+        //{
+        //    MethodDelegates.Add(func);
+        //    mrb_define_method(mRubyDLL.mrb_state, klass, name, func, aspec);
+        //}
 
 
         //
@@ -415,29 +392,12 @@ namespace CandyFramework.mRuby
         // funcall
         //
         [DllImport(MRubyDll)]
-        private static extern mrb_value mrb_funcall(IntPtr mrb_state, mrb_value obj, string funcName, int argc);
+        public static extern mrb_value mrb_funcall(IntPtr mrb_state, mrb_value obj, string funcName, int argc);
         [DllImport(MRubyDll)]
-        private static extern mrb_value mrb_funcall(IntPtr mrb_state, mrb_value obj, string funcName, int argc, mrb_value arg1);
+        public static extern mrb_value mrb_funcall(IntPtr mrb_state, mrb_value obj, string funcName, int argc, mrb_value arg1);
         [DllImport(MRubyDll)]
-        private static extern mrb_value mrb_funcall(IntPtr mrb_state, mrb_value obj, string funcName, int argc, mrb_value arg1, mrb_value arg2);
+        public static extern mrb_value mrb_funcall(IntPtr mrb_state, mrb_value obj, string funcName, int argc, mrb_value arg1, mrb_value arg2);
 
-        public static mrb_value mrb_kernelFuncall(string funcName)
-        {
-            return mrb_funcall(MRUBY.mrb_cKernel, funcName);
-        }
-
-        public static mrb_value mrb_funcall(mrb_value obj, string funcName)
-        {
-            return mrb_funcall(MRUBY.mrb_state, obj, funcName, 0);
-        }
-        public static mrb_value mrb_funcall(mrb_value obj, string funcName, mrb_value arg1)
-        {
-            return mrb_funcall(MRUBY.mrb_state, obj, funcName, 1, arg1);
-        }
-        public static mrb_value mrb_funcall(mrb_value obj, string funcName, mrb_value arg1, mrb_value arg2)
-        {
-            return mrb_funcall(MRUBY.mrb_state, obj, funcName, 2, arg1, arg2);
-        }
 
         /// <summary>
         /// 从C#调用mruby方法时，使用这个方法获取参数
@@ -445,7 +405,7 @@ namespace CandyFramework.mRuby
         /// <param name="state"></param>
         /// <param name="withBlock"></param>
         /// <returns></returns>
-        public static mrb_value[] GetFunctionArgs(bool withBlock = false)
+        public static mrb_value[] GetFunctionArgs(IntPtr mrb_state, bool withBlock = false)
         {
             mrb_value[] values;
             IntPtr argvPointer;
@@ -453,7 +413,7 @@ namespace CandyFramework.mRuby
             int i, argc, size;
             mrb_value block;
 
-            MRUBY.mrb_get_args(MRUBY.mrb_state, "*&", out argvPointer, out argc, out block);
+            mRubyDLL.mrb_get_args(mrb_state, "*&", out argvPointer, out argc, out block);
 
             int valueCount = argc;
             if (withBlock) { valueCount++; }
@@ -507,15 +467,22 @@ namespace CandyFramework.mRuby
         [DllImport(MRubyDll)]
         public static extern mrb_value mrb_hash_get(IntPtr mrb_state, mrb_value hash, mrb_value key);
 
+
+        //
+        // Context
+        //
+        [DllImport(MRubyDll)]
+        public static extern IntPtr mrbc_context_new(IntPtr mrb_state);
+        [DllImport(MRubyDll)]
+        public static extern void mrbc_context_free(IntPtr mrb_state, IntPtr mrbc_context);
+
+
         //
         // 例外
         //
         [DllImport(MRubyDll)]
         private static extern void mrb_raise(IntPtr mrb_state, IntPtr obj, byte[] msg);
-        public static void mrb_raise(IntPtr obj, string message)
-        {
-            mrb_raise(MRUBY.mrb_state, obj, ToCBytes(message));
-        }
+
 
         //
         // そのほか
@@ -524,6 +491,13 @@ namespace CandyFramework.mRuby
 
         [DllImport(MRubyDll)]
         public static extern mrb_value mrb_inspect(IntPtr mrb_state, mrb_value obj);
+
+        [DllImport(MRubyDll)]
+        public static extern mrb_value mrb_get_backtrace(IntPtr mrb_state);
+
+        [DllImport(MRubyDll)]
+        public static extern mrb_value mrb_exc_backtrace(IntPtr mrb_state, mrb_value exc);
+
         //public static unsafe void rb_check_frozen(VALUE obj)
         //{
         //    if ((((RBasic*)obj)->flags & FL_FREEZE) != 0)
@@ -584,6 +558,6 @@ namespace CandyFramework.mRuby
         /// <summary>
         /// GC に回収されないための、デリゲートの参照です。
         /// </summary>
-        private static List<Delegate> MethodDelegates = new List<Delegate>();
+        public static List<Delegate> MethodDelegates { get; private set; } = new List<Delegate>();
     }
 }

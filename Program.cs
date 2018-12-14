@@ -1,43 +1,56 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 
 namespace CandyFramework.mRuby
 {
     class Program
     {
-        static void Main(string[] args)
+        static mRubyState state;
+
+        /// <summary>
+        /// The main entry point for the application.
+        /// </summary>
+        [STAThread]
+        static void Main()
         {
-            MRUBY.mrb_state = MRUBY.mrb_open();
+            state = new mRubyState();
 
-            mrb_value v1 = MRUBY.mrb_fixnum_value_ex(2333);
-            mrb_value v2 = MRUBY.mrb_float_value_ex(MRUBY.mrb_state, 65.5f);
-            mrb_value v3 = MRUBY.mrb_bool_value_ex(0);
+            mrb_value v1 = mRubyDLL.mrb_fixnum_value_ex(2333);
+            mrb_value v2 = mRubyDLL.mrb_float_value_ex(state, 65.5f);
+            mrb_value v3 = mrb_value.FALSE;
+            mrb_value v4 = mrb_value.TRUE;
+            mrb_value v5 = mrb_value.NIL;
 
-            Console.WriteLine(v1.ToString());
-            Console.WriteLine(v2.ToString());
-            Console.WriteLine(v3.ToString());
+            Console.WriteLine(v1.ToString(state));
+            Console.WriteLine(v2.ToString(state));
+            Console.WriteLine(v3.ToString(state));
+            Console.WriteLine(v4.ToString(state));
+            Console.WriteLine(v5.ToString(state));
 
-            IntPtr klass = MRUBY.mrb_define_class("MyClass");
+            state.DefineMethod("log", WriteLine, mrb_args.ANY());
+            state.DefineMethod("show_backtrace", ShowBackTrace, mrb_args.NONE());
 
-            mrb_value klass_v = mrb_value.CreateOBJ(klass);
+            mRubyClass klass = new mRubyClass(state, "CSharpClass");
 
-            MRUBY.mrb_define_method(klass, "log", WriteLine, mrb_args.ANY());
+            klass.DefineMethod("write", WriteLine, mrb_args.ANY());
 
-            MRUBY.mrb_load_string(@"
-                cls = MyClass.new
-                cls.log 'call MyClass.log function in mruby.'
-            ");
-
-            MRUBY.mrb_close(MRUBY.mrb_state);
+            Console.ReadKey();
         }
 
         static mrb_value WriteLine(IntPtr state, mrb_value context)
         {
-            mrb_value[] args = MRUBY.GetFunctionArgs();
+            mrb_value[] args = mRubyDLL.GetFunctionArgs(state);
 
-            string str = args[0];
+            string str = args[0].ToString(state);
 
             Console.WriteLine(str);
 
+            return context;
+        }
+
+        static mrb_value ShowBackTrace(IntPtr state, mrb_value context)
+        {
+            Console.WriteLine(Program.state.GetCurrentBackTrace());
             return context;
         }
     }

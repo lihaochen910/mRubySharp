@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace CandyFramework.mRuby
 {
@@ -6,20 +7,20 @@ namespace CandyFramework.mRuby
     {
         public IntPtr mrb_state { get; private set; }
 
-        public mrb_value mrb_cObject { get; private set; }
-        public mrb_value mrb_cKernel { get; private set; }
+        public mrb_value mrb_object_class { get; private set; }
+        public mrb_value mrb_kernel_module { get; private set; }
+
+        /// <summary>
+        /// 保存当前VM从C#传入mruby的方法指针，防止C#方法指针进入mruby后被C#端GC掉
+        /// </summary>
+        public List<Delegate> MethodDelegates { get; private set; } = new List<Delegate>();
 
         public mRubyState()
         {
             mrb_state = mRubyDLL.mrb_open();
 
-            mrb_cObject = DoString("Object");
-            mrb_cKernel = DoString("Kernel");
-        }
-
-        static public implicit operator IntPtr(mRubyState state)
-        {
-            return state.mrb_state;
+            mrb_object_class = DoString("Object");
+            mrb_kernel_module = DoString("Kernel");
         }
 
         public mrb_value DoString(string str)
@@ -42,12 +43,12 @@ namespace CandyFramework.mRuby
 
         public mrb_value Call(string funcName)
         {
-            return mRubyDLL.mrb_funcall(mrb_state, mrb_cKernel, funcName, 0);
+            return mRubyDLL.mrb_funcall(mrb_state, mRubyDLL.mrb_top_self(mrb_state), funcName, 0);
         }
 
         public mrb_value Call(string funcName, mrb_value arg)
         {
-            return mRubyDLL.mrb_funcall(mrb_state, mrb_cKernel, funcName, 1, arg);
+            return mRubyDLL.mrb_funcall(mrb_state, mRubyDLL.mrb_top_self(mrb_state), funcName, 1, arg);
         }
 
         /// <summary>
@@ -68,14 +69,21 @@ namespace CandyFramework.mRuby
         public void DefineMethod(string name, mRubyDLL.MRubyCSFunction receiver, mrb_args aspec)
         {
             // 防止被C#端GC
-            mRubyDLL.MethodDelegates.Add(receiver);
+            MethodDelegates.Add(receiver);
 
-            mRubyDLL.mrb_define_module_function(mrb_state, mrb_cKernel, name, receiver, aspec);
+            mRubyDLL.mrb_define_module_function(mrb_state, mrb_kernel_module, name, receiver, aspec);
         }
 
         void IDisposable.Dispose()
         {
             mRubyDLL.mrb_close(mrb_state);
+        }
+
+
+
+        static public implicit operator IntPtr(mRubyState state)
+        {
+            return state.mrb_state;
         }
     }
 }

@@ -24,16 +24,26 @@ namespace CandyFramework.mRuby
             this.name = name;
 
             this.state = state;
-            this.class_ptr = mRubyDLL.mrb_define_class(state, name, state.mrb_cObject);
+            this.class_ptr = mRubyDLL.mrb_define_class(state, name, state.mrb_object_class);
             this.class_value = mrb_value.CreateOBJ(class_ptr);
         }
 
         public void DefineMethod(string name, mRubyDLL.MRubyCSFunction receiver, mrb_args aspec)
         {
             // 防止被C#端GC
-            mRubyDLL.MethodDelegates.Add(receiver);
+            state.MethodDelegates.Add(receiver);
 
-            mRubyDLL.mrb_define_class_method(state, class_ptr, name, receiver, aspec);
+            mRubyDLL.mrb_define_method(state, class_ptr, name, receiver, aspec);
+            //mRubyDLL.mrb_define_module_function(state, class_ptr, name, receiver, aspec);
+
+        }
+
+        public void DefineStaticMethod(string name, mRubyDLL.MRubyCSFunction receiver, mrb_args aspec)
+        {
+            // 防止被C#端GC
+            state.MethodDelegates.Add(receiver);
+
+            mRubyDLL.mrb_define_singleton_method(state, class_ptr, name, receiver, aspec);
         }
 
         public mrb_value Call(string funcName)
@@ -42,7 +52,9 @@ namespace CandyFramework.mRuby
         }
 
 
-
+        /// <summary>
+        /// 统计C#在当前VM中定义的类
+        /// </summary>
         static public Dictionary<string, mRubyClass> RegisteredClass { get; set; } = new Dictionary<string, mRubyClass>();
     }
 }

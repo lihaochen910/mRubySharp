@@ -26,7 +26,7 @@ namespace CandyFramework.mRuby
         public void DefineMethod(string name, mRubyDLL.MRubyCSFunction receiver, mrb_args aspec)
         {
             // 防止被C#端GC
-            mRubyDLL.MethodDelegates.Add(receiver);
+            state.MethodDelegates.Add(receiver);
 
             mRubyDLL.mrb_define_module_function(state.mrb_state, module_ptr, name, receiver, aspec);
         }

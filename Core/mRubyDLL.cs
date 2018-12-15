@@ -36,10 +36,10 @@ namespace CandyFramework.mRuby
 
         /// <summary>
         /// 从mruby中调用C#方法委托
+        /// mrb_func_t
         /// </summary>
         /// <param name="state"></param>
         /// <param name="instance"></param>
-        /// <returns></returns>
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate mrb_value MRubyCSFunction(IntPtr state, mrb_value instance);
 
@@ -329,6 +329,7 @@ namespace CandyFramework.mRuby
         public static extern void mrb_define_method(IntPtr state, IntPtr klass, string name, MRubyCSFunction func, mrb_args aspec);
         [DllImport(MRubyDll)]
         public static extern void mrb_define_class_method(IntPtr state, IntPtr klass, string name, MRubyCSFunction func, mrb_args aspec);
+        //public static extern void mrb_define_class_method(IntPtr state, IntPtr klass, byte[] name, MRubyCSFunction func, mrb_args aspec);
         [DllImport(MRubyDll)]
         public static extern void mrb_define_module_function(IntPtr state, IntPtr klass, string name, MRubyCSFunction func, mrb_args aspec);
         [DllImport(MRubyDll)]
@@ -493,6 +494,9 @@ namespace CandyFramework.mRuby
         public static extern mrb_value mrb_inspect(IntPtr mrb_state, mrb_value obj);
 
         [DllImport(MRubyDll)]
+        public static extern mrb_value mrb_top_self(IntPtr mrb_state);
+        
+        [DllImport(MRubyDll)]
         public static extern mrb_value mrb_get_backtrace(IntPtr mrb_state);
 
         [DllImport(MRubyDll)]
@@ -558,6 +562,6 @@ namespace CandyFramework.mRuby
         /// <summary>
         /// GC に回収されないための、デリゲートの参照です。
         /// </summary>
-        public static List<Delegate> MethodDelegates { get; private set; } = new List<Delegate>();
+        //public static List<Delegate> MethodDelegates { get; private set; } = new List<Delegate>();
     }
 }

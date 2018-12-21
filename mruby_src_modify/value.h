@@ -179,14 +179,13 @@ MRB_API mrb_value mrb_false_value_ex(void);
 MRB_API mrb_value mrb_true_value_ex(void);
 MRB_API mrb_value mrb_bool_value_ex(mrb_bool);
 MRB_API mrb_value mrb_undef_value_ex(void);
-MRB_API mrb_value mrb_cptr_value_ex(struct mrb_state*, void*);
 MRB_API mrb_value mrb_obj_value_ex(void*);
 
 /*
  * Returns a float in Ruby.
  */
 #ifndef MRB_WITHOUT_FLOAT
-    MRB_INLINE mrb_value mrb_float_value(struct mrb_state *mrb, mrb_float f)
+MRB_INLINE mrb_value mrb_float_value(struct mrb_state *mrb, mrb_float f)
 {
   mrb_value v;
   (void) mrb;

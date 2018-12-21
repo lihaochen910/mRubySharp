@@ -11,6 +11,7 @@
 #include <mruby/string.h>
 
 #include <mruby/value.h>
+#include <mruby/data.h>
 
 typedef int (iv_foreach_func)(mrb_state*,mrb_sym,mrb_value,void*);
 
@@ -1170,19 +1171,12 @@ MRB_API mrb_value mrb_undef_value_ex(void)
   return v;
 }
 
-MRB_API mrb_value mrb_cptr_value_ex(mrb_state *mrb, void *p)
-{
-  mrb_value v;
-  (void)mrb;
-  SET_CPTR_VALUE(mrb, v, p);
-  return v;
-}
-
 MRB_API mrb_value mrb_obj_value_ex(void *p)
 {
-  mrb_value v;
-  SET_OBJ_VALUE(v, (struct RBasic *)p);
-  mrb_assert(p == mrb_ptr(v));
-  mrb_assert(((struct RBasic *)p)->tt == mrb_type(v));
-  return v;
+  return mrb_obj_value(p);
+}
+
+MRB_API void mrb_data_init_ex(mrb_value v, void *ptr, const mrb_data_type *type)
+{
+  mrb_data_init(v, ptr, type);
 }

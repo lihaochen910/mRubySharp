@@ -256,10 +256,7 @@ namespace CandyFramework.mRuby
         private static extern mrb_sym mrb_intern_cstr(IntPtr mrb_state, byte[] name);
         [DllImport(MRubyDll)]
         private static extern mrb_sym mrb_intern_static(IntPtr mrb_state, byte[] name, UInt64 s);
-        //public static mrb_sym mrb_intern(string name)
-        //{
-        //    return mrb_intern_cstr(mRubyDLL.mrb_state, ToCBytes(name));
-        //}
+
 
 
         [DllImport(MRubyDll)]
@@ -277,10 +274,7 @@ namespace CandyFramework.mRuby
         public static extern void mrb_define_global_const(IntPtr mrb_state, string name, mrb_value val);
         [DllImport(MRubyDll)]
         public static extern mrb_value mrb_const_get(IntPtr mrb_state, mrb_value obj, mrb_sym sym);
-        //public static mrb_value mrb_const_get(mrb_value obj, string name)
-        //{
-        //    return mrb_const_get(mRubyDLL.mrb_state, obj, mRubyDLL.mrb_intern(name));
-        //}
+
 
 
         //
@@ -288,15 +282,20 @@ namespace CandyFramework.mRuby
         //
         [DllImport(MRubyDll)]
         public static extern IntPtr mrb_define_class(IntPtr mrb_state, string name, IntPtr super);
+        [DllImport(MRubyDll)]
+        public static extern IntPtr mrb_define_class_under(IntPtr mrb_state, IntPtr outer, string name, IntPtr super);
+
+        [DllImport(MRubyDll, EntryPoint = "mrb_set_instance_tt")]
+        public static extern void MRB_SET_INSTANCE_TT(IntPtr c, mrb_vtype tt);
 
         [DllImport(MRubyDll)]
-        private static extern IntPtr mrb_class_get(IntPtr mrb_state, string name);
-        //public static IntPtr mrb_class_get(string name)
-        //{
-        //    return mrb_class_get(mrb_state, name);
-        //}
+        public static extern IntPtr mrb_class_get(IntPtr mrb_state, string name);
+        //[DllImport(MRubyDll)]
+        //public static extern mrb_value mrb_class_new_instance(IntPtr mrb_state, mrb_int argc, mrb_value[] argv, IntPtr c);
+        [DllImport(MRubyDll)]
+        public static extern mrb_value mrb_obj_new(IntPtr mrb_state, IntPtr c, mrb_int argc, mrb_value[] argv);
 
-        
+
 
         [DllImport(MRubyDll)]
         public static extern IntPtr mrb_define_module(IntPtr mrb_state, string name);
@@ -476,6 +475,17 @@ namespace CandyFramework.mRuby
         public static extern IntPtr mrbc_context_new(IntPtr mrb_state);
         [DllImport(MRubyDll)]
         public static extern void mrbc_context_free(IntPtr mrb_state, IntPtr mrbc_context);
+
+
+        //
+        // Data
+        // 
+        [DllImport(MRubyDll)]
+        public static extern IntPtr mrb_data_object_alloc(IntPtr mrb_state, IntPtr klass, IntPtr datap, IntPtr type);
+        [DllImport(MRubyDll, EntryPoint = "mrb_data_init_ex")]
+        public static extern void mrb_data_init(mrb_value v, IntPtr ptr, IntPtr type);
+        [DllImport(MRubyDll)]
+        public static extern IntPtr mrb_data_get_ptr(IntPtr mrb_state, mrb_value obj, IntPtr type);
 
 
         //

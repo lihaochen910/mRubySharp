@@ -15,8 +15,8 @@ namespace CandyFramework.mRuby
         {
             state = new mRubyState();
 
-            mrb_value v1 = mRubyDLL.mrb_fixnum_value_ex(2333);
-            mrb_value v2 = mRubyDLL.mrb_float_value_ex(state, 65.5f);
+            mrb_value v1 = mrb_value.Create(2333);
+            mrb_value v2 = mrb_value.Create(state, 65.5f);
             mrb_value v3 = mrb_value.FALSE;
             mrb_value v4 = mrb_value.TRUE;
             mrb_value v5 = mrb_value.NIL;

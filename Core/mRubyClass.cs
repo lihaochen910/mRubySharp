@@ -43,7 +43,7 @@ namespace CandyFramework.mRuby
             // 防止被C#端GC
             state.MethodDelegates.Add(receiver);
 
-            mRubyDLL.mrb_define_singleton_method(state, class_ptr, name, receiver, aspec);
+            mRubyDLL.mrb_define_class_method(state, class_ptr, name, receiver, aspec);
         }
 
         public mrb_value Call(string funcName)

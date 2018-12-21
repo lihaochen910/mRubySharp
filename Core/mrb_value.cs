@@ -60,6 +60,13 @@ namespace CandyFramework.mRuby
         {
             return mRubyDLL.mrb_obj_value_ex(p);
         }
+        static public mrb_value CreateOBJ(object obj)
+        {
+            if (obj == null)
+                return mrb_value.CreateNIL();
+
+            return mrb_value.CreateOBJ(GCHandle.ToIntPtr(GCHandle.Alloc(obj)));
+        }
 
 
         //static public implicit operator string(mrb_value value)

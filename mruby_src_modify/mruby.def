@@ -7,6 +7,10 @@ EXPORTS
 	mrb_true_value_ex
 	mrb_bool_value_ex
 	mrb_undef_value_ex
+	mrb_obj_value_ex
+
+	mrb_has_exc
+	mrb_exc_detail
 
 	mrb_add_irep
 	mrb_alias_method

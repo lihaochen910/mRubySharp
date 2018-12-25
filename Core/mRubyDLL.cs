@@ -328,7 +328,6 @@ namespace CandyFramework.mRuby
         public static extern void mrb_define_method(IntPtr state, IntPtr klass, string name, MRubyCSFunction func, mrb_args aspec);
         [DllImport(MRubyDll)]
         public static extern void mrb_define_class_method(IntPtr state, IntPtr klass, string name, MRubyCSFunction func, mrb_args aspec);
-        //public static extern void mrb_define_class_method(IntPtr state, IntPtr klass, byte[] name, MRubyCSFunction func, mrb_args aspec);
         [DllImport(MRubyDll)]
         public static extern void mrb_define_module_function(IntPtr state, IntPtr klass, string name, MRubyCSFunction func, mrb_args aspec);
         [DllImport(MRubyDll)]
@@ -505,7 +504,13 @@ namespace CandyFramework.mRuby
 
         [DllImport(MRubyDll)]
         public static extern mrb_value mrb_top_self(IntPtr mrb_state);
-        
+
+        [DllImport(MRubyDll)]
+        public static extern mrb_bool mrb_has_exc(IntPtr mrb_state);
+
+        [DllImport(MRubyDll)]
+        public static extern mrb_value mrb_exc_detail(IntPtr mrb_state);
+
         [DllImport(MRubyDll)]
         public static extern mrb_value mrb_get_backtrace(IntPtr mrb_state);
 

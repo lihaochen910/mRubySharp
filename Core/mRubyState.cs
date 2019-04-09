@@ -48,7 +48,7 @@ namespace CandyFramework.mRuby
 
         public mrb_value Call(string funcName, mrb_value arg)
         {
-            return mRubyDLL.mrb_funcall(mrb_state, mRubyDLL.mrb_top_self(mrb_state), funcName, 1, arg);
+            return mRubyDLL.mrb_funcall_1(mrb_state, mRubyDLL.mrb_top_self(mrb_state), funcName, 1, arg);
         }
 
         /// <summary>

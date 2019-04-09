@@ -34,7 +34,9 @@ namespace CandyFramework.mRuby
 
             klass.DefineMethod("write", WriteLine, mrb_args.ANY());
 
-            Console.ReadKey();
+			state.DoString("CSharpClass.new.write \"mruby #{RUBY_VERSION}\"");
+
+			Console.ReadKey();
         }
 
         static mrb_value WriteLine(IntPtr state, mrb_value context)

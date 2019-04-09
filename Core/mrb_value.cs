@@ -34,14 +34,14 @@ namespace CandyFramework.mRuby
         public mrb_vtype mrb_type => tt;
 
         public static readonly mrb_value DEFAULT = new mrb_value() { tt = mrb_vtype.MRB_TT_UNDEF };
-        public static readonly mrb_value TRUE = mRubyDLL.mrb_true_value_ex();
-        public static readonly mrb_value FALSE = mRubyDLL.mrb_false_value_ex();
-        public static readonly mrb_value NIL = mRubyDLL.mrb_nil_value_ex();
+        public static readonly mrb_value TRUE = mRubyDLL.mrb_true_value();
+        public static readonly mrb_value FALSE = mRubyDLL.mrb_false_value();
+        public static readonly mrb_value NIL = mRubyDLL.mrb_nil_value();
 
-        static public mrb_value Create(int i) { return mRubyDLL.mrb_fixnum_value_ex(i); }
-        static public mrb_value Create(IntPtr mrb_state, float i) { return mRubyDLL.mrb_float_value_ex(mrb_state, i); }
-        static public mrb_value Create(IntPtr mrb_state, double dbl) { return mRubyDLL.mrb_float_value_ex(mrb_state, dbl); }
-        static public mrb_value Create(bool b) { return b ? mRubyDLL.mrb_true_value_ex() : mRubyDLL.mrb_false_value_ex(); }
+        static public mrb_value Create(int i) { return mRubyDLL.mrb_fixnum_value(i); }
+        static public mrb_value Create(IntPtr mrb_state, float i) { return mRubyDLL.mrb_float_value(mrb_state, i); }
+        static public mrb_value Create(IntPtr mrb_state, double dbl) { return mRubyDLL.mrb_float_value(mrb_state, dbl); }
+        static public mrb_value Create(bool b) { return b ? mRubyDLL.mrb_true_value() : mRubyDLL.mrb_false_value(); }
         static public mrb_value Create(IntPtr mrb_state, string str)
         {
             var cbytes = mRubyDLL.ToCBytes(str);
@@ -50,15 +50,15 @@ namespace CandyFramework.mRuby
 
         static public mrb_value CreateNIL()
         {
-            return mRubyDLL.mrb_nil_value_ex();
+            return mRubyDLL.mrb_nil_value();
         }
         static public mrb_value CreateUNDEF()
         {
-            return mRubyDLL.mrb_undef_value_ex();
+            return mRubyDLL.mrb_undef_value();
         }
         static public mrb_value CreateOBJ(IntPtr p)
         {
-            return mRubyDLL.mrb_obj_value_ex(p);
+            return mRubyDLL.mrb_obj_value(p);
         }
         static public mrb_value CreateOBJ(object obj)
         {

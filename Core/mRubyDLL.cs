@@ -555,10 +555,17 @@ namespace CandyFramework.mRuby
 		public delegate IntPtr d_mrb_data_get_ptr(IntPtr mrb_state, mrb_value obj, IntPtr type);
 		public static d_mrb_data_get_ptr mrb_data_get_ptr { get; } = FuncLoader.LoadFunction<d_mrb_data_get_ptr>(MRubyLibrary, "mrb_data_get_ptr");
 
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate IntPtr d_mrb_set_instance_tt ( IntPtr klass, mrb_vtype tt );
+		public static d_mrb_set_instance_tt mrb_set_instance_tt { get; } = FuncLoader.LoadFunction<d_mrb_set_instance_tt> ( MRubyLibrary, "mrb_set_instance_tt" );
 
 		//
 		// 例外
 		//
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		private delegate void d_mrb_malloc ( IntPtr mrb_state, long len );
+		private static d_mrb_malloc mrb_malloc { get; } = FuncLoader.LoadFunction < d_mrb_malloc >( MRubyLibrary, "mrb_malloc" );
+
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		private delegate void d_mrb_raise(IntPtr mrb_state, IntPtr obj, byte[] msg);
 		private static d_mrb_raise mrb_raise { get; } = FuncLoader.LoadFunction<d_mrb_raise>(MRubyLibrary, "mrb_raise");

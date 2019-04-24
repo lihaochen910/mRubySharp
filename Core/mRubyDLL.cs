@@ -83,13 +83,29 @@ namespace CandyFramework.mRuby
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate mrb_value MRubyCSFunction(IntPtr state, mrb_value instance);
 
+		/// <summary>
+		/// data type release function pointer
+		/// </summary>
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_value MRubyDFreeFunction ( IntPtr state, IntPtr data );
 
-        /// <summary>
-        /// C 用に文字列を byte の配列に変換します。
-        /// </summary>
-        /// <param name="str"></param>
-        /// <returns></returns>
-        public static byte[] ToCBytes(string str)
+
+		/// <summary>
+		/// Custom data type description.
+		/// </summary>
+		[StructLayout ( LayoutKind.Sequential )]
+		public struct mrb_data_type {
+			public string struct_name;
+			public MRubyDFreeFunction dfree;
+		}
+
+
+		/// <summary>
+		/// C 用に文字列を byte の配列に変換します。
+		/// </summary>
+		/// <param name="str"></param>
+		/// <returns></returns>
+		public static byte[] ToCBytes(string str)
         {
             return Encoding.GetBytes(str + '\0');
         }
@@ -559,6 +575,7 @@ namespace CandyFramework.mRuby
 		public delegate IntPtr d_mrb_set_instance_tt ( IntPtr klass, mrb_vtype tt );
 		public static d_mrb_set_instance_tt mrb_set_instance_tt { get; } = FuncLoader.LoadFunction<d_mrb_set_instance_tt> ( MRubyLibrary, "mrb_set_instance_tt" );
 
+
 		//
 		// 例外
 		//
@@ -569,7 +586,6 @@ namespace CandyFramework.mRuby
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		private delegate void d_mrb_raise(IntPtr mrb_state, IntPtr obj, byte[] msg);
 		private static d_mrb_raise mrb_raise { get; } = FuncLoader.LoadFunction<d_mrb_raise>(MRubyLibrary, "mrb_raise");
-
 
 
 		//

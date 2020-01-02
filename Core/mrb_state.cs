@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace CandyFramework.mRuby
-{
+
+namespace CandyFramework.mRuby {
+    
     /// <summary>
     /// 施工中
     /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct mrb_state
-    {
+    [StructLayout ( LayoutKind.Sequential )]
+    public struct mrb_state {
+        
         public IntPtr jmp;
 
-        public uint flags;
+        public uint   flags;
         public IntPtr allocf;
         public IntPtr allocf_ud;
 

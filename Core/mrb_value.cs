@@ -120,6 +120,18 @@ namespace CandyFramework.mRuby {
 
             return 0;
         }
+        
+        static public implicit operator float ( mrb_value value ) {
+            if ( value.tt == mrb_vtype.MRB_TT_FLOAT ) {
+                return ( float )value.value.f;
+            }
+
+            if ( value.tt == mrb_vtype.MRB_TT_FIXNUM ) {
+                return ( float )value.value.i;
+            }
+
+            return 0f;
+        }
 
         static public implicit operator double ( mrb_value value ) {
             if ( value.tt == mrb_vtype.MRB_TT_FLOAT ) {
@@ -146,6 +158,128 @@ namespace CandyFramework.mRuby {
 
         static public implicit operator IntPtr ( mrb_value value ) {
             return value.value.p;
+        }
+        
+        static public bool IsImmediate ( mrb_value value ) {
+            return mRubyDLL.mrb_immediate_p ( value ) == 1;
+        }
+        
+        static public bool IsFixnum ( mrb_value value ) {
+            return mRubyDLL.mrb_fixnum_p ( value ) == 1;
+        }
+        
+        static public bool IsSymbol ( mrb_value value ) {
+            return mRubyDLL.mrb_symbol_p ( value ) == 1;
+        }
+        
+        static public bool IsUndef ( mrb_value value ) {
+            return mRubyDLL.mrb_undef_p ( value ) == 1;
+        }
+        
+        static public bool IsNil ( mrb_value value ) {
+            return mRubyDLL.mrb_nil_p ( value ) == 1;
+        }
+        
+        static public bool IsFalse ( mrb_value value ) {
+            return mRubyDLL.mrb_false_p ( value ) == 1;
+        }
+        
+        static public bool IsTrue ( mrb_value value ) {
+            return mRubyDLL.mrb_true_p ( value ) == 1;
+        }
+        
+        static public bool IsFloat ( mrb_value value ) {
+            return mRubyDLL.mrb_float_p ( value ) == 1;
+        }
+        
+        static public bool IsArray ( mrb_value value ) {
+            return mRubyDLL.mrb_array_p ( value ) == 1;
+        }
+        
+        static public bool IsString ( mrb_value value ) {
+            return mRubyDLL.mrb_string_p ( value ) == 1;
+        }
+        
+        static public bool IsHash ( mrb_value value ) {
+            return mRubyDLL.mrb_hash_p ( value ) == 1;
+        }
+        
+        static public bool IsCPtr ( mrb_value value ) {
+            return mRubyDLL.mrb_cptr_p ( value ) == 1;
+        }
+        
+        static public bool IsException ( mrb_value value ) {
+            return mRubyDLL.mrb_exception_p ( value ) == 1;
+        }
+        
+        static public bool IsFree ( mrb_value value ) {
+            return mRubyDLL.mrb_free_p ( value ) == 1;
+        }
+        
+        static public bool IsObject ( mrb_value value ) {
+            return mRubyDLL.mrb_object_p ( value ) == 1;
+        }
+        
+        static public bool IsClass ( mrb_value value ) {
+            return mRubyDLL.mrb_class_p ( value ) == 1;
+        }
+        
+        static public bool IsModule ( mrb_value value ) {
+            return mRubyDLL.mrb_module_p ( value ) == 1;
+        }
+        
+        static public bool IsIClass ( mrb_value value ) {
+            return mRubyDLL.mrb_iclass_p ( value ) == 1;
+        }
+        
+        static public bool IsSClass ( mrb_value value ) {
+            return mRubyDLL.mrb_sclass_p ( value ) == 1;
+        }
+        
+        static public bool IsProc ( mrb_value value ) {
+            return mRubyDLL.mrb_proc_p ( value ) == 1;
+        }
+        
+        static public bool IsRange ( mrb_value value ) {
+            return mRubyDLL.mrb_range_p ( value ) == 1;
+        }
+        
+        static public bool IsFile ( mrb_value value ) {
+            return mRubyDLL.mrb_file_p ( value ) == 1;
+        }
+        
+        static public bool IsEnv ( mrb_value value ) {
+            return mRubyDLL.mrb_env_p ( value ) == 1;
+        }
+        
+        static public bool IsData ( mrb_value value ) {
+            return mRubyDLL.mrb_data_p ( value ) == 1;
+        }
+        
+        static public bool IsFiber ( mrb_value value ) {
+            return mRubyDLL.mrb_fiber_p ( value ) == 1;
+        }
+        
+        static public bool IsIStruct ( mrb_value value ) {
+            return mRubyDLL.mrb_istruct_p ( value ) == 1;
+        }
+        
+        static public bool IsBreak ( mrb_value value ) {
+            return mRubyDLL.mrb_break_p ( value ) == 1;
+        }
+        
+        static public bool IsBool ( mrb_value value ) {
+            return mRubyDLL.mrb_true_p ( value ) == 1 || mRubyDLL.mrb_false_p ( value ) == 1;
+        }
+        
+        static public bool Test ( mrb_value value ) {
+            if ( mRubyDLL.mrb_true_p ( value ) == 1 ) {
+                return true;
+            }
+            if ( mRubyDLL.mrb_false_p ( value ) == 1 ) {
+                return false;
+            }
+            return mRubyDLL.mrb_test ( value ) == 1;
         }
 
         //public override string ToString()

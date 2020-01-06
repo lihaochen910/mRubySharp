@@ -57,9 +57,194 @@ MRB_API mrb_value mrb_obj_value_ex(void *p)
   return mrb_obj_value(p);
 }
 
+MRB_API void *mrb_ptr_ex(mrb_value o)
+{
+  return mrb_ptr(o);
+}
+
+MRB_API mrb_float mrb_float_ex(mrb_value o)
+{
+  return mrb_float(o);
+}
+
+MRB_API void *mrb_cptr_ex(mrb_value o)
+{
+  return mrb_cptr(o);
+}
+
+MRB_API mrb_int mrb_fixnum_ex(mrb_value o)
+{
+  return mrb_fixnum(o);
+}
+
+MRB_API mrb_sym mrb_symbol_ex(mrb_value o)
+{
+  return mrb_symbol(o);
+}
+
+MRB_API enum mrb_vtype mrb_type_ex(mrb_value o)
+{
+  return mrb_type(o);
+}
+
+MRB_API mrb_bool mrb_immediate_p_ex(mrb_value o)
+{
+  return mrb_immediate_p(o);
+}
+
+MRB_API mrb_bool mrb_fixnum_p_ex(mrb_value o)
+{
+  return mrb_fixnum_p(o);
+}
+
+MRB_API mrb_bool mrb_symbol_p_ex(mrb_value o)
+{
+  return mrb_symbol_p(o);
+}
+
+MRB_API mrb_bool mrb_undef_p_ex(mrb_value o)
+{
+  return mrb_undef_p(o);
+}
+
+MRB_API mrb_bool mrb_nil_p_ex(mrb_value o)
+{
+  return mrb_nil_p(o);
+}
+
+MRB_API mrb_bool mrb_false_p_ex(mrb_value o)
+{
+  return mrb_false_p(o);
+}
+
+MRB_API mrb_bool mrb_true_p_ex(mrb_value o)
+{
+  return mrb_true_p(o);
+}
+
+MRB_API mrb_bool mrb_float_p_ex(mrb_value o)
+{
+  return mrb_float_p(o);
+}
+
+MRB_API mrb_bool mrb_array_p_ex(mrb_value o)
+{
+  return mrb_array_p(o);
+}
+
+MRB_API mrb_bool mrb_string_p_ex(mrb_value o)
+{
+  return mrb_string_p(o);
+}
+
+MRB_API mrb_bool mrb_hash_p_ex(mrb_value o)
+{
+  return mrb_hash_p(o);
+}
+
+MRB_API mrb_bool mrb_cptr_p_ex(mrb_value o)
+{
+  return mrb_cptr_p(o);
+}
+
+MRB_API mrb_bool mrb_exception_p_ex(mrb_value o)
+{
+  return mrb_exception_p(o);
+}
+
+MRB_API mrb_bool mrb_free_p_ex(mrb_value o)
+{
+  return mrb_free_p(o);
+}
+
+MRB_API mrb_bool mrb_object_p_ex(mrb_value o)
+{
+  return mrb_object_p(o);
+}
+
+MRB_API mrb_bool mrb_class_p_ex(mrb_value o)
+{
+  return mrb_class_p(o);
+}
+
+MRB_API mrb_bool mrb_module_p_ex(mrb_value o)
+{
+  return mrb_module_p(o);
+}
+
+MRB_API mrb_bool mrb_iclass_p_ex(mrb_value o)
+{
+  return mrb_iclass_p(o);
+}
+
+MRB_API mrb_bool mrb_sclass_p_ex(mrb_value o)
+{
+  return mrb_sclass_p(o);
+}
+
+MRB_API mrb_bool mrb_proc_p_ex(mrb_value o)
+{
+  return mrb_proc_p(o);
+}
+
+MRB_API mrb_bool mrb_range_p_ex(mrb_value o)
+{
+  return mrb_range_p(o);
+}
+
+MRB_API mrb_bool mrb_file_p_ex(mrb_value o)
+{
+  return mrb_file_p(o);
+}
+
+MRB_API mrb_bool mrb_env_p_ex(mrb_value o)
+{
+  return mrb_env_p(o);
+}
+
+MRB_API mrb_bool mrb_data_p_ex(mrb_value o)
+{
+  return mrb_data_p(o);
+}
+
+MRB_API mrb_bool mrb_fiber_p_ex(mrb_value o)
+{
+  return mrb_fiber_p(o);
+}
+
+MRB_API mrb_bool mrb_istruct_p_ex(mrb_value o)
+{
+  return mrb_istruct_p(o);
+}
+
+MRB_API mrb_bool mrb_break_p_ex(mrb_value o)
+{
+  return mrb_break_p(o);
+}
+
+MRB_API mrb_bool mrb_bool_ex(mrb_value o)
+{
+  return mrb_bool(o);
+}
+
+MRB_API mrb_bool mrb_test_ex(mrb_value o)
+{
+  return mrb_test(o);
+}
+
 MRB_API void mrb_data_init_ex(mrb_value v, void *ptr, const mrb_data_type *type)
 {
   mrb_data_init(v, ptr, type);
+}
+
+MRB_API struct RData *mrb_data_wrap_struct(mrb_state *mrb, struct RClass *klass, const mrb_data_type *type, void *ptr)
+{
+  return Data_Wrap_Struct(mrb, klass, type, ptr);
+}
+
+MRB_API mrb_value mrb_data_wrap_struct_obj(mrb_state *mrb, struct RClass *klass, const mrb_data_type *type, void *ptr)
+{
+  return mrb_obj_value(Data_Wrap_Struct(mrb, klass, type, ptr));
 }
 
 MRB_API void mrb_set_instance_tt(struct RClass *c, enum mrb_vtype tt)

@@ -81,7 +81,7 @@ namespace CandyFramework.mRuby {
 		/// <param name="state"></param>
 		/// <param name="instance"></param>
 		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
-		public delegate mrb_value MRubyCSFunction ( IntPtr state, mrb_value instance );
+		public delegate mrb_value MRubyCSFunction ( IntPtr state, mrb_value self );
 
 		/// <summary>
 		/// data type release function pointer
@@ -235,7 +235,118 @@ namespace CandyFramework.mRuby {
 
 		public static d_mrb_obj_value mrb_obj_value { get; } = FuncLoader.LoadFunction< d_mrb_obj_value > ( MRubyLibrary, "mrb_obj_value_ex" );
 
-
+		
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate IntPtr d_mrb_ptr ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate IntPtr d_mrb_cptr ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_float d_mrb_float ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_int d_mrb_fixnum ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_sym d_mrb_symbol ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_vtype d_mrb_type ( mrb_value o );
+		public static d_mrb_ptr mrb_ptr { get; } = FuncLoader.LoadFunction< d_mrb_ptr > ( MRubyLibrary, "mrb_ptr_ex" );
+		public static d_mrb_cptr mrb_cptr { get; } = FuncLoader.LoadFunction< d_mrb_cptr > ( MRubyLibrary, "mrb_cptr_ex" );
+		public static d_mrb_float mrb_float { get; } = FuncLoader.LoadFunction< d_mrb_float > ( MRubyLibrary, "mrb_float_ex" );
+		public static d_mrb_fixnum mrb_fixnum { get; } = FuncLoader.LoadFunction< d_mrb_fixnum > ( MRubyLibrary, "mrb_fixnum_ex" );
+		public static d_mrb_symbol mrb_symbol { get; } = FuncLoader.LoadFunction< d_mrb_symbol > ( MRubyLibrary, "mrb_symbol_ex" );
+		public static d_mrb_type mrb_type { get; } = FuncLoader.LoadFunction< d_mrb_type > ( MRubyLibrary, "mrb_type_ex" );
+		
+		
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_bool d_mrb_immediate_p ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_bool d_mrb_fixnum_p ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_bool d_mrb_symbol_p ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_bool d_mrb_undef_p ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_bool d_mrb_nil_p ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_bool d_mrb_false_p ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_bool d_mrb_true_p ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_bool d_mrb_float_p ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_bool d_mrb_array_p ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_bool d_mrb_string_p ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_bool d_mrb_hash_p ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_bool d_mrb_cptr_p ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_bool d_mrb_exception_p ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_bool d_mrb_free_p ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_bool d_mrb_object_p ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_bool d_mrb_class_p ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_bool d_mrb_module_p ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_bool d_mrb_iclass_p ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_bool d_mrb_sclass_p ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_bool d_mrb_proc_p ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_bool d_mrb_range_p ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_bool d_mrb_file_p ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_bool d_mrb_env_p ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_bool d_mrb_data_p ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_bool d_mrb_fiber_p ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_bool d_mrb_istruct_p ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_bool d_mrb_break_p ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_bool d_mrb_bool ( mrb_value o );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_bool d_mrb_test ( mrb_value o );
+		
+		public static d_mrb_immediate_p mrb_immediate_p { get; } = FuncLoader.LoadFunction< d_mrb_immediate_p > ( MRubyLibrary, "mrb_immediate_p_ex" );
+		public static d_mrb_fixnum_p mrb_fixnum_p { get; } = FuncLoader.LoadFunction< d_mrb_fixnum_p > ( MRubyLibrary, "mrb_fixnum_p_ex" );
+		public static d_mrb_symbol_p mrb_symbol_p { get; } = FuncLoader.LoadFunction< d_mrb_symbol_p > ( MRubyLibrary, "mrb_symbol_p_ex" );
+		public static d_mrb_undef_p mrb_undef_p { get; } = FuncLoader.LoadFunction< d_mrb_undef_p > ( MRubyLibrary, "mrb_undef_p_ex" );
+		public static d_mrb_nil_p mrb_nil_p { get; } = FuncLoader.LoadFunction< d_mrb_nil_p > ( MRubyLibrary, "mrb_nil_p_ex" );
+		public static d_mrb_false_p mrb_false_p { get; } = FuncLoader.LoadFunction< d_mrb_false_p > ( MRubyLibrary, "mrb_false_p_ex" );
+		public static d_mrb_true_p mrb_true_p { get; } = FuncLoader.LoadFunction< d_mrb_true_p > ( MRubyLibrary, "mrb_true_p_ex" );
+		public static d_mrb_float_p mrb_float_p { get; } = FuncLoader.LoadFunction< d_mrb_float_p > ( MRubyLibrary, "mrb_float_p_ex" );
+		public static d_mrb_array_p mrb_array_p { get; } = FuncLoader.LoadFunction< d_mrb_array_p > ( MRubyLibrary, "mrb_array_p_ex" );
+		public static d_mrb_string_p mrb_string_p { get; } = FuncLoader.LoadFunction< d_mrb_string_p > ( MRubyLibrary, "mrb_string_p_ex" );
+		public static d_mrb_hash_p mrb_hash_p { get; } = FuncLoader.LoadFunction< d_mrb_hash_p > ( MRubyLibrary, "mrb_hash_p_ex" );
+		public static d_mrb_cptr_p mrb_cptr_p { get; } = FuncLoader.LoadFunction< d_mrb_cptr_p > ( MRubyLibrary, "mrb_cptr_p_ex" );
+		public static d_mrb_exception_p mrb_exception_p { get; } = FuncLoader.LoadFunction< d_mrb_exception_p > ( MRubyLibrary, "mrb_exception_p_ex" );
+		public static d_mrb_free_p mrb_free_p { get; } = FuncLoader.LoadFunction< d_mrb_free_p > ( MRubyLibrary, "mrb_free_p_ex" );
+		public static d_mrb_object_p mrb_object_p { get; } = FuncLoader.LoadFunction< d_mrb_object_p > ( MRubyLibrary, "mrb_object_p_ex" );
+		public static d_mrb_class_p mrb_class_p { get; } = FuncLoader.LoadFunction< d_mrb_class_p > ( MRubyLibrary, "mrb_class_p_ex" );
+		public static d_mrb_module_p mrb_module_p { get; } = FuncLoader.LoadFunction< d_mrb_module_p > ( MRubyLibrary, "mrb_module_p_ex" );
+		public static d_mrb_iclass_p mrb_iclass_p { get; } = FuncLoader.LoadFunction< d_mrb_iclass_p > ( MRubyLibrary, "mrb_iclass_p_ex" );
+		public static d_mrb_sclass_p mrb_sclass_p { get; } = FuncLoader.LoadFunction< d_mrb_sclass_p > ( MRubyLibrary, "mrb_sclass_p_ex" );
+		public static d_mrb_proc_p mrb_proc_p { get; } = FuncLoader.LoadFunction< d_mrb_proc_p > ( MRubyLibrary, "mrb_proc_p_ex" );
+		public static d_mrb_range_p mrb_range_p { get; } = FuncLoader.LoadFunction< d_mrb_range_p > ( MRubyLibrary, "mrb_range_p_ex" );
+		public static d_mrb_file_p mrb_file_p { get; } = FuncLoader.LoadFunction< d_mrb_file_p > ( MRubyLibrary, "mrb_file_p_ex" );
+		public static d_mrb_env_p mrb_env_p { get; } = FuncLoader.LoadFunction< d_mrb_env_p > ( MRubyLibrary, "mrb_env_p_ex" );
+		public static d_mrb_data_p mrb_data_p { get; } = FuncLoader.LoadFunction< d_mrb_data_p > ( MRubyLibrary, "mrb_data_p_ex" );
+		public static d_mrb_fiber_p mrb_fiber_p { get; } = FuncLoader.LoadFunction< d_mrb_fiber_p > ( MRubyLibrary, "mrb_fiber_p_ex" );
+		public static d_mrb_istruct_p mrb_istruct_p { get; } = FuncLoader.LoadFunction< d_mrb_istruct_p > ( MRubyLibrary, "mrb_istruct_p_ex" );
+		public static d_mrb_break_p mrb_break_p { get; } = FuncLoader.LoadFunction< d_mrb_break_p > ( MRubyLibrary, "mrb_break_p_ex" );
+		public static d_mrb_bool mrb_bool { get; } = FuncLoader.LoadFunction< d_mrb_bool > ( MRubyLibrary, "mrb_bool_ex" );
+		public static d_mrb_test mrb_test { get; } = FuncLoader.LoadFunction< d_mrb_test > ( MRubyLibrary, "mrb_test_ex" );
+		
+		
+		
 		//
 		// 文字列
 		//
@@ -381,6 +492,12 @@ namespace CandyFramework.mRuby {
 
 		public static d_mrb_define_module mrb_define_module { get; } = FuncLoader.LoadFunction< d_mrb_define_module > ( MRubyLibrary, "mrb_define_module" );
 
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate IntPtr d_mrb_define_module_under ( IntPtr mrb_state, IntPtr outer, string name, IntPtr super );
+
+		public static d_mrb_define_module_under mrb_define_module_under { get; } = FuncLoader.LoadFunction< d_mrb_define_module_under > ( MRubyLibrary, "mrb_define_module_under" );
+
+		
 		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
 		public delegate IntPtr d_mrb_module_get ( IntPtr mrb_state, string name );
 
@@ -618,7 +735,7 @@ namespace CandyFramework.mRuby {
 		public static d_mrb_data_object_alloc mrb_data_object_alloc { get; } = FuncLoader.LoadFunction< d_mrb_data_object_alloc > ( MRubyLibrary, "mrb_data_object_alloc" );
 
 		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
-		public delegate IntPtr d_mrb_data_init ( IntPtr mrb_state, IntPtr klass, IntPtr datap, IntPtr type );
+		public delegate IntPtr d_mrb_data_init ( mrb_value v, IntPtr ptr, IntPtr data_type );
 
 		public static d_mrb_data_init mrb_data_init { get; } = FuncLoader.LoadFunction< d_mrb_data_init > ( MRubyLibrary, "mrb_data_init_ex" );
 
@@ -631,6 +748,39 @@ namespace CandyFramework.mRuby {
 		public delegate IntPtr d_mrb_set_instance_tt ( IntPtr klass, mrb_vtype tt );
 		public static d_mrb_set_instance_tt mrb_set_instance_tt { get; } = FuncLoader.LoadFunction<d_mrb_set_instance_tt> ( MRubyLibrary, "mrb_set_instance_tt" );
 
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate IntPtr d_mrb_data_wrap_struct ( IntPtr mrb_state, IntPtr klass, IntPtr data_type, IntPtr ptr );
+
+		public static d_mrb_data_wrap_struct mrb_data_wrap_struct { get; } = FuncLoader.LoadFunction< d_mrb_data_wrap_struct > ( MRubyLibrary, "mrb_data_wrap_struct" );
+
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_value d_mrb_data_wrap_struct_obj ( IntPtr mrb_state, IntPtr klass, IntPtr data_type, IntPtr ptr );
+
+		public static d_mrb_data_wrap_struct_obj mrb_data_wrap_struct_obj { get; } = FuncLoader.LoadFunction< d_mrb_data_wrap_struct_obj > ( MRubyLibrary, "mrb_data_wrap_struct_obj" );
+
+		public static IntPtr ObjectToInPtr ( object obj ) {
+			return GCHandle.ToIntPtr ( GCHandle.Alloc ( obj ) );
+		}
+
+		public static object IntPtrToObject ( IntPtr ptr ) {
+			
+			if ( ptr == IntPtr.Zero ) {
+				return null;
+			}
+
+			return GCHandle.FromIntPtr ( ptr ).Target;
+		}
+		
+		public static T ValueToDataObject<T> ( IntPtr mrb_state, mrb_value value, IntPtr data_type ) {
+			if ( mrb_value.IsNil ( value ) ) {
+				return default ( T );
+			}
+			return ( T )IntPtrToObject ( mrb_data_get_ptr ( mrb_state, value, data_type ) );
+		}
+		
+		public static mrb_value DataObjectToValue ( IntPtr mrb_state, IntPtr klass, IntPtr data_type, object obj ) {
+			return mrb_data_wrap_struct_obj ( mrb_state, klass, data_type, ObjectToInPtr ( obj ) );
+		}
 
 		//
 		// 例外

@@ -23,8 +23,11 @@
 	定义Class方法
 * 定义Module、获取Module
 	定义Module方法
+* 将C#类作为Data传递给mruby
 * 调用mruby内的方法
 * 从mruby调用C#方法时，取得传递过来的参数
+* 导入C#类到mruby, 以及自动生成C#包装类代码
+
 
 ### Usage
 Code:
@@ -42,6 +45,12 @@ mRubyClass klass = new mRubyClass(state, "CSharpClass");
 klass.DefineMethod("write", WriteLine, mrb_args.ANY());
 ```
 
+Gen Wrapper Code:
+```csharp
+UserDataUtility.GenCSharpClass ( state, typeof ( CustomClass ) );
+UserDataUtility.GenByAssembly ( state, typeof ( UnityEngine.Object ).Assembly );
+```
+
 ### So, how to build?
 - mruby-sharedlib
 (https://github.com/mattn/mruby-sharedlib)
@@ -49,12 +58,13 @@ klass.DefineMethod("write", WriteLine, mrb_args.ANY());
 (https://github.com/mruby/mruby)
 - 使用这个仓库中的mruby_src_modify\mruby.def覆盖mruby-sharedlib中对应的文件
 - 使用这个仓库中mruby_src_modify目录下的源代码覆盖mruby中对应的文件
-- 在Developer Command Prompt for VS 2017中构建mruby
-- 拷贝mruby.dll
+- 在Developer Command Prompt for VS 20XX中构建mruby
+- 拷贝mruby.dll || mruby.dylib
 
 ### TODO
 * C#与mruby交流时的引用管理
 * 生成C#类的绑定代码，方便mruby调用
   计划在Unity游戏引擎/MonoGame中使用mruby作为游戏脚本语言
+* 生成C#类的绑定类支持C#数组参数，支持枚举类，支持嵌套类，泛型类??
 * 尝试在IOS/Android/Nintendo Switch/PS4上构建mruby
   (这应该很轻松，因为mruby的目标就是实现轻量级和嵌入性)

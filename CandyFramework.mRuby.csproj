@@ -51,8 +51,10 @@
     <Compile Include="Core\mRubyState.cs" />
     <Compile Include="Core\RBasic.cs" />
     <Compile Include="Core\RObject.cs" />
+    <Compile Include="CustomClass.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilities\UserDataUtility.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

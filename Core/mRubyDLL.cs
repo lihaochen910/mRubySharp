@@ -145,6 +145,16 @@ namespace CandyFramework.mRuby {
 
 		public static d_mrb_load_string_cxt mrb_load_string_cxt { get; } = FuncLoader.LoadFunction< d_mrb_load_string_cxt > ( MRubyLibrary, "mrb_load_string_cxt" );
 
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_value d_mrb_load_file ( IntPtr mrb_state, IntPtr file );
+
+		public static d_mrb_load_file mrb_load_file { get; } = FuncLoader.LoadFunction< d_mrb_load_file > ( MRubyLibrary, "mrb_load_file" );
+
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_value d_mrb_load_file_cxt ( IntPtr mrb_state, IntPtr file, IntPtr mrbc_context );
+
+		public static d_mrb_load_file_cxt mrb_load_file_cxt { get; } = FuncLoader.LoadFunction< d_mrb_load_file_cxt > ( MRubyLibrary, "mrb_load_file_cxt" );
+		
 		/// <summary>
 		/// 加载mrbc字节码
 		/// </summary>
@@ -684,14 +694,16 @@ namespace CandyFramework.mRuby {
 		//
 		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
 		public delegate mrb_value d_mrb_ary_new ();
-
 		public static d_mrb_ary_new mrb_ary_new { get; } = FuncLoader.LoadFunction< d_mrb_ary_new > ( MRubyLibrary, "mrb_ary_new" );
 
 		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
 		public delegate void d_mrb_ary_push ( IntPtr mrb_state, mrb_value array, mrb_value value );
-
 		public static d_mrb_ary_push mrb_ary_push { get; } = FuncLoader.LoadFunction< d_mrb_ary_push > ( MRubyLibrary, "mrb_ary_push" );
 
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_value d_mrb_ary_ref ( IntPtr mrb_state, mrb_value ary, mrb_int n );
+		public static d_mrb_ary_ref mrb_ary_ref { get; } = FuncLoader.LoadFunction< d_mrb_ary_ref > ( MRubyLibrary, "mrb_ary_ref" );
+		
 
 		//
 		// Hash
@@ -717,15 +729,17 @@ namespace CandyFramework.mRuby {
 		//
 		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
 		public delegate IntPtr d_mrbc_context_new ( IntPtr mrb_state );
-
 		public static d_mrbc_context_new mrbc_context_new { get; } = FuncLoader.LoadFunction< d_mrbc_context_new > ( MRubyLibrary, "mrbc_context_new" );
 
 		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
 		public delegate void d_mrbc_context_free ( IntPtr mrb_state, IntPtr mrbc_context );
-
 		public static d_mrbc_context_free mrbc_context_free { get; } = FuncLoader.LoadFunction< d_mrbc_context_free > ( MRubyLibrary, "mrbc_context_free" );
 
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate void d_mrbc_filename ( IntPtr mrb_state, IntPtr mrbc_context, string name );
+		public static d_mrbc_filename mrbc_filename { get; } = FuncLoader.LoadFunction< d_mrbc_filename > ( MRubyLibrary, "mrbc_filename" );
 
+		
 		//
 		// Data
 		// 
@@ -782,6 +796,7 @@ namespace CandyFramework.mRuby {
 			return mrb_data_wrap_struct_obj ( mrb_state, klass, data_type, ObjectToInPtr ( obj ) );
 		}
 
+		
 		//
 		// 例外
 		//
@@ -799,7 +814,6 @@ namespace CandyFramework.mRuby {
 		// そのほか
 		//
 		//private const int FL_FREEZE = (1 << 10);
-
 		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
 		public delegate mrb_value d_mrb_inspect ( IntPtr mrb_state, mrb_value obj );
 
@@ -807,13 +821,14 @@ namespace CandyFramework.mRuby {
 
 		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
 		public delegate mrb_value d_mrb_top_self ( IntPtr mrb_state );
-
 		public static d_mrb_top_self mrb_top_self { get; } = FuncLoader.LoadFunction< d_mrb_top_self > ( MRubyLibrary, "mrb_top_self" );
 
 		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
 		public delegate mrb_bool d_mrb_has_exc ( IntPtr mrb_state );
-
 		public static d_mrb_has_exc mrb_has_exc { get; } = FuncLoader.LoadFunction< d_mrb_has_exc > ( MRubyLibrary, "mrb_has_exc" );
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate mrb_value d_mrb_get_exc_value ( IntPtr mrb_state );
+		public static d_mrb_get_exc_value mrb_get_exc_value { get; } = FuncLoader.LoadFunction< d_mrb_get_exc_value > ( MRubyLibrary, "mrb_get_exc_value" );
 
 		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
 		public delegate mrb_value d_mrb_exc_detail ( IntPtr mrb_state );
@@ -830,7 +845,28 @@ namespace CandyFramework.mRuby {
 
 		public static d_mrb_exc_backtrace mrb_exc_backtrace { get; } = FuncLoader.LoadFunction< d_mrb_exc_backtrace > ( MRubyLibrary, "mrb_exc_backtrace" );
 
+		
+		//
+		// GC
+		//
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate int d_mrb_gc_arena_save ( IntPtr mrb_state );
+		public static d_mrb_gc_arena_save mrb_gc_arena_save { get; } = FuncLoader.LoadFunction< d_mrb_gc_arena_save > ( MRubyLibrary, "mrb_gc_arena_save_ex" );
+		
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate void d_mrb_gc_arena_restore ( IntPtr mrb_state, int idx );
+		public static d_mrb_gc_arena_restore mrb_gc_arena_restore { get; } = FuncLoader.LoadFunction< d_mrb_gc_arena_restore > ( MRubyLibrary, "mrb_gc_arena_restore_ex" );
 
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate void d_mrb_garbage_collect ( IntPtr mrb_state );
+		public static d_mrb_garbage_collect mrb_garbage_collect { get; } = FuncLoader.LoadFunction< d_mrb_garbage_collect > ( MRubyLibrary, "mrb_garbage_collect" );
+		
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate void d_mrb_full_gc ( IntPtr mrb_state );
+		public static d_mrb_full_gc mrb_full_gc { get; } = FuncLoader.LoadFunction< d_mrb_full_gc > ( MRubyLibrary, "mrb_full_gc" );
+
+		
+		
 		//public static unsafe void rb_check_frozen(VALUE obj)
 		//{
 		//    if ((((RBasic*)obj)->flags & FL_FREEZE) != 0)

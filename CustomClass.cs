@@ -4,6 +4,9 @@ using System.Runtime.InteropServices;
 
 namespace CandyFramework.mRuby {
 	
+	/// <summary>
+	/// Example to export to mruby
+	/// </summary>
 	public class CustomClass {
 		
 		public int a;
@@ -56,6 +59,33 @@ namespace CandyFramework.mRuby {
 
 		public class CustomClassSubClass {
 			public CustomClass parent;
+		}
+	}
+
+	public enum CustomEnum {
+		A,
+		B,
+		C
+	}
+
+	public class CustomEnum_Wrapper {
+		
+		public static readonly mrb_data_type data_type = new mrb_data_type () {
+			struct_name = "CustomEnum",
+			dfree       = null
+		};
+
+		public static IntPtr     @module;
+		public static IntPtr     data_type_ptr;
+		public static mRubyState state;
+		
+		public static void __Register__ ( mRubyState state ) {
+			CustomEnum_Wrapper.state         = state;
+			CustomEnum_Wrapper.@module       = UserDataUtility.DefineCSharpEnum ( state, typeof ( CandyFramework.mRuby.CustomEnum ) );
+			CustomEnum_Wrapper.data_type_ptr = mRubyDLL.ObjectToInPtr ( data_type );
+			
+			mRubyDLL.mrb_define_const ( state, @module, "A", mRubyDLL.mrb_fixnum_value ( ( int )CandyFramework.mRuby.CustomEnum.A ) );
+			mRubyDLL.mrb_define_const ( state, @module, "B", mRubyDLL.mrb_fixnum_value ( ( int )CandyFramework.mRuby.CustomEnum.B ) );
 		}
 	}
 	

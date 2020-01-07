@@ -261,6 +261,14 @@ MRB_API mrb_bool mrb_has_exc(struct mrb_state *mrb)
   return FALSE;
 }
 
+MRB_API mrb_value mrb_get_exc_value(struct mrb_state *mrb)
+{
+  if (!mrb->exc) {
+    return mrb_nil_value();
+  }
+  return mrb_obj_value(mrb->exc);
+}
+
 MRB_API mrb_value mrb_exc_detail(struct mrb_state *mrb)
 {
   if (!mrb->exc) {
@@ -269,4 +277,14 @@ MRB_API mrb_value mrb_exc_detail(struct mrb_state *mrb)
 
   mrb_value detail = mrb_funcall(mrb, mrb_obj_value(mrb->exc), "inspect", 0);
   return detail;
+}
+
+MRB_API int mrb_gc_arena_save_ex(mrb_state *mrb)
+{
+  return mrb_gc_arena_save(mrb);
+}
+
+MRB_API void mrb_gc_arena_restore_ex(mrb_state *mrb, int idx)
+{
+  mrb_gc_arena_restore(mrb, idx);
 }

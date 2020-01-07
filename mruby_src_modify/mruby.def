@@ -329,3 +329,6 @@ EXPORTS
 	mrbc_context_new
 	mrbc_filename
 	mrbc_partial_hook
+
+	mrb_gc_arena_save_ex
+	mrb_gc_arena_restore_ex

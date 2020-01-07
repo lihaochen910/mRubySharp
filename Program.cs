@@ -34,22 +34,30 @@ namespace CandyFramework.mRuby {
 
             klass.DefineMethod ( "write", WriteLine, mrb_args.ANY () );
             
-            // UserDataUtility.GenByAssembly ( state, typeof ( UnityEngine.GameObject ).Assembly );
-            // UserDataUtility.GenCSharpClass ( state, typeof ( UnityEngine.Object ) );
-            UserDataUtility.GenCSharpClass ( state, typeof ( CustomClass ) );
+            // UserDataUtility.GenCSharpClass ( typeof ( System.Object ) );
+            // UserDataUtility.GenCSharpClass ( typeof ( System.Array ) );
+            // UserDataUtility.GenCSharpClass ( typeof ( System.TimeSpan ) );
+            // UserDataUtility.GenByAssembly ( typeof ( Microsoft.Xna.Framework.Game ).Assembly );
+            // UserDataUtility.GenByAssembly ( typeof ( Godot.Node ).Assembly );
+            // UserDataUtility.GenUnityEngineCommon ();
+            UserDataUtility.GenCSharpClass ( typeof ( CustomClass ) );
+            UserDataUtility.GenCSharpClass ( typeof ( CustomEnum ) );
 
             CustomClass_Wrapper.__Register__ ( state );
-            
-            state.DoString ( "log \"mruby #{RUBY_VERSION}\"" );
-            state.DoStringCxt ( "log CandyFramework::MRuby::CustomClass" );
-            state.DoStringCxt ( "log CandyFramework::MRuby::CustomClass.new.FuncB( 999 )" );
-            state.DoStringCxt ( "log CandyFramework::MRuby::CustomClass.new.FuncC( 'AABB' )" );
-            state.DoStringCxt ( "log CandyFramework::MRuby::CustomClass.new.FuncD( 1, 2.0, true, 'HelloString', CandyFramework::MRuby::CustomClass.new )" );
-            state.DoStringCxt ( "log CandyFramework::MRuby::CustomClass.new + 100" );
-            state.DoStringCxt ( "log CandyFramework::MRuby::CustomClass::FuncE( nil )" );
-            state.DoStringCxt ( "log CandyFramework::MRuby::CustomClass.FuncF( CandyFramework::MRuby::CustomClass.new, 900.0 )" );
+            CustomEnum_Wrapper.__Register__ ( state );
 
-            // Console.WriteLine ( state.GetCurrentBackTrace () );
+            state.DoFile ( "main.rb" );
+            
+            // state.DoString ( "puts \"mruby #{RUBY_VERSION}\"" );
+            // state.DoString ( "puts CandyFramework::MRuby::CustomEnum::A" );
+            // state.DoString ( "puts CandyFramework::MRuby::CustomEnum::B" );
+            // state.DoString ( "puts CandyFramework::MRuby::CustomClass.new.FuncB( 999 )" );
+            // state.DoString ( "puts CandyFramework::MRuby::CustomClass.new.FuncC( 'AABB' )" );
+            // state.DoString ( "puts CandyFramework::MRuby::CustomClass.new.FuncD( 1, 2.0, true, 'HelloString', CandyFramework::MRuby::CustomClass.new )" );
+            // state.DoString ( "puts CandyFramework::MRuby::CustomClass.new + 100" );
+            // state.DoString ( "puts CandyFramework::MRuby::CustomClass::FuncE( nil )" );
+            // state.DoString ( "puts CandyFramework::MRuby::CustomClass.FuncF( CandyFramework::MRuby::CustomClass.new, 900.0 )" );
+            // state.DoString ( "puts CandyFramework::MRuby::CustomClass.FuncG()" );
             
             // Console.ReadKey ();
         }
@@ -65,7 +73,7 @@ namespace CandyFramework.mRuby {
         }
 
         static mrb_value ShowBackTrace ( IntPtr state, mrb_value context ) {
-            Console.WriteLine ( Program.state.GetCurrentBackTrace () );
+            Console.WriteLine ( Program.state.GetExceptionBackTrace () );
             return context;
         }
     }

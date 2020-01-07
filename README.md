@@ -23,32 +23,43 @@
 	定义Class方法
 * 定义Module、获取Module
 	定义Module方法
+* 获取发生异常时的调用堆栈字符串
 * 将C#类作为Data传递给mruby
 * 调用mruby内的方法
 * 从mruby调用C#方法时，取得传递过来的参数
 * 导入C#类到mruby, 以及自动生成C#包装类代码
-
+	(字段的访问与写入)
+	(属性的访问与写入)
+	(枚举类导入为Module,枚举值会导入为Module中的Fixnum类型常量)
+	(运算符重载)
+* 内置dofile方法加载rb源文件
 
 ### Usage
 Code:
 ```csharp
-mRubyState state = new mRubyState();
+mRubyState state = new mRubyState ();
 
-mrb_value v1 = mRubyDLL.mrb_fixnum_value_ex(2333);
-mrb_value v2 = mRubyDLL.mrb_float_value_ex(state, 65.5f);
+mrb_value v1 = mRubyDLL.mrb_fixnum_value_ex ( 2333 );
+mrb_value v2 = mRubyDLL.mrb_float_value_ex ( state, 65.5f );
 mrb_value v3 = mrb_value.FALSE;
 mrb_value v4 = mrb_value.TRUE;
 mrb_value v5 = mrb_value.NIL;
 
-mRubyClass klass = new mRubyClass(state, "CSharpClass");
+mRubyClass klass = new mRubyClass ( state, "CSharpClass" );
 
-klass.DefineMethod("write", WriteLine, mrb_args.ANY());
+klass.DefineMethod ( "write", WriteLine, mrb_args.ANY () );
 ```
 
 Gen Wrapper Code:
 ```csharp
+// 这将会在当前工作目录下生成CustomClass_Wrapper.cs文件
 UserDataUtility.GenCSharpClass ( state, typeof ( CustomClass ) );
+
+// 这将会在当前工作目录下生成Assembly中所有支持类的包装文件
 UserDataUtility.GenByAssembly ( state, typeof ( UnityEngine.Object ).Assembly );
+
+// 注册CustomClass类到mruby虚拟机中
+CustomClass_Wrapper.__Register__ ( state );
 ```
 
 ### So, how to build?
@@ -63,8 +74,9 @@ UserDataUtility.GenByAssembly ( state, typeof ( UnityEngine.Object ).Assembly );
 
 ### TODO
 * C#与mruby交流时的引用管理
+	(目前C#引用实例传递给mruby时会使用GCHandle.Alloc方法转换为IntPtr)
 * 生成C#类的绑定代码，方便mruby调用
   计划在Unity游戏引擎/MonoGame中使用mruby作为游戏脚本语言
-* 生成C#类的绑定类支持C#数组参数，支持枚举类，支持嵌套类，泛型类??
+* 生成C#类的绑定类支持C#数组参数，支持嵌套类，泛型类??
 * 尝试在IOS/Android/Nintendo Switch/PS4上构建mruby
   (这应该很轻松，因为mruby的目标就是实现轻量级和嵌入性)

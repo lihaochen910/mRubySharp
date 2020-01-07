@@ -79,7 +79,11 @@ MRB_API mrb_bool mrb_has_exc(struct mrb_state*);
 
 MRB_API mrb_value mrb_exc_detail(struct mrb_state*);
 
-
+/*
+ * GC export
+ */
+MRB_API int mrb_gc_arena_save_ex(mrb_state *mrb);
+MRB_API void mrb_gc_arena_restore_ex(mrb_state *mrb, int idx);
 
 MRB_END_DECL
 

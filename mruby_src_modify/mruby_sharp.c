@@ -252,13 +252,21 @@ MRB_API void mrb_set_instance_tt(struct RClass *c, enum mrb_vtype tt)
   MRB_SET_INSTANCE_TT(c, tt);
 }
 
-MRB_API mrb_bool mrb_has_exc(struct mrb_state *mrb)
+MRB_API mrb_bool mrb_has_exc(mrb_state *mrb)
 {
   if (mrb->exc)
   {
       return TRUE;
   }
   return FALSE;
+}
+
+MRB_API void mrb_exc_clear(mrb_state *mrb)
+{
+  if (mrb->exc)
+  {
+    mrb->exc = 0;
+  }
 }
 
 MRB_API mrb_value mrb_get_exc_value(struct mrb_state *mrb)

@@ -34,21 +34,22 @@ namespace CandyFramework.mRuby {
 
             klass.DefineMethod ( "write", WriteLine, mrb_args.ANY () );
             
-            // UserDataUtility.GenCSharpClass ( typeof ( System.Object ) );
-            // UserDataUtility.GenCSharpClass ( typeof ( System.Array ) );
+            UserDataUtility.GenCSharpClass ( typeof ( System.Object ) );
+            UserDataUtility.GenCSharpClass ( typeof ( System.Array ) );
             // UserDataUtility.GenCSharpClass ( typeof ( System.TimeSpan ) );
             // UserDataUtility.GenByAssembly ( typeof ( Microsoft.Xna.Framework.Game ).Assembly );
             // UserDataUtility.GenByAssembly ( typeof ( Godot.Node ).Assembly );
             // UserDataUtility.GenUnityEngineCommon ();
-            UserDataUtility.GenCSharpClass ( typeof ( CustomClass ) );
-            UserDataUtility.GenCSharpClass ( typeof ( CustomEnum ) );
+            // UserDataUtility.GenCSharpClass ( typeof ( CustomClass ) );
+            // UserDataUtility.GenCSharpClass ( typeof ( CustomEnum ) );
 
+            // System.Object_Wrapper.__Register__ ( state );
             CustomClass_Wrapper.__Register__ ( state );
             CustomEnum_Wrapper.__Register__ ( state );
 
-            state.DoFile ( "main.rb" );
+            // state.DoFile ( "main.rb" );
             
-            // state.DoString ( "puts \"mruby #{RUBY_VERSION}\"" );
+            state.DoString ( "puts \"mruby #{RUBY_VERSION}\"" );
             // state.DoString ( "puts CandyFramework::MRuby::CustomEnum::A" );
             // state.DoString ( "puts CandyFramework::MRuby::CustomEnum::B" );
             // state.DoString ( "puts CandyFramework::MRuby::CustomClass.new.FuncB( 999 )" );
@@ -57,7 +58,13 @@ namespace CandyFramework.mRuby {
             // state.DoString ( "puts CandyFramework::MRuby::CustomClass.new + 100" );
             // state.DoString ( "puts CandyFramework::MRuby::CustomClass::FuncE( nil )" );
             // state.DoString ( "puts CandyFramework::MRuby::CustomClass.FuncF( CandyFramework::MRuby::CustomClass.new, 900.0 )" );
-            // state.DoString ( "puts CandyFramework::MRuby::CustomClass.FuncG()" );
+            // state.DoString ( "puts CandyFramework::MRuby::CustomClass.new.FuncG( CandyFramework::MRuby::CustomClass.new )" );
+            state.DoString ( "puts CandyFramework::MRuby::CustomClass.new.FuncH( CandyFramework::MRuby::CustomClass.new )" );
+
+            if ( mRubyDLL.mrb_has_exc ( state ) != 0 ) {
+                Console.WriteLine ( state.GetExceptionBackTrace () );
+                mRubyDLL.mrb_exc_clear ( state );
+            }
             
             // Console.ReadKey ();
         }

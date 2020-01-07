@@ -785,6 +785,55 @@ namespace CandyFramework.mRuby {
 			return GCHandle.FromIntPtr ( ptr ).Target;
 		}
 		
+		public static object ValueToObject ( IntPtr mrb_state, mrb_value value ) {
+			
+			if ( mrb_value.IsNil ( value ) ) {
+				return null;
+			}
+
+			switch ( value.tt ) {
+				case mrb_vtype.MRB_TT_FALSE:
+					return false;
+				case mrb_vtype.MRB_TT_TRUE:
+					return true;
+				case mrb_vtype.MRB_TT_FIXNUM:
+					return ( int )mrb_fixnum ( value );
+				case mrb_vtype.MRB_TT_SYMBOL:
+					return mrb_symbol ( value );
+				case mrb_vtype.MRB_TT_UNDEF:
+					return null;
+				case mrb_vtype.MRB_TT_FLOAT:
+					return ( float )mrb_float ( value );
+				case mrb_vtype.MRB_TT_STRING:
+					return value.ToString ( mrb_state );
+				case mrb_vtype.MRB_TT_CPTR:
+					return mrb_cptr ( value );
+				case mrb_vtype.MRB_TT_OBJECT:
+				case mrb_vtype.MRB_TT_CLASS:
+				case mrb_vtype.MRB_TT_MODULE:
+				case mrb_vtype.MRB_TT_ICLASS:
+				case mrb_vtype.MRB_TT_SCLASS:
+				case mrb_vtype.MRB_TT_PROC:
+				case mrb_vtype.MRB_TT_RANGE:
+				case mrb_vtype.MRB_TT_EXCEPTION:
+				case mrb_vtype.MRB_TT_FILE:
+				case mrb_vtype.MRB_TT_ENV:
+				case mrb_vtype.MRB_TT_FIBER:
+				case mrb_vtype.MRB_TT_ISTRUCT:
+				case mrb_vtype.MRB_TT_BREAK:
+				case mrb_vtype.MRB_TT_MAXDEFINE:
+					return mrb_ptr ( value );
+				case mrb_vtype.MRB_TT_ARRAY:
+				case mrb_vtype.MRB_TT_HASH:
+					// TODO:
+					return mrb_ptr ( value );
+				case mrb_vtype.MRB_TT_DATA:
+					return IntPtrToObject ( mrb_data_get_ptr ( mrb_state, value, mRubyState.DATA_TYPE_PTR ) );
+				default:
+					return null;
+			}
+		}
+		
 		public static T ValueToDataObject<T> ( IntPtr mrb_state, mrb_value value, IntPtr data_type ) {
 			if ( mrb_value.IsNil ( value ) ) {
 				return default ( T );
@@ -826,6 +875,10 @@ namespace CandyFramework.mRuby {
 		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
 		public delegate mrb_bool d_mrb_has_exc ( IntPtr mrb_state );
 		public static d_mrb_has_exc mrb_has_exc { get; } = FuncLoader.LoadFunction< d_mrb_has_exc > ( MRubyLibrary, "mrb_has_exc" );
+		
+		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+		public delegate void d_mrb_exc_clear ( IntPtr mrb_state );
+		public static d_mrb_exc_clear mrb_exc_clear { get; } = FuncLoader.LoadFunction< d_mrb_exc_clear > ( MRubyLibrary, "mrb_exc_clear" );
 		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
 		public delegate mrb_value d_mrb_get_exc_value ( IntPtr mrb_state );
 		public static d_mrb_get_exc_value mrb_get_exc_value { get; } = FuncLoader.LoadFunction< d_mrb_get_exc_value > ( MRubyLibrary, "mrb_get_exc_value" );

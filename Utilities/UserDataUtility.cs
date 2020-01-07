@@ -19,13 +19,16 @@ namespace CandyFramework.mRuby {
 		private const string RUBYSHARP_WRAPPERCLASS_POSTFIX = "_Wrapper";
 		private const string RUBYSHARP_STATIC_FUNCTION_PREFIX = "STATIC_";
 		private const string RUBYSHARP_FIELD_SET_FUNCTION_POSTFIX = "_eql";
+		private const string RUBYSHARP_COMMON_DATA_TYPE_PTR = "CandyFramework.mRuby.mRubyState.DATA_TYPE_PTR";
 		private const string RUBYSHARP_FIELD_RClassVarName = "@class";
 		private const string RUBYSHARP_FIELD_RModuleVarName = "@module";
-		private const string RUBYSHARP_FIELD_DataTypeVarName = "data_type_ptr";
+		private const string RUBYSHARP_FIELD_DataTypePtrName = "data_type";
+		private const string RUBYSHARP_FIELD_DataTypePtrVarName = "data_type_ptr";
 		private const string RUBYSHARP_FIELD_MRubyStateVarName = "state";
 		private const string RUBYSHARP_WrapFunction = "public static mrb_value {0} ( IntPtr mrb, mrb_value self )";
 		private const string RUBYSHARP_GetFunctionArgs = "mrb_value[] args = mRubyDLL.GetFunctionArgs ( mrb );";
-		private const string RUBYSHARP_ValueToCSInstance = "{0} instance = mRubyDLL.ValueToDataObject< {0} > ( mrb, self, data_type_ptr );";
+		// private const string RUBYSHARP_ValueToCSInstance = "{0} instance = mRubyDLL.ValueToDataObject< {0} > ( mrb, self, data_type_ptr );";
+		private const string RUBYSHARP_ValueToCSInstance = "{0} instance = mRubyDLL.ValueToDataObject< {0} > ( mrb, self, CandyFramework.mRuby.mRubyState.DATA_TYPE_PTR );";
 		private const string RUBYSHARP_StaticRegisterFunctionName = "__Register__";
 
 		
@@ -61,7 +64,7 @@ namespace CandyFramework.mRuby {
 			typeof ( float ), typeof ( double ),
 			typeof ( float? ), typeof ( double? ),
 			typeof ( bool ), typeof ( bool? ),
-			typeof ( string )
+			typeof ( string ), typeof ( object )
 		};
 
 		private static IList< Type > exportingTypeList;
@@ -102,6 +105,7 @@ namespace CandyFramework.mRuby {
 				// 静态类
 				typeof ( UnityEngine.Application ),
 				typeof ( UnityEngine.Time ),
+				typeof ( UnityEngine.Debug ),
 				typeof ( UnityEngine.Screen ),
 				typeof ( UnityEngine.SleepTimeout ),
 				typeof ( UnityEngine.Input ),
@@ -428,7 +432,7 @@ namespace CandyFramework.mRuby {
 			
 			// Gen Dep Static Field
 			builder.AppendLine ( $"\t\tpublic static IntPtr {RUBYSHARP_FIELD_RModuleVarName};" );
-			builder.AppendLine ( $"\t\tpublic static IntPtr {RUBYSHARP_FIELD_DataTypeVarName};" );
+			builder.AppendLine ( $"\t\tpublic static IntPtr {RUBYSHARP_FIELD_DataTypePtrVarName};" );
 			builder.AppendLine ( $"\t\tpublic static mRubyState {RUBYSHARP_FIELD_MRubyStateVarName};" );
 			builder.AppendLine ();
 			
@@ -436,7 +440,7 @@ namespace CandyFramework.mRuby {
 			builder.AppendLine ( "\t\tpublic static void " + RUBYSHARP_StaticRegisterFunctionName + " ( mRubyState state ) {" );
 			builder.AppendLine ( $"\t\t\t{wrapperClassName}.{RUBYSHARP_FIELD_MRubyStateVarName} = state;" );
 			builder.AppendLine ( $"\t\t\t{wrapperClassName}.{RUBYSHARP_FIELD_RModuleVarName} = UserDataUtility.DefineCSharpEnum ( state, typeof ( {type.FullName} ) );" );
-			builder.AppendLine ( $"\t\t\t{wrapperClassName}.{RUBYSHARP_FIELD_DataTypeVarName} = mRubyDLL.ObjectToInPtr ( data_type );" );
+			builder.AppendLine ( $"\t\t\t{wrapperClassName}.{RUBYSHARP_FIELD_DataTypePtrVarName} = mRubyDLL.ObjectToInPtr ( data_type );" );
 			builder.AppendLine ();
 			foreach ( int i in System.Enum.GetValues ( type ) ) {
 				builder.AppendLine ( $"\t\t\tmRubyDLL.mrb_define_const ( state, {RUBYSHARP_FIELD_RModuleVarName}, \"{System.Enum.GetName ( type, i )}\", mRubyDLL.mrb_fixnum_value ( ( int ){type.FullName}.{System.Enum.GetName ( type, i )} ) );" );
@@ -485,7 +489,7 @@ namespace CandyFramework.mRuby {
 			
 			// Gen Dep Static Field
 			builder.AppendLine ( $"\t\tpublic static IntPtr {RUBYSHARP_FIELD_RClassVarName};" );
-			builder.AppendLine ( $"\t\tpublic static IntPtr {RUBYSHARP_FIELD_DataTypeVarName};" );
+			builder.AppendLine ( $"\t\tpublic static IntPtr {RUBYSHARP_FIELD_DataTypePtrVarName};" );
 			builder.AppendLine ( $"\t\tpublic static mRubyState {RUBYSHARP_FIELD_MRubyStateVarName};" );
 			builder.AppendLine ();
 			
@@ -496,7 +500,8 @@ namespace CandyFramework.mRuby {
 				if ( publicCtor != null ) {
 					builder.AppendFormat ( $"\t\t{RUBYSHARP_WrapFunction}" + " {{\n", "initialize" );
 					builder.AppendFormat ( "\t\t\t{0} instance = new {0} ();\n", type.Name );
-					builder.AppendLine ( $"\t\t\tmRubyDLL.mrb_data_init ( self, mRubyDLL.ObjectToInPtr ( instance ), data_type_ptr );" );
+					// builder.AppendLine ( $"\t\t\tmRubyDLL.mrb_data_init ( self, mRubyDLL.ObjectToInPtr ( instance ), data_type_ptr );" );
+					builder.AppendLine ( $"\t\t\tmRubyDLL.mrb_data_init ( self, mRubyDLL.ObjectToInPtr ( instance ), {RUBYSHARP_COMMON_DATA_TYPE_PTR} );" );
 					builder.AppendLine ( $"\t\t\treturn self;" );
 					builder.AppendLine ( "\t\t}\n" );
 					generatedMethods.Add ( "initialize", "initialize" );
@@ -569,6 +574,7 @@ namespace CandyFramework.mRuby {
 				}
 
 				if ( !TestFunctionSupport ( method ) ) {
+					Console.WriteLine ( $"{type.Name}.{method.Name} not support." );
 					continue;
 				}
 				
@@ -590,6 +596,7 @@ namespace CandyFramework.mRuby {
 				}
 				
 				if ( !TestFunctionSupport ( method ) ) {
+					Console.WriteLine ( $"{type.Name}::{method.Name} not support." );
 					continue;
 				}
 				
@@ -617,7 +624,7 @@ namespace CandyFramework.mRuby {
 			builder.AppendLine ( "\t\tpublic static void " + RUBYSHARP_StaticRegisterFunctionName + " ( mRubyState state ) {" );
 			builder.AppendLine ( $"\t\t\t{wrapperClassName}.state = state;" );
 			builder.AppendLine ( $"\t\t\t{wrapperClassName}.@class = UserDataUtility.DefineCSharpClass ( state, typeof ( {type.FullName} ) );" );
-			builder.AppendLine ( $"\t\t\t{wrapperClassName}.data_type_ptr = mRubyDLL.ObjectToInPtr ( data_type );" );
+			builder.AppendLine ( $"\t\t\t{wrapperClassName}.data_type_ptr = mRubyDLL.ObjectToInPtr ( {RUBYSHARP_FIELD_DataTypePtrVarName} );" );
 			builder.AppendLine ();
 			foreach ( var kv in generatedMethods ) {
 				builder.AppendLine ( $"\t\t\tmRubyDLL.mrb_define_method ( state, @class, \"{kv.Key}\", {kv.Value}, mrb_args.ANY () );" );
@@ -790,6 +797,10 @@ namespace CandyFramework.mRuby {
 			string checkParamTypeFalse = "throw new ArgumentException ( $\"{2}.{3} parameter type mismatch: require {0} but got {{mRubyDLL.mrb_type ( args[ {1} ] )}}.\" );";
 			string checkTypeFunction   = GenValueCheck ( fieldInfo.FieldType, $"args[ {index} ]" );
 			
+			if ( string.IsNullOrEmpty ( checkTypeFunction ) ) {
+				return;
+			}
+			
 			builder.AppendLine ( "\t\t\tif ( " + $"{checkTypeFunction}" + " ) {" );
 			builder.AppendFormat ( $"\t\t\t\t{checkParamTypeFalse}\n", fieldInfo.FieldType.Name, index, className, fieldInfo.Name );
 			builder.AppendLine ( "\t\t\t}" );
@@ -801,6 +812,10 @@ namespace CandyFramework.mRuby {
 			string checkParamTypeFalse = "throw new ArgumentException ( $\"{2}.{3} parameter type mismatch: require {0} but got {{mRubyDLL.mrb_type ( args[ {1} ] )}}.\" );";
 			string checkTypeFunction   = GenValueCheck ( propertyInfo.PropertyType, $"args[ {index} ]" );
 
+			if ( string.IsNullOrEmpty ( checkTypeFunction ) ) {
+				return;
+			}
+			
 			builder.AppendLine ( "\t\t\tif ( " + $"{checkTypeFunction}" + " ) {" );
 			builder.AppendFormat ( $"\t\t\t\t{checkParamTypeFalse}\n", propertyInfo.PropertyType.Name, index, className, propertyInfo.Name );
 			builder.AppendLine ( "\t\t\t}" );
@@ -834,6 +849,10 @@ namespace CandyFramework.mRuby {
 			ParameterInfo parameterInfo = methodInfo.GetParameters ()[ index ]; 
 			string checkParamTypeFalse = "throw new ArgumentException ( $\"{2}.{3} parameter type mismatch: require {0} but got {{mRubyDLL.mrb_type ( args[ {1} ] )}}.\" );";
 			string checkTypeFunction = GenValueCheck ( parameterInfo.ParameterType, $"args[ {index} ]" );
+			
+			if ( string.IsNullOrEmpty ( checkTypeFunction ) ) {
+				return;
+			}
 
 			builder.AppendLine ( "\t\t\tif ( " + $"{checkTypeFunction}" + " ) {" );
 			builder.AppendFormat ( $"\t\t\t\t{checkParamTypeFalse}\n", parameterInfo.ParameterType.Name, index, className, methodInfo.Name );
@@ -943,6 +962,9 @@ namespace CandyFramework.mRuby {
 				if ( type == typeof ( string ) || type == typeof ( System.String ) ) {
 					ret = $"!mrb_value.IsString ( {varName} )";
 				}
+				else if ( type == typeof ( object ) ) {
+					ret = string.Empty;
+				}
 				else {
 					ret = $"!mrb_value.IsData ( {varName} ) && !mrb_value.IsNil ( {varName} )";
 				}
@@ -953,7 +975,9 @@ namespace CandyFramework.mRuby {
 		
 		private static string GenValueToCSValue ( Type type, string varName ) {
 			
-			string valueToCSInstance = "mRubyDLL.ValueToDataObject< {0} > ( mrb, {2}, {1}.data_type_ptr )";
+			// string valueToCSInstance = "mRubyDLL.ValueToDataObject< {0} > ( mrb, {2}, {1}.data_type_ptr )";
+			string valueToCSInstance = "mRubyDLL.ValueToDataObject< {0} > ( mrb, {2}, {1} )";
+			string valueToCSObject = "mRubyDLL.ValueToObject ( mrb, {0} )";
 			
 			string valueToCSValue = string.Empty;
             
@@ -975,13 +999,16 @@ namespace CandyFramework.mRuby {
 					valueToCSValue = $"mrb_value.Test ( {varName} )";
 				}
 				else if ( type.IsArray ) {
-					valueToCSValue = $"( {type.FullName} )" + string.Format ( valueToCSInstance, "System.Array", GetWrapperClassName ( typeof ( System.Array ) ), varName );
+					// valueToCSValue = $"( {type.FullName} )" + string.Format ( valueToCSInstance, "System.Array", GetWrapperClassName ( typeof ( System.Array ) ), varName );
+					valueToCSValue = $"( {type.FullName} )" + string.Format ( valueToCSInstance, "System.Array", RUBYSHARP_COMMON_DATA_TYPE_PTR, varName );
 				}
 				else if ( System.Nullable.GetUnderlyingType ( type ) != null ) {
-					valueToCSValue = string.Format ( valueToCSInstance, System.Nullable.GetUnderlyingType ( type ).FullName, GetWrapperClassName ( System.Nullable.GetUnderlyingType ( type ) ), varName );
+					// valueToCSValue = string.Format ( valueToCSInstance, System.Nullable.GetUnderlyingType ( type ).FullName, GetWrapperClassName ( System.Nullable.GetUnderlyingType ( type ) ), varName );
+					valueToCSValue = string.Format ( valueToCSInstance, System.Nullable.GetUnderlyingType ( type ).FullName, RUBYSHARP_COMMON_DATA_TYPE_PTR, varName );
 				}
 				else {
-					valueToCSValue = string.Format ( valueToCSInstance, type.FullName, GetWrapperClassName ( type ), varName );
+					// valueToCSValue = string.Format ( valueToCSInstance, type.FullName, GetWrapperClassName ( type ), varName );
+					valueToCSValue = string.Format ( valueToCSInstance, type.FullName, RUBYSHARP_COMMON_DATA_TYPE_PTR, varName );
 				}
 			}
 			else {
@@ -989,13 +1016,16 @@ namespace CandyFramework.mRuby {
 					valueToCSValue = $"{varName}.ToString ( state )";
 				}
 				else if ( type.IsArray ) {
-					valueToCSValue = $"( {type.FullName} )" + string.Format ( valueToCSInstance, "System.Array", GetWrapperClassName ( typeof ( System.Array ) ), varName );
+					// valueToCSValue = $"( {type.FullName} )" + string.Format ( valueToCSInstance, "System.Array", GetWrapperClassName ( typeof ( System.Array ) ), varName );
+					valueToCSValue = $"( {type.FullName} )" + string.Format ( valueToCSInstance, "System.Array", RUBYSHARP_COMMON_DATA_TYPE_PTR, varName );
 				}
-				else if ( type == typeof ( System.Type ) ) {
-					valueToCSValue = $"( {type.FullName} )" + string.Format ( valueToCSInstance, "System.Object", GetWrapperClassName ( typeof ( System.Object ) ), varName );
+				else if ( type == typeof ( System.Object ) ) {
+					// valueToCSValue = $"( {type.FullName} )" + string.Format ( valueToCSInstance, "System.Object", GetWrapperClassName ( typeof ( System.Object ) ), varName );
+					valueToCSValue = string.Format ( valueToCSObject, varName );
 				}
 				else {
-					valueToCSValue = string.Format ( valueToCSInstance, type.FullName, GetWrapperClassName ( type ), varName );
+					// valueToCSValue = string.Format ( valueToCSInstance, type.FullName, GetWrapperClassName ( type ), varName );
+					valueToCSValue = string.Format ( valueToCSInstance, type.FullName, RUBYSHARP_COMMON_DATA_TYPE_PTR, varName );
 				}
 			}
 
@@ -1029,13 +1059,16 @@ namespace CandyFramework.mRuby {
 					csValueToValue = $"mrb_value.Create ( {retVarName}.HasValue ? {retVarName}.Value : false )";
 				}
 				else if ( type.IsArray ) {
-					csValueToValue = $"mRubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( typeof ( System.Array ) )}.@class, {GetWrapperClassName ( typeof ( System.Array ) )}.data_type_ptr, {retVarName} )";
+					// csValueToValue = $"mRubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( typeof ( System.Array ) )}.@class, {GetWrapperClassName ( typeof ( System.Array ) )}.data_type_ptr, {retVarName} )";
+					csValueToValue = $"mRubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( typeof ( System.Array ) )}.@class, {RUBYSHARP_COMMON_DATA_TYPE_PTR}, {retVarName} )";
 				}
 				else if ( System.Nullable.GetUnderlyingType ( type ) != null ) {
-					csValueToValue = $"mRubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( System.Nullable.GetUnderlyingType ( type ) )}.@class, {GetWrapperClassName ( System.Nullable.GetUnderlyingType ( type ) )}.data_type_ptr, {retVarName} )";
+					// csValueToValue = $"mRubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( System.Nullable.GetUnderlyingType ( type ) )}.@class, {GetWrapperClassName ( System.Nullable.GetUnderlyingType ( type ) )}.data_type_ptr, {retVarName} )";
+					csValueToValue = $"mRubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( System.Nullable.GetUnderlyingType ( type ) )}.@class, {RUBYSHARP_COMMON_DATA_TYPE_PTR}, {retVarName} )";
 				}
 				else {
-					csValueToValue = $"mRubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( type )}.@class, {GetWrapperClassName ( type )}.data_type_ptr, {retVarName} )";
+					// csValueToValue = $"mRubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( type )}.@class, {GetWrapperClassName ( type )}.data_type_ptr, {retVarName} )";
+					csValueToValue = $"mRubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( type )}.@class, {RUBYSHARP_COMMON_DATA_TYPE_PTR}, {retVarName} )";
 				}
 			}
 			else {
@@ -1043,13 +1076,16 @@ namespace CandyFramework.mRuby {
 					csValueToValue = $"mrb_value.Create ( mrb, {retVarName} )";
 				}
 				else if ( type.IsArray ) {
-					csValueToValue = $"mRubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( typeof ( System.Array ) )}.@class, {GetWrapperClassName ( typeof ( System.Array ) )}.data_type_ptr, {retVarName} )";
+					// csValueToValue = $"mRubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( typeof ( System.Array ) )}.@class, {GetWrapperClassName ( typeof ( System.Array ) )}.data_type_ptr, {retVarName} )";
+					csValueToValue = $"mRubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( typeof ( System.Array ) )}.@class, {RUBYSHARP_COMMON_DATA_TYPE_PTR}, {retVarName} )";
 				}
 				else if ( type == typeof ( System.Type ) ) {
-					csValueToValue = $"mRubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( typeof ( System.Object ) )}.@class, {GetWrapperClassName ( typeof ( System.Object ) )}.data_type_ptr, {retVarName} )";
+					// csValueToValue = $"mRubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( typeof ( System.Object ) )}.@class, {GetWrapperClassName ( typeof ( System.Object ) )}.data_type_ptr, {retVarName} )";
+					csValueToValue = $"mRubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( typeof ( System.Object ) )}.@class, {RUBYSHARP_COMMON_DATA_TYPE_PTR}, {retVarName} )";
 				}
 				else {
-					csValueToValue = $"mRubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( type )}.@class, {GetWrapperClassName ( type )}.data_type_ptr, {retVarName} )";
+					// csValueToValue = $"mRubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( type )}.@class, {GetWrapperClassName ( type )}.data_type_ptr, {retVarName} )";
+					csValueToValue = $"mRubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( type )}.@class, {RUBYSHARP_COMMON_DATA_TYPE_PTR}, {retVarName} )";
 				}
 			}
 
@@ -1059,20 +1095,7 @@ namespace CandyFramework.mRuby {
 
 			return csValueToValue;
 		}
-
-		private static bool TestFunctionParamTypeSupport ( Type type ) {
-			
-			if ( !TestTypeSupport ( type ) ) {
-				return false;
-			}
-
-			if ( type.IsInterface ) {
-				return false;
-			}
-			
-			return true;
-		}
-
+		
 		private static void TestPropertyCanAccess ( PropertyInfo propertyInfo, out bool getterCanAccess, out bool setterCanAccess ) {
 			getterCanAccess = setterCanAccess = false;
 			
@@ -1137,13 +1160,13 @@ namespace CandyFramework.mRuby {
 					return false;
 				}
 				
-				if ( !TestFunctionParamTypeSupport ( p.ParameterType ) ) {
+				if ( !TestTypeSupport ( p.ParameterType ) ) {
 					return false;
 				}
 				
 			}
 			
-			if ( !TestFunctionParamTypeSupport ( methodInfo.ReturnType ) ) {
+			if ( methodInfo.ReturnType != typeof ( void ) && !TestTypeSupport ( methodInfo.ReturnType ) ) {
 				return false;
 			}
 			

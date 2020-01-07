@@ -75,9 +75,9 @@ MRB_API void mrb_set_instance_tt(struct RClass*, enum mrb_vtype);
 /*
  * Exception
  */
-MRB_API mrb_bool mrb_has_exc(struct mrb_state*);
-
-MRB_API mrb_value mrb_exc_detail(struct mrb_state*);
+MRB_API mrb_bool mrb_has_exc(mrb_state*);
+MRB_API void mrb_exc_clear(mrb_state *);
+MRB_API mrb_value mrb_exc_detail(mrb_state*);
 
 /*
  * GC export

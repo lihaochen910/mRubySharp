@@ -115,14 +115,14 @@ namespace CandyFramework.mRuby {
             mrb_value exc = mRubyDLL.mrb_get_exc_value ( mrb_state );
             mrb_value backtrace = mRubyDLL.mrb_exc_backtrace ( mrb_state, exc );
             
+            builder.AppendLine ( mRubyDLL.mrb_funcall ( mrb_state, exc, "inspect", 0 ).ToString ( mrb_state ) );
+
             builder.AppendLine ( "trace:" );
             for ( var i = 0; i < mRubyDLL.mrb_funcall ( mrb_state, backtrace, "size", 0 ); ++i ) {
                 mrb_value v = mRubyDLL.mrb_ary_ref ( mrb_state, backtrace, i );
                 builder.AppendLine ( $"  [{i}] {v.ToString ( mrb_state )}" );
             }
             
-            builder.AppendLine ( mRubyDLL.mrb_funcall ( mrb_state, exc, "inspect", 0 ).ToString ( mrb_state ) );
-
             return builder.ToString ();
             
             // return mRubyDLL.mrb_inspect ( mrb_state, mRubyDLL.mrb_get_backtrace ( mrb_state ) ).ToString ( mrb_state );
@@ -138,14 +138,14 @@ namespace CandyFramework.mRuby {
             mrb_value exc       = mRubyDLL.mrb_get_exc_value ( mrb_state );
             mrb_value backtrace = mRubyDLL.mrb_exc_backtrace ( mrb_state, exc );
             
+            builder.AppendLine ( mRubyDLL.mrb_funcall ( mrb_state, exc, "inspect", 0 ).ToString ( mrb_state ) );
+
             builder.AppendLine ( "trace:" );
             for ( var i = 0; i < mRubyDLL.mrb_funcall ( mrb_state, backtrace, "size", 0 ); ++i ) {
                 mrb_value v = mRubyDLL.mrb_ary_ref ( mrb_state, backtrace, i );
                 builder.AppendLine ( $"  [{i}] {v.ToString ( mrb_state )}" );
             }
             
-            builder.AppendLine ( mRubyDLL.mrb_funcall ( mrb_state, exc, "inspect", 0 ).ToString ( mrb_state ) );
-
             return builder.ToString ();
         }
         
@@ -205,5 +205,20 @@ namespace CandyFramework.mRuby {
         static public implicit operator IntPtr ( mRubyState state ) {
             return state.mrb_state;
         }
+
+        
+        #region All Wrapper Class Used Data Type
+
+        /// <summary>
+        /// All ByRef Type Use This Data Type
+        /// </summary>
+        public static readonly mrb_data_type DATA_TYPE = new mrb_data_type {
+            struct_name = "Object",
+            dfree       = null
+        };
+
+        public static readonly IntPtr DATA_TYPE_PTR = mRubyDLL.ObjectToInPtr ( DATA_TYPE );
+
+        #endregion
     }
 }

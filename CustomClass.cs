@@ -42,6 +42,11 @@ namespace CandyFramework.mRuby {
 			Console.WriteLine ( $"CustomClass::FuncD() {first} {second} {third} {fourth} {fifth}" );
 			return this;
 		}
+		
+		public object FuncG ( object first ) {
+			Console.WriteLine ( $"CustomClass::FuncG() {first}" );
+			return this;
+		}
 
 		public static void FuncE ( CustomClass first ) {
 			Console.WriteLine ( $"CustomClass::FuncE() {first}" );
@@ -105,17 +110,17 @@ namespace CandyFramework.mRuby {
 
 		public static mrb_value initialize ( IntPtr mrb, mrb_value self ) {
 			CustomClass instance = new CustomClass ();
-			mRubyDLL.mrb_data_init ( self, mRubyDLL.ObjectToInPtr ( instance ), data_type_ptr );
+			mRubyDLL.mrb_data_init ( self, mRubyDLL.ObjectToInPtr ( instance ), CandyFramework.mRuby.mRubyState.DATA_TYPE_PTR );
 			return self;
 		}
 
 		public static mrb_value a ( IntPtr mrb, mrb_value self ) {
-			CustomClass instance = mRubyDLL.ValueToDataObject< CustomClass > ( mrb, self, data_type_ptr );
+			CustomClass instance = mRubyDLL.ValueToDataObject< CustomClass > ( mrb, self, CandyFramework.mRuby.mRubyState.DATA_TYPE_PTR );
 			return mRubyDLL.mrb_fixnum_value ( ( int )instance.a );
 		}
 
 		public static mrb_value a_eql ( IntPtr mrb, mrb_value self ) {
-			CustomClass instance = mRubyDLL.ValueToDataObject< CustomClass > ( mrb, self, data_type_ptr );
+			CustomClass instance = mRubyDLL.ValueToDataObject< CustomClass > ( mrb, self, CandyFramework.mRuby.mRubyState.DATA_TYPE_PTR );
 			mrb_value[] args = mRubyDLL.GetFunctionArgs ( mrb );
 
 			if ( args.Length != 1 ) {
@@ -126,17 +131,17 @@ namespace CandyFramework.mRuby {
 				throw new ArgumentException ( $"CustomClass.a parameter type mismatch: require Int32 but got {mRubyDLL.mrb_type ( args[ 0 ] )}." );
 			}
 
-			instance.a = ( Int32 )mRubyDLL.mrb_fixnum ( args[ 0 ] );
+			instance.a = ( System.Int32 )mRubyDLL.mrb_fixnum ( args[ 0 ] );
 			return self;
 		}
 
 		public static mrb_value b ( IntPtr mrb, mrb_value self ) {
-			CustomClass instance = mRubyDLL.ValueToDataObject< CustomClass > ( mrb, self, data_type_ptr );
+			CustomClass instance = mRubyDLL.ValueToDataObject< CustomClass > ( mrb, self, CandyFramework.mRuby.mRubyState.DATA_TYPE_PTR );
 			return mRubyDLL.mrb_float_value ( mrb, ( double )instance.b );
 		}
 
 		public static mrb_value b_eql ( IntPtr mrb, mrb_value self ) {
-			CustomClass instance = mRubyDLL.ValueToDataObject< CustomClass > ( mrb, self, data_type_ptr );
+			CustomClass instance = mRubyDLL.ValueToDataObject< CustomClass > ( mrb, self, CandyFramework.mRuby.mRubyState.DATA_TYPE_PTR );
 			mrb_value[] args = mRubyDLL.GetFunctionArgs ( mrb );
 
 			if ( args.Length != 1 ) {
@@ -152,12 +157,12 @@ namespace CandyFramework.mRuby {
 		}
 
 		public static mrb_value c ( IntPtr mrb, mrb_value self ) {
-			CustomClass instance = mRubyDLL.ValueToDataObject< CustomClass > ( mrb, self, data_type_ptr );
+			CustomClass instance = mRubyDLL.ValueToDataObject< CustomClass > ( mrb, self, CandyFramework.mRuby.mRubyState.DATA_TYPE_PTR );
 			return mrb_value.Create ( mrb, instance.c );
 		}
 
 		public static mrb_value c_eql ( IntPtr mrb, mrb_value self ) {
-			CustomClass instance = mRubyDLL.ValueToDataObject< CustomClass > ( mrb, self, data_type_ptr );
+			CustomClass instance = mRubyDLL.ValueToDataObject< CustomClass > ( mrb, self, CandyFramework.mRuby.mRubyState.DATA_TYPE_PTR );
 			mrb_value[] args = mRubyDLL.GetFunctionArgs ( mrb );
 
 			if ( args.Length != 1 ) {
@@ -173,12 +178,12 @@ namespace CandyFramework.mRuby {
 		}
 
 		public static mrb_value A ( IntPtr mrb, mrb_value self ) {
-			CustomClass instance = mRubyDLL.ValueToDataObject< CustomClass > ( mrb, self, data_type_ptr );
+			CustomClass instance = mRubyDLL.ValueToDataObject< CustomClass > ( mrb, self, CandyFramework.mRuby.mRubyState.DATA_TYPE_PTR );
 			return mRubyDLL.mrb_fixnum_value ( ( int )instance.A );
 		}
 
 		public static mrb_value A_eql ( IntPtr mrb, mrb_value self ) {
-			CustomClass instance = mRubyDLL.ValueToDataObject< CustomClass > ( mrb, self, data_type_ptr );
+			CustomClass instance = mRubyDLL.ValueToDataObject< CustomClass > ( mrb, self, CandyFramework.mRuby.mRubyState.DATA_TYPE_PTR );
 			mrb_value[] args = mRubyDLL.GetFunctionArgs ( mrb );
 
 			if ( args.Length != 1 ) {
@@ -189,17 +194,17 @@ namespace CandyFramework.mRuby {
 				throw new ArgumentException ( $"CustomClass.A parameter type mismatch: require Int32 but got {mRubyDLL.mrb_type ( args[ 0 ] )}." );
 			}
 
-			instance.A = ( Int32 )mRubyDLL.mrb_fixnum ( args[ 0 ] );
+			instance.A = ( System.Int32 )mRubyDLL.mrb_fixnum ( args[ 0 ] );
 			return self;
 		}
 
 		public static mrb_value C ( IntPtr mrb, mrb_value self ) {
-			CustomClass instance = mRubyDLL.ValueToDataObject< CustomClass > ( mrb, self, data_type_ptr );
+			CustomClass instance = mRubyDLL.ValueToDataObject< CustomClass > ( mrb, self, CandyFramework.mRuby.mRubyState.DATA_TYPE_PTR );
 			return mrb_value.Create ( mrb, instance.C );
 		}
 
 		public static mrb_value C_eql ( IntPtr mrb, mrb_value self ) {
-			CustomClass instance = mRubyDLL.ValueToDataObject< CustomClass > ( mrb, self, data_type_ptr );
+			CustomClass instance = mRubyDLL.ValueToDataObject< CustomClass > ( mrb, self, CandyFramework.mRuby.mRubyState.DATA_TYPE_PTR );
 			mrb_value[] args = mRubyDLL.GetFunctionArgs ( mrb );
 
 			if ( args.Length != 1 ) {
@@ -215,14 +220,14 @@ namespace CandyFramework.mRuby {
 		}
 
 		public static mrb_value FuncA ( IntPtr mrb, mrb_value self ) {
-			CustomClass instance = mRubyDLL.ValueToDataObject< CustomClass > ( mrb, self, data_type_ptr );
+			CandyFramework.mRuby.CustomClass instance = mRubyDLL.ValueToDataObject< CandyFramework.mRuby.CustomClass > ( mrb, self, CandyFramework.mRuby.mRubyState.DATA_TYPE_PTR );
 
 			instance.FuncA ();
 			return self;
 		}
 
 		public static mrb_value FuncB ( IntPtr mrb, mrb_value self ) {
-			CustomClass instance = mRubyDLL.ValueToDataObject< CustomClass > ( mrb, self, data_type_ptr );
+			CandyFramework.mRuby.CustomClass instance = mRubyDLL.ValueToDataObject< CandyFramework.mRuby.CustomClass > ( mrb, self, CandyFramework.mRuby.mRubyState.DATA_TYPE_PTR );
 
 			mrb_value[] args = mRubyDLL.GetFunctionArgs ( mrb );
 
@@ -234,12 +239,12 @@ namespace CandyFramework.mRuby {
 				throw new ArgumentException ( $"CustomClass.FuncB parameter type mismatch: require Int32 but got {mRubyDLL.mrb_type ( args[ 0 ] )}." );
 			}
 
-			instance.FuncB ( ( Int32 )mRubyDLL.mrb_fixnum ( args[ 0 ] ) );
+			instance.FuncB ( ( System.Int32 )mRubyDLL.mrb_fixnum ( args[ 0 ] ) );
 			return self;
 		}
 
 		public static mrb_value FuncC ( IntPtr mrb, mrb_value self ) {
-			CustomClass instance = mRubyDLL.ValueToDataObject< CustomClass > ( mrb, self, data_type_ptr );
+			CandyFramework.mRuby.CustomClass instance = mRubyDLL.ValueToDataObject< CandyFramework.mRuby.CustomClass > ( mrb, self, CandyFramework.mRuby.mRubyState.DATA_TYPE_PTR );
 
 			mrb_value[] args = mRubyDLL.GetFunctionArgs ( mrb );
 
@@ -256,7 +261,7 @@ namespace CandyFramework.mRuby {
 		}
 
 		public static mrb_value FuncD ( IntPtr mrb, mrb_value self ) {
-			CustomClass instance = mRubyDLL.ValueToDataObject< CustomClass > ( mrb, self, data_type_ptr );
+			CandyFramework.mRuby.CustomClass instance = mRubyDLL.ValueToDataObject< CandyFramework.mRuby.CustomClass > ( mrb, self, CandyFramework.mRuby.mRubyState.DATA_TYPE_PTR );
 
 			mrb_value[] args = mRubyDLL.GetFunctionArgs ( mrb );
 
@@ -280,18 +285,26 @@ namespace CandyFramework.mRuby {
 				throw new ArgumentException ( $"CustomClass.FuncD parameter type mismatch: require CustomClass but got {mRubyDLL.mrb_type ( args[ 4 ] )}." );
 			}
 
-			var ret = instance.FuncD ( ( Int32 )mRubyDLL.mrb_fixnum ( args[ 0 ] ), ( Single )mRubyDLL.mrb_float ( args[ 1 ] ), mrb_value.Test ( args[ 2 ] ), args[ 3 ].ToString ( state ), mRubyDLL.ValueToDataObject< CustomClass > ( mrb, args[ 4 ], CandyFramework.mRuby.CustomClass_Wrapper.data_type_ptr ) );
-			return mRubyDLL.DataObjectToValue ( mrb, CandyFramework.mRuby.CustomClass_Wrapper.@class, CandyFramework.mRuby.CustomClass_Wrapper.data_type_ptr, ret );
+			var ret = instance.FuncD ( ( System.Int32 )mRubyDLL.mrb_fixnum ( args[ 0 ] ), ( Single )mRubyDLL.mrb_float ( args[ 1 ] ), mrb_value.Test ( args[ 2 ] ), args[ 3 ].ToString ( state ), mRubyDLL.ValueToDataObject< CandyFramework.mRuby.CustomClass > ( mrb, args[ 4 ], CandyFramework.mRuby.mRubyState.DATA_TYPE_PTR ) );
+			return mRubyDLL.DataObjectToValue ( mrb, CandyFramework.mRuby.CustomClass_Wrapper.@class, CandyFramework.mRuby.mRubyState.DATA_TYPE_PTR, ret );
 		}
 
-		public static mrb_value ToString ( IntPtr mrb, mrb_value self ) {
-			CustomClass instance = mRubyDLL.ValueToDataObject< CustomClass > ( mrb, self, data_type_ptr );
+		public static mrb_value FuncG ( IntPtr mrb, mrb_value self ) {
+			CandyFramework.mRuby.CustomClass instance = mRubyDLL.ValueToDataObject< CandyFramework.mRuby.CustomClass > ( mrb, self, CandyFramework.mRuby.mRubyState.DATA_TYPE_PTR );
 
-			var ret = instance.ToString ();
-			return mrb_value.Create ( mrb, ret );
+			mrb_value[] args = mRubyDLL.GetFunctionArgs ( mrb );
+
+			if ( args.Length != 1 ) {
+				throw new ArgumentException ( $"CustomClass.FuncG parameter count mismatch: require 1 but got {args.Length}." );
+			}
+
+
+			var ret = instance.FuncG ( mRubyDLL.ValueToObject ( mrb, args[ 0 ] ) );
+			// return mRubyDLL.DataObjectToValue ( mrb, System.Object_Wrapper.@class, CandyFramework.mRuby.mRubyState.DATA_TYPE_PTR, ret );
+			return self;
 		}
 
-		public static mrb_value FuncE ( IntPtr mrb, mrb_value self ) {
+		public static mrb_value STATIC_FuncE ( IntPtr mrb, mrb_value self ) {
 
 			mrb_value[] args = mRubyDLL.GetFunctionArgs ( mrb );
 
@@ -303,11 +316,11 @@ namespace CandyFramework.mRuby {
 				throw new ArgumentException ( $"CustomClass.FuncE parameter type mismatch: require CustomClass but got {mRubyDLL.mrb_type ( args[ 0 ] )}." );
 			}
 
-			CustomClass.FuncE ( mRubyDLL.ValueToDataObject< CustomClass > ( mrb, args[ 0 ], CandyFramework.mRuby.CustomClass_Wrapper.data_type_ptr ) );
+			CustomClass.FuncE ( mRubyDLL.ValueToDataObject< CandyFramework.mRuby.CustomClass > ( mrb, args[ 0 ], CandyFramework.mRuby.mRubyState.DATA_TYPE_PTR ) );
 			return self;
 		}
 
-		public static mrb_value FuncF ( IntPtr mrb, mrb_value self ) {
+		public static mrb_value STATIC_FuncF ( IntPtr mrb, mrb_value self ) {
 
 			mrb_value[] args = mRubyDLL.GetFunctionArgs ( mrb );
 
@@ -322,12 +335,12 @@ namespace CandyFramework.mRuby {
 				throw new ArgumentException ( $"CustomClass.FuncF parameter type mismatch: require Single but got {mRubyDLL.mrb_type ( args[ 1 ] )}." );
 			}
 
-			var ret = CustomClass.FuncF ( mRubyDLL.ValueToDataObject< CustomClass > ( mrb, args[ 0 ], CandyFramework.mRuby.CustomClass_Wrapper.data_type_ptr ), ( Single )mRubyDLL.mrb_float ( args[ 1 ] ) );
-			return mRubyDLL.DataObjectToValue ( mrb, CandyFramework.mRuby.CustomClass_Wrapper.@class, CandyFramework.mRuby.CustomClass_Wrapper.data_type_ptr, ret );
+			var ret = CustomClass.FuncF ( mRubyDLL.ValueToDataObject< CandyFramework.mRuby.CustomClass > ( mrb, args[ 0 ], CandyFramework.mRuby.mRubyState.DATA_TYPE_PTR ), ( Single )mRubyDLL.mrb_float ( args[ 1 ] ) );
+			return mRubyDLL.DataObjectToValue ( mrb, CandyFramework.mRuby.CustomClass_Wrapper.@class, CandyFramework.mRuby.mRubyState.DATA_TYPE_PTR, ret );
 		}
 
 		public static mrb_value _op_Addition ( IntPtr mrb, mrb_value self ) {
-			CustomClass instance = mRubyDLL.ValueToDataObject< CustomClass > ( mrb, self, data_type_ptr );
+			CustomClass instance = mRubyDLL.ValueToDataObject< CustomClass > ( mrb, self, CandyFramework.mRuby.mRubyState.DATA_TYPE_PTR );
 
 			mrb_value[] args = mRubyDLL.GetFunctionArgs ( mrb );
 
@@ -340,7 +353,7 @@ namespace CandyFramework.mRuby {
 			}
 
 
-			var right = ( Int32 )mRubyDLL.mrb_fixnum ( args[ 0 ] );
+			var right = ( System.Int32 )mRubyDLL.mrb_fixnum ( args[ 0 ] );
 			var ret = instance + right;
 			return mRubyDLL.mrb_fixnum_value ( ( int )ret );
 		}
@@ -348,7 +361,7 @@ namespace CandyFramework.mRuby {
 		public static void __Register__ ( mRubyState state ) {
 			CustomClass_Wrapper.state = state;
 			CustomClass_Wrapper.@class = UserDataUtility.DefineCSharpClass ( state, typeof ( CandyFramework.mRuby.CustomClass ) );
-			CustomClass_Wrapper.data_type_ptr = mRubyDLL.ObjectToInPtr ( data_type );
+			CustomClass_Wrapper.data_type_ptr = mRubyDLL.ObjectToInPtr ( data_type_ptr );
 
 			mRubyDLL.mrb_define_method ( state, @class, "initialize", initialize, mrb_args.ANY () );
 			mRubyDLL.mrb_define_method ( state, @class, "a", a, mrb_args.ANY () );
@@ -365,11 +378,11 @@ namespace CandyFramework.mRuby {
 			mRubyDLL.mrb_define_method ( state, @class, "FuncB", FuncB, mrb_args.ANY () );
 			mRubyDLL.mrb_define_method ( state, @class, "FuncC", FuncC, mrb_args.ANY () );
 			mRubyDLL.mrb_define_method ( state, @class, "FuncD", FuncD, mrb_args.ANY () );
-			mRubyDLL.mrb_define_method ( state, @class, "ToString", ToString, mrb_args.ANY () );
+			mRubyDLL.mrb_define_method ( state, @class, "FuncG", FuncG, mrb_args.ANY () );
 			mRubyDLL.mrb_define_method ( state, @class, "+", _op_Addition, mrb_args.ANY () );
 
-			mRubyDLL.mrb_define_class_method ( state, @class, "FuncE", FuncE, mrb_args.ANY () );
-			mRubyDLL.mrb_define_class_method ( state, @class, "FuncF", FuncF, mrb_args.ANY () );
+			mRubyDLL.mrb_define_class_method ( state, @class, "FuncE", STATIC_FuncE, mrb_args.ANY () );
+			mRubyDLL.mrb_define_class_method ( state, @class, "FuncF", STATIC_FuncF, mrb_args.ANY () );
 		}
 	}
 }

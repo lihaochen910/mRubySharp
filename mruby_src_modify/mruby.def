@@ -47,6 +47,7 @@ EXPORTS
 	mrb_test_ex
 
 	mrb_has_exc
+	mrb_exc_clear
 	mrb_exc_detail
 
 	mrb_add_irep
@@ -276,7 +277,6 @@ EXPORTS
 	mrb_read_irep
 	mrb_realloc
 	mrb_realloc_simple
-	mrb_regexp_p
 	mrb_respond_to
 	mrb_run
 	mrb_show_copyright
@@ -307,9 +307,6 @@ EXPORTS
 	mrb_string_type
 	mrb_string_value_cstr
 	mrb_string_value_ptr
-	mrb_sym2name
-	mrb_sym2name_len
-	mrb_sym2str
 	mrb_sys_fail
 	mrb_to_flo
 	mrb_to_int
@@ -329,6 +326,3 @@ EXPORTS
 	mrbc_context_new
 	mrbc_filename
 	mrbc_partial_hook
-
-	mrb_gc_arena_save_ex
-	mrb_gc_arena_restore_ex

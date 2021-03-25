@@ -8,6 +8,7 @@ EXPORTS
 	mrb_bool_value_ex
 	mrb_undef_value_ex
 	mrb_obj_value_ex
+    mrb_cptr_value_ex
 
 	mrb_ptr_ex
 	mrb_cptr_ex
@@ -49,6 +50,9 @@ EXPORTS
 	mrb_has_exc
 	mrb_exc_clear
 	mrb_exc_detail
+
+    mrb_gc_arena_save_ex
+    mrb_gc_arena_restore_ex
 
 	mrb_add_irep
 	mrb_alias_method

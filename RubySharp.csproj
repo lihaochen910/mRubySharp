@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F19F9F37-A7CC-4648-AACA-F1443B3F81D6}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>RubySharp</RootNamespace>
+    <AssemblyName>RubySharp</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+    <IntermediateOutputPath>bin/obj/</IntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>portable</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;MRUBY;UNITY_ENGINE0</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Core\mRubyClass.cs" />
+    <Compile Include="Core\RubyDLL.Common.cs" />
+    <Compile Include="Core\mRubyModule.cs" />
+    <Compile Include="Core\RubyState.cs" />
+    <Compile Include="Core\RBasic.cs" />
+    <Compile Include="Core\RObject.cs" />
+    <Compile Include="Core\RubyDLL.MRuby.cs" />
+    <Compile Include="Core\RubyDLL.Ruby.cs" />
+    <Compile Include="CustomClass.MRuby.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilities\CallbackArguments.cs" />
+    <Compile Include="Utilities\CallbackFunction.cs" />
+    <Compile Include="Utilities\FieldDescriptor.cs" />
+    <Compile Include="Utilities\FunctionMemberDescriptorBase.cs" />
+    <Compile Include="Utilities\MethodMemberDescriptor.cs" />
+    <Compile Include="Utilities\ParameterDescriptor.cs" />
+    <Compile Include="Utilities\PropertyDescriptor.cs" />
+    <Compile Include="Utilities\WrapperUtility.Common.cs" />
+    <Compile Include="Utilities\WrapperUtility.MRuby.cs" />
+    <Compile Include="Utilities\UserDataUtility.cs" />
+    <Compile Include="Utilities\WrapperUtility.Ruby.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="lib/osx/mruby.dylib">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="lib/osx/ruby.dylib">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="lib\windows\mruby.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="lib\windows\ruby.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

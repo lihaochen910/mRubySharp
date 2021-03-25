@@ -1,7 +1,8 @@
-﻿using System;
+﻿#if MRUBY
+using System;
 
 
-namespace CandyFramework.mRuby {
+namespace RubySharp {
     
     public class mRubyModule {
         
@@ -10,28 +11,29 @@ namespace CandyFramework.mRuby {
         /// </summary>
         public string name { get; private set; }
 
-        public IntPtr    module_ptr   { get; private set; }
-        public mrb_value module_value { get; private set; }
+        public IntPtr module_ptr   { get; private set; }
+        public R_VAL module_value { get; private set; }
 
 
-        private mRubyState state;
+        private RubyState state;
 
-        public mRubyModule ( mRubyState state, string name ) {
+        public mRubyModule ( RubyState state, string name ) {
             this.name         = name;
             this.state        = state;
-            this.module_ptr   = mRubyDLL.mrb_define_module ( state.mrb_state, name );
-            this.module_value = mrb_value.CreateOBJ ( module_ptr );
+            this.module_ptr   = RubyDLL.r_define_module ( state.rb_state, name );
+            this.module_value = R_VAL.CreateOBJ ( module_ptr );
         }
 
-        public void DefineMethod ( string name, mRubyDLL.MRubyCSFunction receiver, mrb_args aspec ) {
+        public void DefineMethod ( string name, RubyDLL.RubyCSFunction receiver, rb_args aspec ) {
             // 防止被C#端GC
             state.MethodDelegates.Add ( receiver );
 
-            mRubyDLL.mrb_define_module_function ( state.mrb_state, module_ptr, name, receiver, aspec );
+            RubyDLL.r_define_module_function ( state.rb_state, module_ptr, name, receiver, aspec );
         }
 
-        public mrb_value Call ( string funcName ) {
-            return mRubyDLL.mrb_funcall ( state.mrb_state, module_value, funcName, 0 );
+        public R_VAL Call ( string funcName ) {
+            return RubyDLL.r_funcall ( state.rb_state, module_value, funcName, 0 );
         }
     }
 }
+#endif

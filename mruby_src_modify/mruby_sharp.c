@@ -57,6 +57,11 @@ MRB_API mrb_value mrb_obj_value_ex(void *p)
   return mrb_obj_value(p);
 }
 
+MRB_API mrb_value mrb_cptr_value_ex(mrb_state *mrb, void *p)
+{
+  return mrb_cptr_value(mrb, p);
+}
+
 MRB_API void *mrb_ptr_ex(mrb_value o)
 {
   return mrb_ptr(o);
@@ -192,10 +197,10 @@ MRB_API mrb_bool mrb_range_p_ex(mrb_value o)
   return mrb_range_p(o);
 }
 
-MRB_API mrb_bool mrb_file_p_ex(mrb_value o)
-{
-  return mrb_file_p(o);
-}
+// MRB_API mrb_bool mrb_file_p_ex(mrb_value o)
+// {
+//   return mrb_file_p(o);
+// }
 
 MRB_API mrb_bool mrb_env_p_ex(mrb_value o)
 {

@@ -21,6 +21,7 @@ MRB_API mrb_value mrb_true_value_ex(void);
 MRB_API mrb_value mrb_bool_value_ex(mrb_bool);
 MRB_API mrb_value mrb_undef_value_ex(void);
 MRB_API mrb_value mrb_obj_value_ex(void*);
+MRB_API mrb_value mrb_cptr_value_ex(struct mrb_state*, void*);
 
 MRB_API void *mrb_ptr_ex(mrb_value o);
 MRB_API void *mrb_cptr_ex(mrb_value o);
@@ -50,7 +51,7 @@ MRB_API mrb_bool mrb_iclass_p_ex(mrb_value o);
 MRB_API mrb_bool mrb_sclass_p_ex(mrb_value o);
 MRB_API mrb_bool mrb_proc_p_ex(mrb_value o);
 MRB_API mrb_bool mrb_range_p_ex(mrb_value o);
-MRB_API mrb_bool mrb_file_p_ex(mrb_value o);
+// MRB_API mrb_bool mrb_file_p_ex(mrb_value o);
 MRB_API mrb_bool mrb_env_p_ex(mrb_value o);
 MRB_API mrb_bool mrb_data_p_ex(mrb_value o);
 MRB_API mrb_bool mrb_fiber_p_ex(mrb_value o);

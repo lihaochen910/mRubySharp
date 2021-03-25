@@ -5,6 +5,9 @@ namespace RubySharp {
 	using System.Reflection;
 
 
+	/// <summary>
+	/// C#包装类生成, 性能应该比反射快
+	/// </summary>
 	public partial class WrapperUtility {
 		
 		private const string RUBYSHARP_NAMESPACE = "RubySharp";

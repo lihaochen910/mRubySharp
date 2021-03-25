@@ -98,12 +98,12 @@ namespace RubySharp {
 					
 					if ( name.Equals ( namespacePath[ 0 ] ) ) {
 						@class = RubyDLL.r_define_module ( state, validName );
-						// mRubyDLL.mrb_set_instance_tt ( @class, mrb_vtype.MRB_TT_DATA );
+						// RubyDLL.mrb_set_instance_tt ( @class, mrb_vtype.MRB_TT_DATA );
 
 					}
 					else {
 						@class = RubyDLL.r_define_module_under ( state, @class, validName, IntPtr.Zero );
-						// mRubyDLL.mrb_set_instance_tt ( @class, mrb_vtype.MRB_TT_DATA );
+						// RubyDLL.mrb_set_instance_tt ( @class, mrb_vtype.MRB_TT_DATA );
 					}
 				}
 			}
@@ -130,7 +130,7 @@ namespace RubySharp {
 			IntPtr module = UserDataUtility.DefineCSharpEnum ( state, type );
 			
 			foreach ( int i in System.Enum.GetValues ( type ) ) {
-				RubyDLL.r_define_const ( state, module, System.Enum.GetName ( type, i ), RubyDLL.INT2FIX ( i ) );
+				RubyDLL.r_define_const ( state, module, System.Enum.GetName ( type, i ), RubyDLL.mrb_fixnum_value ( state, i ) );
 			}
 		}
 

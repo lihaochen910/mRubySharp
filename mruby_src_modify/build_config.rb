@@ -28,15 +28,15 @@ MRuby::Build.new do |conf|
   # conf.gem :github => 'iij/mruby-require'
 
   # C compiler settings
-  # conf.cc do |cc|
+  conf.cc do |cc|
   #   cc.command = ENV['CC'] || 'gcc'
   #   cc.flags = [ENV['CFLAGS'] || %w()]
   #   cc.include_paths = ["#{root}/include"]
-  #   cc.defines = %w()
+    cc.defines = %w(MRB_USE_FLOAT32 MRB_INT32 MRB_NO_BOXING MRB_UTF8_STRING MRB_MAIN_PROFILE)
   #   cc.option_include_path = '-I%s'
   #   cc.option_define = '-D%s'
   #   cc.compile_options = "%{flags} -MMD -o %{outfile} -c %{infile}"
-  # end
+  end
 
   # mrbc settings
   # conf.mrbc do |mrbc|
@@ -106,7 +106,7 @@ MRuby::Build.new('host-debug') do |conf|
   conf.gembox 'full-core'
 
   # C compiler settings
-  conf.cc.defines = %w(MRB_ENABLE_DEBUG_HOOK)
+  conf.cc.defines = %w(MRB_ENABLE_DEBUG_HOOK MRB_USE_FLOAT32 MRB_INT32 MRB_NO_BOXING MRB_UTF8_STRING MRB_MAIN_PROFILE)
 
   # Generate mruby debugger command (require mruby-eval)
   conf.gem :core => "mruby-bin-debugger"

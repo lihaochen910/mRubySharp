@@ -14,7 +14,7 @@ MRB_BEGIN_DECL
  * value.h export
  */
 MRB_API mrb_value mrb_float_value_ex(struct mrb_state*, mrb_float);
-MRB_API mrb_value mrb_fixnum_value_ex(mrb_int);
+MRB_API mrb_value mrb_fixnum_value_ex(struct mrb_state*, mrb_int);
 MRB_API mrb_value mrb_nil_value_ex(void);
 MRB_API mrb_value mrb_false_value_ex(void);
 MRB_API mrb_value mrb_true_value_ex(void);
@@ -78,6 +78,7 @@ MRB_API void mrb_set_instance_tt(struct RClass*, enum mrb_vtype);
  */
 MRB_API mrb_bool mrb_has_exc(mrb_state*);
 MRB_API void mrb_exc_clear(mrb_state *);
+MRB_API mrb_value mrb_get_exc_value(mrb_state*);
 MRB_API mrb_value mrb_exc_detail(mrb_state*);
 
 /*

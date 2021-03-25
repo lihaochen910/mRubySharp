@@ -90,8 +90,8 @@ namespace RubySharp {
 			CustomEnum_Wrapper.@module       = UserDataUtility.DefineCSharpEnum ( state, typeof ( RubySharp.CustomEnum ) );
 			CustomEnum_Wrapper.data_type_ptr = RubyDLL.ObjectToInPtr ( data_type );
 			
-			RubyDLL.r_define_const ( state, @module, "A", RubyDLL.INT2FIX ( ( int )RubySharp.CustomEnum.A ) );
-			RubyDLL.r_define_const ( state, @module, "B", RubyDLL.INT2FIX ( ( int )RubySharp.CustomEnum.B ) );
+			RubyDLL.r_define_const ( state, @module, "A", RubyDLL.mrb_fixnum_value ( state, ( int )RubySharp.CustomEnum.A ) );
+			RubyDLL.r_define_const ( state, @module, "B", RubyDLL.mrb_fixnum_value ( state, ( int )RubySharp.CustomEnum.B ) );
 		}
 	}
 	
@@ -117,7 +117,7 @@ namespace RubySharp {
 
 		public static R_VAL a ( IntPtr mrb, R_VAL self ) {
 			CustomClass instance = RubyDLL.ValueToDataObject< CustomClass > ( mrb, self, RubySharp.RubyState.DATA_TYPE_PTR );
-			return RubyDLL.INT2FIX ( ( int )instance.a );
+			return RubyDLL.mrb_fixnum_value ( mrb,  ( int )instance.a );
 		}
 
 		public static R_VAL a_eql ( IntPtr mrb, R_VAL self ) {
@@ -138,7 +138,7 @@ namespace RubySharp {
 
 		public static R_VAL b ( IntPtr mrb, R_VAL self ) {
 			CustomClass instance = RubyDLL.ValueToDataObject< CustomClass > ( mrb, self, RubySharp.RubyState.DATA_TYPE_PTR );
-			return RubyDLL.DBL2NUM ( mrb, ( double )instance.b );
+			return RubyDLL.mrb_float_value ( mrb, ( double )instance.b );
 		}
 
 		public static R_VAL b_eql ( IntPtr mrb, R_VAL self ) {
@@ -180,7 +180,7 @@ namespace RubySharp {
 
 		public static R_VAL A ( IntPtr mrb, R_VAL self ) {
 			CustomClass instance = RubyDLL.ValueToDataObject< CustomClass > ( mrb, self, RubySharp.RubyState.DATA_TYPE_PTR );
-			return RubyDLL.INT2FIX ( ( int )instance.A );
+			return RubyDLL.mrb_fixnum_value ( mrb, ( int )instance.A );
 		}
 
 		public static R_VAL A_eql ( IntPtr mrb, R_VAL self ) {
@@ -258,7 +258,7 @@ namespace RubySharp {
 			}
 
 			var ret = instance.FuncC ( args[ 0 ].ToString ( state ) );
-			return RubyDLL.DBL2NUM ( mrb, ( double )ret );
+			return RubyDLL.mrb_float_value ( mrb, ( double )ret );
 		}
 
 		public static R_VAL FuncD ( IntPtr mrb, R_VAL self ) {
@@ -301,7 +301,7 @@ namespace RubySharp {
 
 
 			var ret = instance.FuncG ( RubyDLL.ValueToObject ( mrb, args[ 0 ] ) );
-			// return mRubyDLL.DataObjectToValue ( mrb, System.Object_Wrapper.@class, RubySharp.mRubyState.DATA_TYPE_PTR, ret );
+			// return RubyDLL.DataObjectToValue ( mrb, System.Object_Wrapper.@class, RubySharp.RubyState.DATA_TYPE_PTR, ret );
 			return self;
 		}
 
@@ -356,7 +356,7 @@ namespace RubySharp {
 
 			var right = ( System.Int32 )RubyDLL.FIX2INT ( args[ 0 ] );
 			var ret = instance + right;
-			return RubyDLL.INT2FIX ( ( int )ret );
+			return RubyDLL.mrb_fixnum_value ( mrb, ( int )ret );
 		}
 
 		public static void __Register__ ( RubyState state ) {

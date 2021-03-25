@@ -25,7 +25,7 @@ namespace RubySharp {
 		/// The call back.
 		/// </value>
 		public Func< RubyState, object, CallbackArguments, R_VAL > ClrCallback { get; private set; }
-		public RubyDLL.RubyCSFunction MrbCallback { get; private set; }
+		public RubyDLL.RubyCSFunction RbCallback { get; private set; }
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="CallbackFunction" /> class.
@@ -34,7 +34,7 @@ namespace RubySharp {
 		/// <param name="name">The callback name, used in stacktraces, debugger, etc..</param>
 		public CallbackFunction ( Func< RubyState, object, CallbackArguments, R_VAL > callBack, string name = null ) {
 			ClrCallback = callBack;
-			Name        = name;
+			Name = name;
 		}
 
 		/// <summary>

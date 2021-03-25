@@ -28,10 +28,10 @@ namespace CandyFramework.mRuby
 		internal const int WEIGHT_VARARGS_EMPTY = 40;
 
 		/// <summary>
-		/// Converts a mrb_value to a CLR object [simple conversion]
+		/// Converts a R_VAL to a CLR object [simple conversion]
 		/// </summary>
-		internal static object ValueToObject ( mRubyState state, mrb_value value ) {
-			if ( mrb_value.IsNil ( value ) ) {
+		internal static object ValueToObject ( RubyState state, R_VAL value ) {
+			if ( R_VAL.IsNil ( value ) ) {
 				return null;
 			}
 
@@ -41,17 +41,17 @@ namespace CandyFramework.mRuby
 				case mrb_vtype.MRB_TT_TRUE:
 					return true;
 				case mrb_vtype.MRB_TT_FIXNUM:
-					return ( int )mRubyDLL.mrb_fixnum ( value );
+					return ( int )RubyDLL.mrb_fixnum ( value );
 				case mrb_vtype.MRB_TT_SYMBOL:
-					return mRubyDLL.mrb_symbol ( value );
+					return RubyDLL.mrb_symbol ( value );
 				case mrb_vtype.MRB_TT_UNDEF:
 					return null;
 				case mrb_vtype.MRB_TT_FLOAT:
-					return ( float )mRubyDLL.mrb_float ( value );
+					return ( float )RubyDLL.mrb_float ( value );
 				case mrb_vtype.MRB_TT_STRING:
 					return value.ToString ( state );
 				case mrb_vtype.MRB_TT_CPTR:
-					return mRubyDLL.mrb_cptr ( value );
+					return RubyDLL.mrb_cptr ( value );
 				case mrb_vtype.MRB_TT_OBJECT:
 				case mrb_vtype.MRB_TT_CLASS:
 				case mrb_vtype.MRB_TT_MODULE:
@@ -66,14 +66,14 @@ namespace CandyFramework.mRuby
 				case mrb_vtype.MRB_TT_ISTRUCT:
 				case mrb_vtype.MRB_TT_BREAK:
 				case mrb_vtype.MRB_TT_MAXDEFINE:
-					return mRubyDLL.mrb_ptr ( value );
+					return RubyDLL.mrb_ptr ( value );
 				case mrb_vtype.MRB_TT_ARRAY:
 				case mrb_vtype.MRB_TT_HASH:
 					// TODO:
-					return mRubyDLL.mrb_ptr ( value );
+					return RubyDLL.mrb_ptr ( value );
 				case mrb_vtype.MRB_TT_DATA:
-					return mRubyDLL.IntPtrToObject ( mRubyDLL.mrb_data_get_ptr ( state, value,
-						mRubyState.DATA_TYPE_PTR ) );
+					return RubyDLL.IntPtrToObject ( RubyDLL.mrb_data_get_ptr ( state, value,
+						RubyState.DATA_TYPE_PTR ) );
 				default:
 					return null;
 			}
@@ -81,15 +81,15 @@ namespace CandyFramework.mRuby
 
 
 		/// <summary>
-		/// Converts a mrb_value to a CLR object of a specific type
+		/// Converts a R_VAL to a CLR object of a specific type
 		/// </summary>
-		internal static object ValueToObjectOfType ( mRubyState state,        mrb_value value, Type desiredType,
+		internal static object ValueToObjectOfType ( RubyState state,        R_VAL value, Type desiredType,
 		                                             object     defaultValue, bool      isOptional ) {
 			if ( desiredType.IsByRef ) {
 				desiredType = desiredType.GetElementType ();
 			}
 
-			if ( desiredType == typeof ( mrb_value ) ) {
+			if ( desiredType == typeof ( R_VAL ) ) {
 				return value;
 			}
 
@@ -156,7 +156,7 @@ namespace CandyFramework.mRuby
 					break;
 				case DataType.ClrFunction:
 					if ( desiredType == typeof ( CallbackFunction ) ) return value.Callback;
-					else if ( desiredType == typeof ( Func< ScriptExecutionContext, CallbackArguments, mrb_value > ) )
+					else if ( desiredType == typeof ( Func< ScriptExecutionContext, CallbackArguments, R_VAL > ) )
 						return value.Callback.ClrCallback;
 					break;
 				case DataType.UserData:

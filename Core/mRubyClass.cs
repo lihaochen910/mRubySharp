@@ -35,7 +35,7 @@ namespace RubySharp {
             state.MethodDelegates.Add ( receiver );
 
             RubyDLL.r_define_method ( state, class_ptr, name, receiver, aspec );
-            //mRubyDLL.mrb_define_module_function(state, class_ptr, name, receiver, aspec);
+            //RubyDLL.mrb_define_module_function(state, class_ptr, name, receiver, aspec);
 
         }
 

@@ -121,7 +121,7 @@
 		/// <param name="type">The type desired.</param>
 		/// <param name="allowNil">if set to <c>true</c> nil values are allowed.</param>
 		/// <returns></returns>
-		// public mrb_value AsType ( int argIdx, string funcName, mrb_vtype type, bool allowNil = false ) {
+		// public R_VAL AsType ( int argIdx, string funcName, mrb_vtype type, bool allowNil = false ) {
 		// 	return this[ argIdx ].CheckType ( funcName, type, argIdx,
 		// 		allowNil
 		// 			? TypeValidationFlags.AllowNil | TypeValidationFlags.AutoConvert
@@ -149,7 +149,7 @@
 		/// <param name="funcName">Name of the function.</param>
 		/// <returns></returns>
 		// public int AsInt ( int argIdx, string funcName ) {
-		// 	mrb_value v = AsType ( argIdx, funcName, mrb_vtype.MRB_TT_FIXNUM, false );
+		// 	R_VAL v = AsType ( argIdx, funcName, mrb_vtype.MRB_TT_FIXNUM, false );
 		// 	return v.value.i;
 		// }
 
@@ -160,7 +160,7 @@
 		/// <param name="funcName">Name of the function.</param>
 		/// <returns></returns>
 		// public long AsLong ( int argIdx, string funcName ) {
-		// 	mrb_value v = AsType ( argIdx, funcName, mrb_vtype.MRB_TT_FIXNUM, false );
+		// 	R_VAL v = AsType ( argIdx, funcName, mrb_vtype.MRB_TT_FIXNUM, false );
 		// 	return ( long )v.value.i;
 		// }
 

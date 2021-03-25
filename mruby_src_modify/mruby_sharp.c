@@ -10,10 +10,10 @@ MRB_API mrb_value mrb_float_value_ex(mrb_state *mrb, mrb_float f)
   return v;
 }
 
-MRB_API mrb_value mrb_fixnum_value_ex(mrb_int i)
+MRB_API mrb_value mrb_fixnum_value_ex(mrb_state *mrb, mrb_int i)
 {
   mrb_value v;
-  SET_INT_VALUE(v, i);
+  SET_INT_VALUE(mrb, v, i);
   return v;
 }
 
@@ -276,10 +276,10 @@ MRB_API void mrb_exc_clear(mrb_state *mrb)
 
 MRB_API mrb_value mrb_get_exc_value(struct mrb_state *mrb)
 {
-  if (!mrb->exc) {
-    return mrb_nil_value();
+  if (mrb->exc) {
+    return mrb_obj_value(mrb->exc);
   }
-  return mrb_obj_value(mrb->exc);
+  return mrb_nil_value();
 }
 
 MRB_API mrb_value mrb_exc_detail(struct mrb_state *mrb)

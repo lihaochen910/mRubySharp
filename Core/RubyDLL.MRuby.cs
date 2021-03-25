@@ -7,7 +7,7 @@ namespace RubySharp {
 	using mrb_float = System.Double;
 	using mrb_int = System.Int32;
 	using mrb_sym = System.UInt32;
-	using mrb_bool = System.Byte;
+	using mrb_bool = System.Boolean;
 
 
 	public static partial class RubyDLL {
@@ -140,12 +140,12 @@ namespace RubySharp {
 
 		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
 		public delegate R_VAL d_mrb_float_value ( IntPtr mrb_state, mrb_float f );
-		public static d_mrb_float_value DBL2NUM { get; } = FuncLoader.LoadFunction< d_mrb_float_value > ( RubyLibrary, "mrb_float_value_ex" );
+		public static d_mrb_float_value mrb_float_value { get; } = FuncLoader.LoadFunction< d_mrb_float_value > ( RubyLibrary, "mrb_float_value_ex" );
 
 
 		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_fixnum_value ( mrb_int i );
-		public static d_mrb_fixnum_value INT2FIX { get; } = FuncLoader.LoadFunction< d_mrb_fixnum_value > ( RubyLibrary, "mrb_fixnum_value_ex" );
+		public delegate R_VAL d_mrb_fixnum_value ( IntPtr mrb_state, mrb_int i );
+		public static d_mrb_fixnum_value mrb_fixnum_value { get; } = FuncLoader.LoadFunction< d_mrb_fixnum_value > ( RubyLibrary, "mrb_fixnum_value_ex" );
 
 
 		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
@@ -260,7 +260,7 @@ namespace RubySharp {
 		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
 		public delegate mrb_bool d_mrb_bool ( R_VAL o );
 		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
-		public delegate mrb_bool d_mrb_test ( R_VAL o );
+		public delegate bool d_mrb_test ( R_VAL o );
 		
 		public static d_mrb_immediate_p mrb_immediate_p { get; } = FuncLoader.LoadFunction< d_mrb_immediate_p > ( RubyLibrary, "mrb_immediate_p_ex" );
 		public static d_mrb_fixnum_p mrb_fixnum_p { get; } = FuncLoader.LoadFunction< d_mrb_fixnum_p > ( RubyLibrary, "mrb_fixnum_p_ex" );
@@ -321,7 +321,7 @@ namespace RubySharp {
 		/// mruby value to C# string
 		/// </summary>
 		/// <param name="obj"></param>
-		//public static string mrb_value_to_csstr(mrb_value obj)
+		//public static string R_VAL_to_csstr(R_VAL obj)
 		//{
 		//    if (obj.mrb_type == mrb_vtype.MRB_TT_STRING)
 		//        return Marshal.PtrToStringAuto(mrb_string_value_ptr(mrb_state, obj));
@@ -411,15 +411,16 @@ namespace RubySharp {
 		public static d_mrb_define_class_under r_define_class_under { get; } = FuncLoader.LoadFunction< d_mrb_define_class_under > ( RubyLibrary, "mrb_define_class_under" );
 
 
-		[DllImport ( MRubyDll, EntryPoint = "mrb_set_instance_tt" )]
-		public static extern void MRB_SET_INSTANCE_TT ( IntPtr c, rb_vtype tt );
+		// [DllImport ( MRubyDll, EntryPoint = "mrb_set_instance_tt" )]
+		// public static extern void MRB_SET_INSTANCE_TT ( IntPtr c, rb_vtype tt );
 
+		
 		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
 		public delegate IntPtr d_mrb_class_get ( IntPtr mrb_state, string name );
 		public static d_mrb_class_get mrb_class_get { get; } = FuncLoader.LoadFunction< d_mrb_class_get > ( RubyLibrary, "mrb_class_get" );
 
 		//[DllImport(MRubyDll)]
-		//public static extern mrb_value mrb_class_new_instance(IntPtr mrb_state, mrb_int argc, mrb_value[] argv, IntPtr c);
+		//public static extern R_VAL mrb_class_new_instance(IntPtr mrb_state, mrb_int argc, R_VAL[] argv, IntPtr c);
 		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
 		public delegate R_VAL d_mrb_obj_new ( IntPtr mrb_state, IntPtr c, mrb_int argc, R_VAL[] argv );
 		public static d_mrb_obj_new mrb_obj_new { get; } = FuncLoader.LoadFunction< d_mrb_obj_new > ( RubyLibrary, "mrb_obj_new" );
@@ -485,7 +486,7 @@ namespace RubySharp {
 		//public static void mrb_define_method(IntPtr klass, string name, MRubyCSFunction func, mrb_args aspec)
 		//{
 		//    MethodDelegates.Add(func);
-		//    mrb_define_method(mRubyDLL.mrb_state, klass, name, func, aspec);
+		//    mrb_define_method(RubyDLL.mrb_state, klass, name, func, aspec);
 		//}
 
 
@@ -549,9 +550,9 @@ namespace RubySharp {
 		public static d_mrb_funcall_1 r_funcall_1 { get; } = FuncLoader.LoadFunction< d_mrb_funcall_1 > ( RubyLibrary, "mrb_funcall" );
 
 		//[DllImport(MRubyDll)]
-  //      public static extern mrb_value mrb_funcall(IntPtr mrb_state, mrb_value obj, string funcName, int argc, mrb_value arg1);
+  //      public static extern R_VAL mrb_funcall(IntPtr mrb_state, R_VAL obj, string funcName, int argc, R_VAL arg1);
   //      [DllImport(MRubyDll)]
-  //      public static extern mrb_value mrb_funcall(IntPtr mrb_state, mrb_value obj, string funcName, int argc, mrb_value arg1, mrb_value arg2);
+  //      public static extern R_VAL mrb_funcall(IntPtr mrb_state, R_VAL obj, string funcName, int argc, R_VAL arg1, R_VAL arg2);
 
 
 		/// <summary>
@@ -562,10 +563,10 @@ namespace RubySharp {
 		/// <returns></returns>
 		public static R_VAL[] GetFunctionArgs ( IntPtr mrb_state, bool withBlock = false ) {
 			R_VAL[] values;
-			IntPtr      argvPointer;
-			R_VAL   value = R_VAL.NIL;
-			int         i, argc, size;
-			R_VAL   block;
+			IntPtr argvPointer;
+			R_VAL value = R_VAL.NIL;
+			int i, argc, size;
+			R_VAL block;
 
 			RubyDLL.mrb_get_args ( mrb_state, "*&", out argvPointer, out argc, out block );
 
@@ -574,10 +575,10 @@ namespace RubySharp {
 			  valueCount++;
 			}
 
-			values = new R_VAL[valueCount]; // Include Block
-			size   = Marshal.SizeOf ( typeof ( R_VAL ) );
+			values = new R_VAL[ valueCount ]; // Include Block
+			size = Marshal.SizeOf ( typeof ( R_VAL ) );
 			for ( i = 0; i < argc; i++ ) {
-			  value       = ( R_VAL )Marshal.PtrToStructure ( argvPointer + ( i * size ), typeof ( R_VAL ) );
+			  value = ( R_VAL )Marshal.PtrToStructure ( argvPointer + ( i * size ), typeof ( R_VAL ) );
 			  values[ i ] = value;
 			}
 
@@ -728,18 +729,18 @@ namespace RubySharp {
 				     type == typeof ( uint ) || type == typeof ( ushort ) || type == typeof ( ulong ) ||
 				     type == typeof ( byte ) || type == typeof ( sbyte ) ||
 				     type.IsEnum ) {
-					return RubyDLL.INT2FIX ( Convert.ToInt32 ( obj ) );
+					return RubyDLL.mrb_fixnum_value ( state, Convert.ToInt32 ( obj ) );
 				}
 				else if ( type == typeof ( int? ) || type == typeof ( short? ) || type == typeof ( long? ) ||
 				          type == typeof ( uint? ) || type == typeof ( ushort? ) || type == typeof ( ulong? ) ||
 				          type == typeof ( byte? ) || type == typeof ( sbyte? ) ) {
-					return RubyDLL.INT2FIX ( ( ( int? )obj ).HasValue ? ( ( int? )obj ).Value : 0 );
+					return RubyDLL.mrb_fixnum_value ( state, ( ( int? )obj ).HasValue ? ( ( int? )obj ).Value : 0 );
 				}
 				else if ( type == typeof ( float ) || type == typeof ( double ) ) {
-					return RubyDLL.DBL2NUM ( state, Convert.ToDouble ( obj ) );
+					return RubyDLL.mrb_float_value ( state, Convert.ToDouble ( obj ) );
 				}
 				else if ( type == typeof ( float? ) || type == typeof ( double? ) ) {
-					return RubyDLL.DBL2NUM ( state, ( ( double? )obj ).HasValue ? ( ( double? )obj ).Value : 0f );
+					return RubyDLL.mrb_float_value ( state, ( ( double? )obj ).HasValue ? ( ( double? )obj ).Value : 0f );
 				}
 				else if ( type == typeof ( bool ) ) {
 					return R_VAL.Create ( ( bool )obj );
@@ -748,15 +749,15 @@ namespace RubySharp {
 					return R_VAL.Create ( ( ( bool? )obj ).HasValue ? ( ( bool? )obj ).Value : false );
 				}
 				else if ( type.IsArray ) {
-					// csValueToValue = $"mRubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( typeof ( System.Array ) )}.@class, {GetWrapperClassName ( typeof ( System.Array ) )}.data_type_ptr, {retVarName} )";
+					// csValueToValue = $"RubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( typeof ( System.Array ) )}.@class, {GetWrapperClassName ( typeof ( System.Array ) )}.data_type_ptr, {retVarName} )";
 					return RubyDLL.DataObjectToValue ( state, state.SystemObjectRClass, RubyState.DATA_TYPE_PTR, obj );
 				}
 				else if ( System.Nullable.GetUnderlyingType ( type ) != null ) {
-					// csValueToValue = $"mRubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( System.Nullable.GetUnderlyingType ( type ) )}.@class, {GetWrapperClassName ( System.Nullable.GetUnderlyingType ( type ) )}.data_type_ptr, {retVarName} )";
+					// csValueToValue = $"RubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( System.Nullable.GetUnderlyingType ( type ) )}.@class, {GetWrapperClassName ( System.Nullable.GetUnderlyingType ( type ) )}.data_type_ptr, {retVarName} )";
 					return RubyDLL.DataObjectToValue ( state, state.SystemObjectRClass, RubyState.DATA_TYPE_PTR, obj );
 				}
 				else {
-					// csValueToValue = $"mRubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( type )}.@class, {GetWrapperClassName ( type )}.data_type_ptr, {retVarName} )";
+					// csValueToValue = $"RubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( type )}.@class, {GetWrapperClassName ( type )}.data_type_ptr, {retVarName} )";
 					return RubyDLL.DataObjectToValue ( state, state.SystemObjectRClass, RubyState.DATA_TYPE_PTR, obj );
 				}
 			}
@@ -765,20 +766,20 @@ namespace RubySharp {
 					return R_VAL.Create ( state, ( string )obj );
 				}
 				else if ( type.IsArray ) {
-					// csValueToValue = $"mRubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( typeof ( System.Array ) )}.@class, {GetWrapperClassName ( typeof ( System.Array ) )}.data_type_ptr, {retVarName} )";
+					// csValueToValue = $"RubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( typeof ( System.Array ) )}.@class, {GetWrapperClassName ( typeof ( System.Array ) )}.data_type_ptr, {retVarName} )";
 					return RubyDLL.DataObjectToValue ( state, state.SystemObjectRClass, RubyState.DATA_TYPE_PTR, obj );
 				}
 				else if ( type == typeof ( System.Type ) ) {
-					// csValueToValue = $"mRubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( typeof ( System.Object ) )}.@class, {GetWrapperClassName ( typeof ( System.Object ) )}.data_type_ptr, {retVarName} )";
+					// csValueToValue = $"RubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( typeof ( System.Object ) )}.@class, {GetWrapperClassName ( typeof ( System.Object ) )}.data_type_ptr, {retVarName} )";
 					return RubyDLL.DataObjectToValue ( state, state.SystemObjectRClass, RubyState.DATA_TYPE_PTR, obj );
 				}
 				else {
-					// csValueToValue = $"mRubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( type )}.@class, {GetWrapperClassName ( type )}.data_type_ptr, {retVarName} )";
+					// csValueToValue = $"RubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( type )}.@class, {GetWrapperClassName ( type )}.data_type_ptr, {retVarName} )";
 					return RubyDLL.DataObjectToValue ( state, state.SystemObjectRClass, RubyState.DATA_TYPE_PTR, obj );
 				}
 			}
 			
-			throw new Exception ( $"mRubyDLL::ObjectToValue() {obj}" );
+			throw new Exception ( $"RubyDLL::ObjectToValue() {obj}" );
 			
 			return R_VAL.NIL;
 		}
@@ -953,9 +954,9 @@ namespace RubySharp {
 		private delegate void d_mrb_malloc ( IntPtr mrb_state, long len );
 		private static d_mrb_malloc mrb_malloc { get; } = FuncLoader.LoadFunction < d_mrb_malloc >( RubyLibrary, "mrb_malloc" );
 
+		
 		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
 		private delegate void d_mrb_raise ( IntPtr mrb_state, IntPtr obj, byte[] msg );
-
 		private static d_mrb_raise mrb_raise { get; } = FuncLoader.LoadFunction< d_mrb_raise > ( RubyLibrary, "mrb_raise" );
 
 
@@ -965,37 +966,41 @@ namespace RubySharp {
 		//private const int FL_FREEZE = (1 << 10);
 		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
 		public delegate R_VAL d_mrb_inspect ( IntPtr mrb_state, R_VAL obj );
-
 		public static d_mrb_inspect mrb_inspect { get; } = FuncLoader.LoadFunction< d_mrb_inspect > ( RubyLibrary, "mrb_inspect" );
 
+		
 		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
 		public delegate R_VAL d_mrb_top_self ( IntPtr mrb_state );
 		public static d_mrb_top_self mrb_top_self { get; } = FuncLoader.LoadFunction< d_mrb_top_self > ( RubyLibrary, "mrb_top_self" );
 
+		
 		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
-		public delegate mrb_bool d_mrb_has_exc ( IntPtr mrb_state );
+		public delegate bool d_mrb_has_exc ( IntPtr mrb_state );
 		public static d_mrb_has_exc mrb_has_exc { get; } = FuncLoader.LoadFunction< d_mrb_has_exc > ( RubyLibrary, "mrb_has_exc" );
+		
 		
 		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
 		public delegate void d_mrb_exc_clear ( IntPtr mrb_state );
 		public static d_mrb_exc_clear mrb_exc_clear { get; } = FuncLoader.LoadFunction< d_mrb_exc_clear > ( RubyLibrary, "mrb_exc_clear" );
+		
+		
 		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
 		public delegate R_VAL d_mrb_get_exc_value ( IntPtr mrb_state );
 		public static d_mrb_get_exc_value mrb_get_exc_value { get; } = FuncLoader.LoadFunction< d_mrb_get_exc_value > ( RubyLibrary, "mrb_get_exc_value" );
 
+		
 		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
 		public delegate R_VAL d_mrb_exc_detail ( IntPtr mrb_state );
-
 		public static d_mrb_exc_detail mrb_exc_detail { get; } = FuncLoader.LoadFunction< d_mrb_exc_detail > ( RubyLibrary, "mrb_exc_detail" );
 
+		
 		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
 		public delegate R_VAL d_mrb_get_backtrace ( IntPtr mrb_state );
-
 		public static d_mrb_get_backtrace r_get_backtrace { get; } = FuncLoader.LoadFunction< d_mrb_get_backtrace > ( RubyLibrary, "mrb_get_backtrace" );
 
+		
 		[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
 		public delegate R_VAL d_mrb_exc_backtrace ( IntPtr mrb_state, R_VAL exc );
-
 		public static d_mrb_exc_backtrace r_exc_backtrace { get; } = FuncLoader.LoadFunction< d_mrb_exc_backtrace > ( RubyLibrary, "mrb_exc_backtrace" );
 
 		
@@ -1236,6 +1241,7 @@ namespace RubySharp {
 	 *  MrbValue Wrapper
 	 * 
 	 *  Create Helper to convert MrbValue to C# value types
+	 *  we use MRB_NO_BOXING (unboxed mrb_value)
 	 */
     [StructLayout ( LayoutKind.Sequential )]
     public struct R_VAL {
@@ -1248,29 +1254,29 @@ namespace RubySharp {
             [FieldOffset ( 0 )] public mrb_sym  sym;
         }
 
-        public Value     value;
+        public Value value;
         public rb_vtype tt;
 
-        public double    mrb_float  => value.f;
-        public Int64     mrb_fixnum => value.i;
-        public uint      mrb_symbol => value.sym;
-        public rb_vtype  RbType   => tt;
+        // public double   mrb_float  => value.f;
+        // public Int64    mrb_fixnum => value.i;
+        // public uint     mrb_symbol => value.sym;
+        // public rb_vtype RbType   => tt;
 
         public static readonly R_VAL DEFAULT = new R_VAL () { tt = rb_vtype.RUBY_T_UNDEF };
         public static readonly R_VAL TRUE    = RubyDLL.mrb_true_value ();
         public static readonly R_VAL FALSE   = RubyDLL.mrb_false_value ();
         public static readonly R_VAL NIL     = RubyDLL.mrb_nil_value ();
 
-        static public R_VAL Create ( int i ) {
-            return RubyDLL.INT2FIX ( i );
+        static public R_VAL Create ( IntPtr mrb_state, int i ) {
+            return RubyDLL.mrb_fixnum_value ( mrb_state, i );
         }
 
-        static public R_VAL Create ( IntPtr mrb_state, float i ) {
-            return RubyDLL.DBL2NUM ( mrb_state, i );
+        static public R_VAL Create ( IntPtr mrb_state, float f ) {
+            return RubyDLL.mrb_float_value ( mrb_state, f );
         }
 
         static public R_VAL Create ( IntPtr mrb_state, double dbl ) {
-            return RubyDLL.DBL2NUM ( mrb_state, dbl );
+            return RubyDLL.mrb_float_value ( mrb_state, dbl );
         }
 
         static public R_VAL Create ( bool b ) {
@@ -1278,7 +1284,7 @@ namespace RubySharp {
         }
 
         static public R_VAL Create ( IntPtr mrb_state, string str ) {
-            var cbytes = RubyDLL.ToCBytes ( str );
+            byte[] cbytes = RubyDLL.ToCBytes ( str );
             return RubyDLL.mrb_str_new_static ( mrb_state, cbytes, cbytes.Length );
         }
 
@@ -1295,17 +1301,18 @@ namespace RubySharp {
         }
 
         static public R_VAL CreateOBJ ( object obj ) {
-            if ( obj == null )
-                return R_VAL.CreateNIL ();
+			if ( obj == null ) {
+				return RubyDLL.mrb_nil_value ();
+			}
 
             return R_VAL.CreateOBJ ( GCHandle.ToIntPtr ( GCHandle.Alloc ( obj ) ) );
         }
 
 
-        //static public implicit operator string(mrb_value value)
+        //static public implicit operator string(R_VAL value)
         //{
         //    int length = 0;
-        //    IntPtr ptr = mRubyDLL.mrb_string_value_cstr(mRubyDLL.mrb_state, ref value);
+        //    IntPtr ptr = RubyDLL.mrb_string_value_cstr(RubyDLL.mrb_state, ref value);
         //    unsafe
         //    {
         //        byte* p = (byte*)ptr;
@@ -1317,7 +1324,7 @@ namespace RubySharp {
         //    }
         //    byte[] bytes = new byte[length];
         //    Marshal.Copy(ptr, bytes, 0, length);
-        //    return mRubyDLL.Encoding.GetString(bytes);
+        //    return RubyDLL.Encoding.GetString(bytes);
 
         //    //IntPtr stringPtr = IntPtr.Zero;
 
@@ -1384,121 +1391,121 @@ namespace RubySharp {
         }
         
         static public bool IsImmediate ( R_VAL value ) {
-            return RubyDLL.mrb_immediate_p ( value ) == 1;
+            return RubyDLL.mrb_immediate_p ( value );
         }
         
         static public bool IsFixnum ( R_VAL value ) {
-            return RubyDLL.mrb_fixnum_p ( value ) == 1;
+            return RubyDLL.mrb_fixnum_p ( value );
         }
         
         static public bool IsSymbol ( R_VAL value ) {
-            return RubyDLL.mrb_symbol_p ( value ) == 1;
+            return RubyDLL.mrb_symbol_p ( value );
         }
         
         static public bool IsUndef ( R_VAL value ) {
-            return RubyDLL.mrb_undef_p ( value ) == 1;
+            return RubyDLL.mrb_undef_p ( value );
         }
         
         static public bool IsNil ( R_VAL value ) {
-            return RubyDLL.mrb_nil_p ( value ) == 1;
+            return RubyDLL.mrb_nil_p ( value );
         }
         
         static public bool IsFalse ( R_VAL value ) {
-            return RubyDLL.mrb_false_p ( value ) == 1;
+            return RubyDLL.mrb_false_p ( value );
         }
         
         static public bool IsTrue ( R_VAL value ) {
-            return RubyDLL.mrb_true_p ( value ) == 1;
+            return RubyDLL.mrb_true_p ( value );
         }
         
         static public bool IsFloat ( R_VAL value ) {
-            return RubyDLL.mrb_float_p ( value ) == 1;
+            return RubyDLL.mrb_float_p ( value );
         }
         
         static public bool IsArray ( R_VAL value ) {
-            return RubyDLL.mrb_array_p ( value ) == 1;
+            return RubyDLL.mrb_array_p ( value );
         }
         
         static public bool IsString ( R_VAL value ) {
-            return RubyDLL.mrb_string_p ( value ) == 1;
+            return RubyDLL.mrb_string_p ( value );
         }
         
         static public bool IsHash ( R_VAL value ) {
-            return RubyDLL.mrb_hash_p ( value ) == 1;
+            return RubyDLL.mrb_hash_p ( value );
         }
         
         static public bool IsCPtr ( R_VAL value ) {
-            return RubyDLL.mrb_cptr_p ( value ) == 1;
+            return RubyDLL.mrb_cptr_p ( value );
         }
         
         static public bool IsException ( R_VAL value ) {
-            return RubyDLL.mrb_exception_p ( value ) == 1;
+            return RubyDLL.mrb_exception_p ( value );
         }
         
         static public bool IsFree ( R_VAL value ) {
-            return RubyDLL.mrb_free_p ( value ) == 1;
+            return RubyDLL.mrb_free_p ( value );
         }
         
         static public bool IsObject ( R_VAL value ) {
-            return RubyDLL.mrb_object_p ( value ) == 1;
+            return RubyDLL.mrb_object_p ( value );
         }
         
         static public bool IsClass ( R_VAL value ) {
-            return RubyDLL.mrb_class_p ( value ) == 1;
+            return RubyDLL.mrb_class_p ( value );
         }
         
         static public bool IsModule ( R_VAL value ) {
-            return RubyDLL.mrb_module_p ( value ) == 1;
+            return RubyDLL.mrb_module_p ( value );
         }
         
         static public bool IsIClass ( R_VAL value ) {
-            return RubyDLL.mrb_iclass_p ( value ) == 1;
+            return RubyDLL.mrb_iclass_p ( value );
         }
         
         static public bool IsSClass ( R_VAL value ) {
-            return RubyDLL.mrb_sclass_p ( value ) == 1;
+            return RubyDLL.mrb_sclass_p ( value );
         }
         
         static public bool IsProc ( R_VAL value ) {
-            return RubyDLL.mrb_proc_p ( value ) == 1;
+            return RubyDLL.mrb_proc_p ( value );
         }
         
         static public bool IsRange ( R_VAL value ) {
-            return RubyDLL.mrb_range_p ( value ) == 1;
+            return RubyDLL.mrb_range_p ( value );
         }
 		
         static public bool IsEnv ( R_VAL value ) {
-            return RubyDLL.mrb_env_p ( value ) == 1;
+            return RubyDLL.mrb_env_p ( value );
         }
         
         static public bool IsData ( R_VAL value ) {
-            return RubyDLL.mrb_data_p ( value ) == 1;
+            return RubyDLL.mrb_data_p ( value );
         }
         
         static public bool IsFiber ( R_VAL value ) {
-            return RubyDLL.mrb_fiber_p ( value ) == 1;
+            return RubyDLL.mrb_fiber_p ( value );
         }
         
         static public bool IsIStruct ( R_VAL value ) {
-            return RubyDLL.mrb_istruct_p ( value ) == 1;
+            return RubyDLL.mrb_istruct_p ( value );
         }
         
         static public bool IsBreak ( R_VAL value ) {
-            return RubyDLL.mrb_break_p ( value ) == 1;
+            return RubyDLL.mrb_break_p ( value );
         }
         
         static public bool IsBool ( R_VAL value ) {
-            return RubyDLL.mrb_true_p ( value ) == 1 || RubyDLL.mrb_false_p ( value ) == 1;
+            return RubyDLL.mrb_true_p ( value ) || RubyDLL.mrb_false_p ( value );
         }
         
         static public bool Test ( R_VAL value ) {
-            if ( RubyDLL.mrb_true_p ( value ) == 1 ) {
+            if ( RubyDLL.mrb_true_p ( value ) ) {
                 return true;
             }
-            if ( RubyDLL.mrb_false_p ( value ) == 1 ) {
+            if ( RubyDLL.mrb_false_p ( value ) ) {
                 return false;
             }
-            return RubyDLL.r_test ( value ) == 1;
+            return RubyDLL.r_test ( value );
         }
 
         //public override string ToString()
@@ -1515,9 +1522,9 @@ namespace RubySharp {
         //    //}
         //    //return Marshal.PtrToStringAuto(stringPtr);
 
-        //    var str = mRubyDLL.mrb_obj_as_string(mRubyDLL.mrb_state, this);
+        //    var str = RubyDLL.mrb_obj_as_string(RubyDLL.mrb_state, this);
         //    int length = 0;
-        //    IntPtr ptr = mRubyDLL.mrb_string_value_cstr(mRubyDLL.mrb_state, ref str);
+        //    IntPtr ptr = RubyDLL.mrb_string_value_cstr(RubyDLL.mrb_state, ref str);
         //    unsafe
         //    {
         //        byte* p = (byte*)ptr;
@@ -1529,15 +1536,15 @@ namespace RubySharp {
         //    }
         //    byte[] bytes = new byte[length];
         //    Marshal.Copy(ptr, bytes, 0, length);
-        //    return mRubyDLL.Encoding.GetString(bytes);
+        //    return RubyDLL.Encoding.GetString(bytes);
         //}
 
         public string ToString ( IntPtr mrb_state ) {
-            var str    = RubyDLL.mrb_obj_as_string ( mrb_state, this );
+            var str = RubyDLL.mrb_obj_as_string ( mrb_state, this );
             int length = 0;
-            IntPtr ptr    = RubyDLL.mrb_string_value_cstr ( mrb_state, ref str );
+            IntPtr ptr = RubyDLL.mrb_string_value_cstr ( mrb_state, ref str );
             unsafe {
-                byte * p = ( byte * )ptr;
+                byte* p = ( byte* )ptr;
                 while ( *p != 0 ) {
                     length++;
                     p++;

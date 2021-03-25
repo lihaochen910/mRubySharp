@@ -55,6 +55,19 @@
             SystemObjectRClass = UserDataUtility.DefineCSharpClass ( this, typeof ( System.Object ) );
 #endif
         }
+		
+		public void GC () {
+#if MRUBY
+			RubyDLL.mrb_garbage_collect ( rb_state );
+#endif
+		}
+
+
+		public void FullGC () {
+#if MRUBY
+			RubyDLL.mrb_full_gc ( rb_state );
+#endif
+		}
 
         public R_VAL DoString ( string str ) {
 #if MRUBY
@@ -64,7 +77,7 @@
             var ret = RubyDLL.mrb_load_string_cxt ( rb_state, RubyDLL.ToCBytes ( str ), mrbc_context );
             RubyDLL.mrbc_context_free ( rb_state, mrbc_context );
             
-            if ( RubyDLL.mrb_has_exc ( rb_state ) != 0 ) {
+            if ( RubyDLL.mrb_has_exc ( rb_state ) ) {
                 Console.WriteLine ( GetExceptionBackTrace () );
             }
             RubyDLL.mrb_gc_arena_restore ( rb_state, arena );
@@ -90,7 +103,7 @@
             RubyDLL.mrbc_filename ( this, mrbc_context, filename );
             var ret = RubyDLL.mrb_load_string_cxt ( rb_state, RubyDLL.ToCBytes ( File.ReadAllText ( path ) ), mrbc_context );
             RubyDLL.mrbc_context_free ( rb_state, mrbc_context );
-            if ( RubyDLL.mrb_has_exc ( rb_state ) != 0 ) {
+            if ( RubyDLL.mrb_has_exc ( rb_state ) ) {
                 Console.WriteLine ( GetExceptionBackTrace () );
             }
             RubyDLL.mrb_gc_arena_restore ( rb_state, arena );
@@ -115,7 +128,7 @@
             RubyDLL.mrbc_filename ( mrb_state, mrbc_context, filename );
             var ret = RubyDLL.mrb_load_string_cxt ( mrb_state, RubyDLL.ToCBytes ( File.ReadAllText ( path ) ), mrbc_context );
             RubyDLL.mrbc_context_free ( mrb_state, mrbc_context );
-            if ( RubyDLL.mrb_has_exc ( mrb_state ) != 0 ) {
+            if ( RubyDLL.mrb_has_exc ( mrb_state ) ) {
                 Console.WriteLine ( GetExceptionBackTrace ( mrb_state ) );
             }
             RubyDLL.mrb_gc_arena_restore ( mrb_state, arena );
@@ -169,6 +182,9 @@
             
 
             R_VAL exc = RubyDLL.mrb_get_exc_value ( rb_state );
+			if ( !RubyDLL.mrb_exception_p ( exc ) ) {
+				return string.Empty;
+			}
             R_VAL backtrace = RubyDLL.r_exc_backtrace ( rb_state, exc );
             
             builder.AppendLine ( RubyDLL.r_funcall ( rb_state, exc, "inspect", 0 ).ToString ( rb_state ) );
@@ -261,10 +277,10 @@
             
             return builder.ToString ();
 #endif
-            // return mRubyDLL.mrb_inspect ( mrb_state, mRubyDLL.mrb_get_backtrace ( mrb_state ) ).ToString ( mrb_state );
-            // return mRubyDLL.mrb_funcall ( mrb_state, mRubyDLL.mrb_exc_backtrace ( mrb_state, mRubyDLL.mrb_get_exc_value ( mrb_state ) ), "to_s", 0 ).ToString ( mrb_state );
-            // return mRubyDLL.mrb_inspect ( mrb_state, mRubyDLL.mrb_get_exc_value ( mrb_state ) ).ToString ( mrb_state );
-            // return mRubyDLL.mrb_inspect ( mrb_state, mRubyDLL.mrb_exc_backtrace ( mrb_state, mRubyDLL.mrb_get_exc_value ( mrb_state ) ) ).ToString ( mrb_state );
+            // return RubyDLL.mrb_inspect ( mrb_state, RubyDLL.mrb_get_backtrace ( mrb_state ) ).ToString ( mrb_state );
+            // return RubyDLL.mrb_funcall ( mrb_state, RubyDLL.mrb_exc_backtrace ( mrb_state, RubyDLL.mrb_get_exc_value ( mrb_state ) ), "to_s", 0 ).ToString ( mrb_state );
+            // return RubyDLL.mrb_inspect ( mrb_state, RubyDLL.mrb_get_exc_value ( mrb_state ) ).ToString ( mrb_state );
+            // return RubyDLL.mrb_inspect ( mrb_state, RubyDLL.mrb_exc_backtrace ( mrb_state, RubyDLL.mrb_get_exc_value ( mrb_state ) ) ).ToString ( mrb_state );
         }
 
         /// <summary>
@@ -324,11 +340,11 @@
             R_VAL[] args = RubyDLL.GetFunctionArgs ( mrb );
 
             if ( args.Length != 1 ) {
-                throw new ArgumentException ( $"mRubyState.DoFile parameter count mismatch: require 1 but got {args.Length}." );
+                throw new ArgumentException ( $"RubyState.DoFile parameter count mismatch: require 1 but got {args.Length}." );
             }
 
             if ( !R_VAL.IsString ( args[ 0 ] ) ) {
-                throw new ArgumentException ( $"mRubyState.DoFile parameter type mismatch: require String but got {RubyDLL.r_type ( args[ 0 ] )}." );
+                throw new ArgumentException ( $"RubyState.DoFile parameter type mismatch: require String but got {RubyDLL.r_type ( args[ 0 ] )}." );
             }
 
             return RubyState.DoFile ( mrb, args[ 0 ].ToString ( mrb ) );

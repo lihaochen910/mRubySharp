@@ -31,9 +31,9 @@ namespace RubySharp {
 			
 			Console.WriteLine ( (GC.GetTotalMemory(false) / 1048576f).ToString("F") + " MB" );
 
-			R_VAL v1 = R_VAL.Create ( 2333 );
+			R_VAL v1 = R_VAL.Create ( state, 2333 );
 #if MRUBY
-            R_VAL v2 = R_VAL.Create ( state, 65.5f );
+            R_VAL v2 = R_VAL.Create ( state, 3.1415926535897932f );
 #else
             R_VAL v2 = R_VAL.Create ( 3.1415926535897932d );
 #endif
@@ -57,8 +57,8 @@ namespace RubySharp {
             klass.DefineMethod ( "write", WriteLine, rb_args.ANY () );
 			
 			// WrapperUtility.GenCSharpClass ( typeof ( System.Object ) );
-            // WrapperUtility.GenCSharpClass ( typeof ( System.Array ) );
-            // WrapperUtility.GenCSharpClass ( typeof ( System.TimeSpan ) );
+		    // WrapperUtility.GenCSharpClass ( typeof ( System.Array ) );
+		    // WrapperUtility.GenCSharpClass ( typeof ( System.TimeSpan ) );
             // WrapperUtility.GenByAssembly ( typeof ( Microsoft.Xna.Framework.Game ).Assembly );
             // WrapperUtility.GenUnityEngineCommon ();
             // WrapperUtility.GenCSharpClass ( typeof ( CustomClass ) );
@@ -85,7 +85,8 @@ namespace RubySharp {
 			
             state.DoString ( "puts \"ruby #{RUBY_VERSION}\"" );
             state.DoString ( "WriteLine(\"Object.new\")" );
-            // state.DoString ( "WriteLineNormal( 'mruby ok!', 1, 9.9, true )" );
+            state.DoString ( "show_backtrace" );
+            state.DoString ( "WriteLineNormal( 'mruby ok!', 1, 9.9, true )" );
             state.DoString ( "puts RubySharp::CustomEnum::A" );
             state.DoString ( "puts RubySharp::CustomEnum::B" );
             state.DoString ( "puts RubySharp::CustomClass.new.FuncB( 999 )" );
@@ -97,7 +98,7 @@ namespace RubySharp {
             state.DoString ( "puts RubySharp::CustomClass.new.FuncG( RubySharp::CustomClass.new )" );
 
 #if MRUBY
-            if ( RubyDLL.mrb_has_exc ( state ) != 0 ) {
+            if ( RubyDLL.mrb_has_exc ( state ) ) {
                 Console.WriteLine ( state.GetExceptionBackTrace () );
                 RubyDLL.mrb_exc_clear ( state );
             }

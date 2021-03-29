@@ -83,10 +83,18 @@ UserDataUtility.RegisterType< CustomEnum >( state );
 - 拷贝mruby.dll || mruby.dylib
 
 ### Note
-- 当前mrb_value使用无装箱结构(No Boxing)
-- float使用32位, int使用32位
 - mruby 3.0.0
 - ruby 3.0.0
+- C#运行时使用mono, 在windows平台测试使用.Net Framework会出现问题, 貌似mono的PInvoke实现兼容性更好
+- 当前mrb_value使用无装箱结构(No Boxing)
+- float使用32位, int使用32位
+- 目前可以正常管理在ruby中实例化绑定类, 也可以处理没在ruby中实例化的已绑定C#实例(即只有C#实例但ruby端没有对应的ruby类实例)
+- DFree正常调用, 但是同一引用有时候可能会多次DFree, C#需要实现管理引用传递次数???
+- 如何在ruby中处理C#类的继承关系???
+  当前绑定不包含父类方法
+  尝试: 默认绑定System.Object类, 后续所有绑定都继承System.Object类, 不清楚这样是否在ruby实例化类的时候会同时创建两个实例(System.Object类实例和绑定类实例)
+- 委托传递处理
+- 结构体传递处理
 
 ### TODO
 * C#与mruby交流时的引用管理

@@ -8,7 +8,7 @@
 	public class CallbackArguments {
 		IList< R_VAL > m_Args;
 		int m_Count;
-		bool m_LastIsTuple = false;
+		// bool m_LastIsTuple = false;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="CallbackArguments" /> class.
@@ -70,14 +70,15 @@
 		public R_VAL RawGet ( int index, bool translateVoids ) {
 			R_VAL v;
 
-			if ( index >= m_Count )
+			if ( index >= m_Count ) {
 				return R_VAL.NIL;
+			}
 
 			// if ( !m_LastIsTuple || index < m_Args.Count - 1 )
 			// 	v = m_Args[ index ];
 			// else
 			// 	v = m_Args[ m_Args.Count - 1 ].Tuple[ index - ( m_Args.Count - 1 ) ];
-			
+
 			v = m_Args[ index ];
 
 			// if ( v.Type == DataType.Tuple ) {

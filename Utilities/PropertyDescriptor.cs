@@ -14,7 +14,6 @@ namespace RubySharp {
 		/// </summary>
 		public PropertyInfo PropertyInfo { get; private set; }
 		
-
 		/// <summary>
 		/// Gets a value indicating whether the described method is static.
 		/// </summary>
@@ -24,6 +23,8 @@ namespace RubySharp {
 		/// Gets the name of the described method
 		/// </summary>
 		public string Name { get; private set; }
+		
+		public IntPtr DataTypePtr { get; set; }
 
 		
 		public PropertyDescriptor ( PropertyInfo propertyInfo ) {
@@ -86,7 +87,7 @@ namespace RubySharp {
 		/// <param name="retv">The return value from the function. Use DynValue.Void if the function returned no value.</param>
 		/// <returns>A DynValue to be returned to scripts</returns>
 		protected static R_VAL BuildReturnValue ( RubyState state, object retv ) {
-			return RubyDLL.ObjectToValue ( state, retv );
+			return RubyState.ObjectToValue ( state, retv );
 		}
 
 		/// <summary>
@@ -98,12 +99,12 @@ namespace RubySharp {
 		/// <param name="args">The arguments.</param>
 		/// <returns></returns>
 		public R_VAL ExecuteGet ( RubyState state, object obj, CallbackArguments args ) {
-			return RubyDLL.ObjectToValue ( state, this.PropertyInfo.GetValue ( obj, null ) );
+			return RubyState.ObjectToValue ( state, PropertyInfo.GetValue ( obj, null ) );
 		}
 		
 		public R_VAL ExecuteSet ( RubyState state, object obj, CallbackArguments args ) {
 			var arg = args.RawGet ( 0, false );
-			PropertyInfo.SetValue ( obj, RubyDLL.ValueToObjectOfType ( state, arg, PropertyInfo.PropertyType, PropertyInfo.PropertyType, false ), null );
+			PropertyInfo.SetValue ( obj, RubyState.ValueToObjectOfType ( state, arg, DataTypePtr, PropertyInfo.PropertyType, PropertyInfo.PropertyType, false ), null );
 			return R_VAL.NIL;
 		}
 	}

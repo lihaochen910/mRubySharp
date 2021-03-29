@@ -38,7 +38,6 @@ EXPORTS
 	mrb_sclass_p_ex
 	mrb_proc_p_ex
 	mrb_range_p_ex
-	mrb_file_p_ex
 	mrb_env_p_ex
 	mrb_data_p_ex
 	mrb_fiber_p_ex
@@ -121,6 +120,8 @@ EXPORTS
 	mrb_data_init_ex
     mrb_data_wrap_struct
     mrb_data_wrap_struct_obj
+    mrb_set_data_type
+	mrb_set_data_ptr
 
 	mrb_debug_get_filename
 	mrb_debug_get_line

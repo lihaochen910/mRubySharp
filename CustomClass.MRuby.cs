@@ -24,7 +24,7 @@ namespace RubySharp {
 			set => c = value;
 		}
 
-		public CustomClass() {}
+		public CustomClass () {}
 
 		public void FuncA () {
 			Console.WriteLine ( "CustomClass::FuncA()" );
@@ -76,19 +76,14 @@ namespace RubySharp {
 
 	public class CustomEnum_Wrapper {
 		
-		public static readonly mrb_data_type data_type = new mrb_data_type () {
-			struct_name = "CustomEnum",
-			dfree       = null
-		};
-
-		public static IntPtr     @module;
-		public static IntPtr     data_type_ptr;
+		public static IntPtr @module;
+		public static IntPtr data_type_ptr;
 		public static RubyState state;
 		
 		public static void __Register__ ( RubyState state ) {
 			CustomEnum_Wrapper.state         = state;
 			CustomEnum_Wrapper.@module       = UserDataUtility.DefineCSharpEnum ( state, typeof ( RubySharp.CustomEnum ) );
-			CustomEnum_Wrapper.data_type_ptr = RubyDLL.ObjectToInPtr ( data_type );
+			CustomEnum_Wrapper.data_type_ptr = RubyState.EnumDataTypePtr;
 			
 			RubyDLL.r_define_const ( state, @module, "A", RubyDLL.mrb_fixnum_value ( state, ( int )RubySharp.CustomEnum.A ) );
 			RubyDLL.r_define_const ( state, @module, "B", RubyDLL.mrb_fixnum_value ( state, ( int )RubySharp.CustomEnum.B ) );
@@ -111,17 +106,17 @@ namespace RubySharp {
 
 		public static R_VAL initialize ( IntPtr mrb, R_VAL self ) {
 			CustomClass instance = new CustomClass ();
-			RubyDLL.mrb_data_init ( self, RubyDLL.ObjectToInPtr ( instance ), RubySharp.RubyState.DATA_TYPE_PTR );
+			RubyDLL.mrb_data_init ( self, state.PushRegistedCSharpObject ( instance ), RubySharp.RubyState.ObjectDataTypePtr );
 			return self;
 		}
 
 		public static R_VAL a ( IntPtr mrb, R_VAL self ) {
-			CustomClass instance = RubyDLL.ValueToDataObject< CustomClass > ( mrb, self, RubySharp.RubyState.DATA_TYPE_PTR );
+			CustomClass instance = RubyState.ValueToDataObject< CustomClass > ( state, self, RubySharp.RubyState.ObjectDataTypePtr );
 			return RubyDLL.mrb_fixnum_value ( mrb,  ( int )instance.a );
 		}
 
 		public static R_VAL a_eql ( IntPtr mrb, R_VAL self ) {
-			CustomClass instance = RubyDLL.ValueToDataObject< CustomClass > ( mrb, self, RubySharp.RubyState.DATA_TYPE_PTR );
+			CustomClass instance = RubyState.ValueToDataObject< CustomClass > ( state, self, RubySharp.RubyState.ObjectDataTypePtr );
 			R_VAL[] args = RubyDLL.GetFunctionArgs ( mrb );
 
 			if ( args.Length != 1 ) {
@@ -132,17 +127,17 @@ namespace RubySharp {
 				throw new ArgumentException ( $"CustomClass.a parameter type mismatch: require Int32 but got {RubyDLL.r_type ( args[ 0 ] )}." );
 			}
 
-			instance.a = ( System.Int32 )RubyDLL.FIX2INT ( args[ 0 ] );
+			instance.a = ( System.Int32 )RubyDLL.mrb_fixnum ( args[ 0 ] );
 			return self;
 		}
 
 		public static R_VAL b ( IntPtr mrb, R_VAL self ) {
-			CustomClass instance = RubyDLL.ValueToDataObject< CustomClass > ( mrb, self, RubySharp.RubyState.DATA_TYPE_PTR );
+			CustomClass instance = RubyState.ValueToDataObject< CustomClass > ( state, self, RubySharp.RubyState.ObjectDataTypePtr );
 			return RubyDLL.mrb_float_value ( mrb, ( double )instance.b );
 		}
 
 		public static R_VAL b_eql ( IntPtr mrb, R_VAL self ) {
-			CustomClass instance = RubyDLL.ValueToDataObject< CustomClass > ( mrb, self, RubySharp.RubyState.DATA_TYPE_PTR );
+			CustomClass instance = RubyState.ValueToDataObject< CustomClass > ( state, self, RubySharp.RubyState.ObjectDataTypePtr );
 			R_VAL[] args = RubyDLL.GetFunctionArgs ( mrb );
 
 			if ( args.Length != 1 ) {
@@ -158,12 +153,12 @@ namespace RubySharp {
 		}
 
 		public static R_VAL c ( IntPtr mrb, R_VAL self ) {
-			CustomClass instance = RubyDLL.ValueToDataObject< CustomClass > ( mrb, self, RubySharp.RubyState.DATA_TYPE_PTR );
+			CustomClass instance = RubyState.ValueToDataObject< CustomClass > ( state, self, RubySharp.RubyState.ObjectDataTypePtr );
 			return R_VAL.Create ( mrb, instance.c );
 		}
 
 		public static R_VAL c_eql ( IntPtr mrb, R_VAL self ) {
-			CustomClass instance = RubyDLL.ValueToDataObject< CustomClass > ( mrb, self, RubySharp.RubyState.DATA_TYPE_PTR );
+			CustomClass instance = RubyState.ValueToDataObject< CustomClass > ( state, self, RubySharp.RubyState.ObjectDataTypePtr );
 			R_VAL[] args = RubyDLL.GetFunctionArgs ( mrb );
 
 			if ( args.Length != 1 ) {
@@ -179,12 +174,12 @@ namespace RubySharp {
 		}
 
 		public static R_VAL A ( IntPtr mrb, R_VAL self ) {
-			CustomClass instance = RubyDLL.ValueToDataObject< CustomClass > ( mrb, self, RubySharp.RubyState.DATA_TYPE_PTR );
+			CustomClass instance = RubyState.ValueToDataObject< CustomClass > ( state, self, RubySharp.RubyState.ObjectDataTypePtr );
 			return RubyDLL.mrb_fixnum_value ( mrb, ( int )instance.A );
 		}
 
 		public static R_VAL A_eql ( IntPtr mrb, R_VAL self ) {
-			CustomClass instance = RubyDLL.ValueToDataObject< CustomClass > ( mrb, self, RubySharp.RubyState.DATA_TYPE_PTR );
+			CustomClass instance = RubyState.ValueToDataObject< CustomClass > ( state, self, RubySharp.RubyState.ObjectDataTypePtr );
 			R_VAL[] args = RubyDLL.GetFunctionArgs ( mrb );
 
 			if ( args.Length != 1 ) {
@@ -195,17 +190,17 @@ namespace RubySharp {
 				throw new ArgumentException ( $"CustomClass.A parameter type mismatch: require Int32 but got {RubyDLL.r_type ( args[ 0 ] )}." );
 			}
 
-			instance.A = ( System.Int32 )RubyDLL.FIX2INT ( args[ 0 ] );
+			instance.A = ( System.Int32 )RubyDLL.mrb_fixnum ( args[ 0 ] );
 			return self;
 		}
 
 		public static R_VAL C ( IntPtr mrb, R_VAL self ) {
-			CustomClass instance = RubyDLL.ValueToDataObject< CustomClass > ( mrb, self, RubySharp.RubyState.DATA_TYPE_PTR );
+			CustomClass instance = RubyState.ValueToDataObject< CustomClass > ( state, self, RubySharp.RubyState.ObjectDataTypePtr );
 			return R_VAL.Create ( mrb, instance.C );
 		}
 
 		public static R_VAL C_eql ( IntPtr mrb, R_VAL self ) {
-			CustomClass instance = RubyDLL.ValueToDataObject< CustomClass > ( mrb, self, RubySharp.RubyState.DATA_TYPE_PTR );
+			CustomClass instance = RubyState.ValueToDataObject< CustomClass > ( state, self, RubySharp.RubyState.ObjectDataTypePtr );
 			R_VAL[] args = RubyDLL.GetFunctionArgs ( mrb );
 
 			if ( args.Length != 1 ) {
@@ -221,14 +216,14 @@ namespace RubySharp {
 		}
 
 		public static R_VAL FuncA ( IntPtr mrb, R_VAL self ) {
-			RubySharp.CustomClass instance = RubyDLL.ValueToDataObject< RubySharp.CustomClass > ( mrb, self, RubySharp.RubyState.DATA_TYPE_PTR );
+			RubySharp.CustomClass instance = RubyState.ValueToDataObject< RubySharp.CustomClass > ( state, self, RubySharp.RubyState.ObjectDataTypePtr );
 
 			instance.FuncA ();
 			return self;
 		}
 
 		public static R_VAL FuncB ( IntPtr mrb, R_VAL self ) {
-			RubySharp.CustomClass instance = RubyDLL.ValueToDataObject< RubySharp.CustomClass > ( mrb, self, RubySharp.RubyState.DATA_TYPE_PTR );
+			RubySharp.CustomClass instance = RubyState.ValueToDataObject< RubySharp.CustomClass > ( state, self, RubySharp.RubyState.ObjectDataTypePtr );
 
 			R_VAL[] args = RubyDLL.GetFunctionArgs ( mrb );
 
@@ -240,12 +235,12 @@ namespace RubySharp {
 				throw new ArgumentException ( $"CustomClass.FuncB parameter type mismatch: require Int32 but got {RubyDLL.r_type ( args[ 0 ] )}." );
 			}
 
-			instance.FuncB ( ( System.Int32 )RubyDLL.FIX2INT ( args[ 0 ] ) );
+			instance.FuncB ( ( System.Int32 )RubyDLL.mrb_fixnum ( args[ 0 ] ) );
 			return self;
 		}
 
 		public static R_VAL FuncC ( IntPtr mrb, R_VAL self ) {
-			RubySharp.CustomClass instance = RubyDLL.ValueToDataObject< RubySharp.CustomClass > ( mrb, self, RubySharp.RubyState.DATA_TYPE_PTR );
+			RubySharp.CustomClass instance = RubyState.ValueToDataObject< RubySharp.CustomClass > ( state, self, RubySharp.RubyState.ObjectDataTypePtr );
 
 			R_VAL[] args = RubyDLL.GetFunctionArgs ( mrb );
 
@@ -262,7 +257,7 @@ namespace RubySharp {
 		}
 
 		public static R_VAL FuncD ( IntPtr mrb, R_VAL self ) {
-			RubySharp.CustomClass instance = RubyDLL.ValueToDataObject< RubySharp.CustomClass > ( mrb, self, RubySharp.RubyState.DATA_TYPE_PTR );
+			RubySharp.CustomClass instance = RubyState.ValueToDataObject< RubySharp.CustomClass > ( state, self, RubySharp.RubyState.ObjectDataTypePtr );
 
 			R_VAL[] args = RubyDLL.GetFunctionArgs ( mrb );
 
@@ -286,12 +281,12 @@ namespace RubySharp {
 				throw new ArgumentException ( $"CustomClass.FuncD parameter type mismatch: require CustomClass but got {RubyDLL.r_type ( args[ 4 ] )}." );
 			}
 
-			var ret = instance.FuncD ( ( System.Int32 )RubyDLL.FIX2INT ( args[ 0 ] ), ( Single )RubyDLL.mrb_float ( args[ 1 ] ), R_VAL.Test ( args[ 2 ] ), args[ 3 ].ToString ( state ), RubyDLL.ValueToDataObject< RubySharp.CustomClass > ( mrb, args[ 4 ], RubySharp.RubyState.DATA_TYPE_PTR ) );
-			return RubyDLL.DataObjectToValue ( mrb, RubySharp.CustomClass_Wrapper.@class, RubySharp.RubyState.DATA_TYPE_PTR, ret );
+			var ret = instance.FuncD ( ( System.Int32 )RubyDLL.mrb_fixnum ( args[ 0 ] ), ( Single )RubyDLL.mrb_float ( args[ 1 ] ), R_VAL.Test ( args[ 2 ] ), args[ 3 ].ToString ( state ), RubyState.ValueToDataObject< RubySharp.CustomClass > ( state, args[ 4 ], RubySharp.RubyState.ObjectDataTypePtr ) );
+			return RubyState.ObjectToValue ( state, ret );
 		}
 
 		public static R_VAL FuncG ( IntPtr mrb, R_VAL self ) {
-			RubySharp.CustomClass instance = RubyDLL.ValueToDataObject< RubySharp.CustomClass > ( mrb, self, RubySharp.RubyState.DATA_TYPE_PTR );
+			RubySharp.CustomClass instance = RubyState.ValueToDataObject< RubySharp.CustomClass > ( state, self, RubySharp.RubyState.ObjectDataTypePtr );
 
 			R_VAL[] args = RubyDLL.GetFunctionArgs ( mrb );
 
@@ -300,7 +295,7 @@ namespace RubySharp {
 			}
 
 
-			var ret = instance.FuncG ( RubyDLL.ValueToObject ( mrb, args[ 0 ] ) );
+			var ret = instance.FuncG ( !R_VAL.IsData ( args[ 0 ] ) ? RubyState.ValueToObject ( mrb, args[ 0 ] ) : RubyState.ValueToRefObject ( state, args[ 0 ], data_type_ptr ) );
 			// return RubyDLL.DataObjectToValue ( mrb, System.Object_Wrapper.@class, RubySharp.RubyState.DATA_TYPE_PTR, ret );
 			return self;
 		}
@@ -317,7 +312,7 @@ namespace RubySharp {
 				throw new ArgumentException ( $"CustomClass.FuncE parameter type mismatch: require CustomClass but got {RubyDLL.r_type ( args[ 0 ] )}." );
 			}
 
-			CustomClass.FuncE ( RubyDLL.ValueToDataObject< RubySharp.CustomClass > ( mrb, args[ 0 ], RubySharp.RubyState.DATA_TYPE_PTR ) );
+			CustomClass.FuncE ( RubyState.ValueToDataObject< RubySharp.CustomClass > ( state, args[ 0 ], RubySharp.RubyState.ObjectDataTypePtr ) );
 			return self;
 		}
 
@@ -336,12 +331,12 @@ namespace RubySharp {
 				throw new ArgumentException ( $"CustomClass.FuncF parameter type mismatch: require Single but got {RubyDLL.r_type ( args[ 1 ] )}." );
 			}
 
-			var ret = CustomClass.FuncF ( RubyDLL.ValueToDataObject< RubySharp.CustomClass > ( mrb, args[ 0 ], RubySharp.RubyState.DATA_TYPE_PTR ), ( Single )RubyDLL.mrb_float ( args[ 1 ] ) );
-			return RubyDLL.DataObjectToValue ( mrb, RubySharp.CustomClass_Wrapper.@class, RubySharp.RubyState.DATA_TYPE_PTR, ret );
+			var ret = CustomClass.FuncF ( RubyState.ValueToDataObject< RubySharp.CustomClass > ( state, args[ 0 ], RubySharp.RubyState.ObjectDataTypePtr ), ( Single )RubyDLL.mrb_float ( args[ 1 ] ) );
+			return RubyState.ObjectToValue ( state, ret );
 		}
 
 		public static R_VAL _op_Addition ( IntPtr mrb, R_VAL self ) {
-			CustomClass instance = RubyDLL.ValueToDataObject< CustomClass > ( mrb, self, RubySharp.RubyState.DATA_TYPE_PTR );
+			CustomClass instance = RubyState.ValueToDataObject< CustomClass > ( state, self, RubySharp.RubyState.ObjectDataTypePtr );
 
 			R_VAL[] args = RubyDLL.GetFunctionArgs ( mrb );
 
@@ -354,7 +349,7 @@ namespace RubySharp {
 			}
 
 
-			var right = ( System.Int32 )RubyDLL.FIX2INT ( args[ 0 ] );
+			var right = ( System.Int32 )RubyDLL.mrb_fixnum ( args[ 0 ] );
 			var ret = instance + right;
 			return RubyDLL.mrb_fixnum_value ( mrb, ( int )ret );
 		}
@@ -362,7 +357,7 @@ namespace RubySharp {
 		public static void __Register__ ( RubyState state ) {
 			CustomClass_Wrapper.state = state;
 			CustomClass_Wrapper.@class = UserDataUtility.DefineCSharpClass ( state, typeof ( RubySharp.CustomClass ) );
-			CustomClass_Wrapper.data_type_ptr = RubyDLL.ObjectToInPtr ( data_type_ptr );
+			CustomClass_Wrapper.data_type_ptr = RubyState.ObjectDataTypePtr;
 
 			RubyDLL.r_define_method ( state, @class, "initialize", initialize, rb_args.ANY () );
 			RubyDLL.r_define_method ( state, @class, "a", a, rb_args.ANY () );

@@ -66,6 +66,8 @@ MRB_API mrb_bool mrb_test_ex(mrb_value o);
 MRB_API void mrb_data_init_ex(mrb_value v, void *ptr, const mrb_data_type *type);
 MRB_API struct RData *mrb_data_wrap_struct(mrb_state *mrb, struct RClass *klass, const mrb_data_type *type, void *ptr);
 MRB_API mrb_value mrb_data_wrap_struct_obj(mrb_state *mrb, struct RClass *klass, const mrb_data_type *type, void *ptr);
+MRB_API void mrb_set_data_type(mrb_state *mrb, mrb_value, const mrb_data_type *type);
+MRB_API void mrb_set_data_ptr(mrb_state *mrb, mrb_value, void *ptr);
 
 /*
  * class.h export

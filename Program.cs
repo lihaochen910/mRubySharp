@@ -25,16 +25,18 @@ namespace RubySharp {
                 // Environment.SetEnvironmentVariable ( "LD_LIBRARY_PATH", Path.Combine ( AppDomain.CurrentDomain.BaseDirectory, "lib", "osx" ) + ";" + libPath );
             }
 			
-			Console.WriteLine ( (GC.GetTotalMemory(false) / 1048576f).ToString("F") + " MB" );
+			// Console.WriteLine ( (GC.GetTotalMemory(false) / 1048576f).ToString("F") + " MB" );
 			
             state = new RubyState ();
-			
-			Console.WriteLine ( (GC.GetTotalMemory(false) / 1048576f).ToString("F") + " MB" );
+			state.DoString ( "puts \"ruby #{RUBY_VERSION}\"" );
 
-			R_VAL v1 = R_VAL.Create ( state, 2333 );
+			// Console.WriteLine ( (GC.GetTotalMemory(false) / 1048576f).ToString("F") + " MB" );
+
 #if MRUBY
-            R_VAL v2 = R_VAL.Create ( state, 3.1415926535897932f );
+			R_VAL v1 = R_VAL.Create ( state, 2333 );
+			R_VAL v2 = R_VAL.Create ( state, 3.1415926535897932f );
 #else
+			R_VAL v1 = R_VAL.Create ( 2333 );
             R_VAL v2 = R_VAL.Create ( 3.1415926535897932d );
 #endif
             R_VAL v3 = R_VAL.FALSE;
@@ -50,7 +52,7 @@ namespace RubySharp {
 			
 			state.DefineMethod ( "WriteLine", WriteLine, rb_args.ANY () );
             state.DefineMethod ( "show_backtrace", ShowBackTrace, rb_args.NONE () );
-            state.DefineMethod ( "WriteLineNormal", new System.Action< string, int, float, bool, object > ( TestDelegate ), rb_args.ANY () );
+            state.DefineMethod ( "WriteLineNormal", new System.Action< string, int, float, bool > ( TestDelegate ), rb_args.ANY () );
 			
 			mRubyClass klass = new mRubyClass ( state, "CSharpClass" );
 
@@ -83,16 +85,16 @@ namespace RubySharp {
 			state.DefineMethod ( "show_backtrace", ShowBackTrace, rb_args.NONE () );
 #endif
 			
-            state.DoString ( "puts \"ruby #{RUBY_VERSION}\"" );
-            state.DoString ( "WriteLine(\"Object.new\")" );
+            state.DoString ( "WriteLine(\"System::Object.new\")" );
             state.DoString ( "show_backtrace" );
             state.DoString ( "WriteLineNormal( 'mruby ok!', 1, 9.9, true )" );
             state.DoString ( "puts RubySharp::CustomEnum::A" );
             state.DoString ( "puts RubySharp::CustomEnum::B" );
+            state.DoString ( "puts RubySharp::CustomEnum::C" );
             state.DoString ( "puts RubySharp::CustomClass.new.FuncB( 999 )" );
             state.DoString ( "puts RubySharp::CustomClass.new.FuncC( 'AABB' )" );
             state.DoString ( "puts RubySharp::CustomClass.new.FuncD( 1, 2.0, true, 'HelloString', RubySharp::CustomClass.new )" );
-            // state.DoString ( "puts RubySharp::CustomClass.new + 100" );
+            state.DoString ( "puts RubySharp::CustomClass.+( RubySharp::CustomClass.new, 100 )" );
             state.DoString ( "puts RubySharp::CustomClass::FuncE( nil )" );
             state.DoString ( "puts RubySharp::CustomClass.FuncF( RubySharp::CustomClass.new, 900.0 )" );
             state.DoString ( "puts RubySharp::CustomClass.new.FuncG( RubySharp::CustomClass.new )" );
@@ -108,6 +110,8 @@ namespace RubySharp {
 				Console.WriteLine ( RubyState.GetExceptionBackTrace () );
 			}
 #endif
+			
+			( state as IDisposable ).Dispose ();
             
             // Console.ReadKey ();
         }
@@ -128,8 +132,8 @@ namespace RubySharp {
             return context;
         }
 
-        static void TestDelegate ( string str, int a, float b, bool c, object obj ) {
-            Console.WriteLine ( $"{str}, {a}, {b}, {c}, {obj}" );
+        static void TestDelegate ( string str, int a, float b, bool c ) {
+            Console.WriteLine ( $"{str}, {a}, {b}, {c}" );
         }
 #else
 		

@@ -30,6 +30,7 @@ namespace RubySharp {
 		private bool                             m_IsAction        = false;
 		private bool                             m_IsArrayCtor     = false;
 
+		
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MethodMemberDescriptor"/> class.
 		/// </summary>
@@ -39,7 +40,7 @@ namespace RubySharp {
 		public MethodMemberDescriptor ( MethodBase methodBase ) {
 			CheckMethodIsCompatible ( methodBase, true );
 
-			IsConstructor   = ( methodBase is ConstructorInfo );
+			IsConstructor = methodBase is ConstructorInfo;
 			MethodInfo = methodBase;
 
 			bool isStatic = methodBase.IsStatic || IsConstructor;
@@ -49,7 +50,7 @@ namespace RubySharp {
 			else
 				m_IsAction = ( ( MethodInfo )methodBase ).ReturnType == typeof ( void );
 
-			ParameterInfo[]       reflectionParams = methodBase.GetParameters ();
+			ParameterInfo[] reflectionParams = methodBase.GetParameters ();
 			ParameterDescriptor[] parameters;
 
 			if ( MethodInfo.DeclaringType.IsArray ) {
@@ -57,10 +58,10 @@ namespace RubySharp {
 
 				int rank = MethodInfo.DeclaringType.GetArrayRank ();
 
-				parameters = new ParameterDescriptor[rank];
+				parameters = new ParameterDescriptor[ rank ];
 
 				for ( int i = 0; i < rank; i++ )
-					parameters[ i ] = new ParameterDescriptor ( "idx" + i.ToString (), typeof ( int ) );
+					parameters[ i ] = new ParameterDescriptor ( $"idx_{i}", typeof ( int ) );
 			}
 			else {
 				parameters = reflectionParams.Select ( pi => new ParameterDescriptor ( pi ) ).ToArray ();
@@ -90,7 +91,7 @@ namespace RubySharp {
 			// if ( AccessMode == InteropAccessMode.Preoptimized )
 			// 	( ( IOptimizableDescriptor )this ).Optimize ();
 		}
-
+		
 		/// <summary>
 		/// Tries to create a new MethodMemberDescriptor, returning 
 		/// <c>null</c> in case the method is not
@@ -168,9 +169,9 @@ namespace RubySharp {
 			//      m_OptimizedFunc == null && m_OptimizedAction == null )
 			// 	( ( IOptimizableDescriptor )this ).Optimize ();
 
-			List< int > outParams = null;
-			object[]    pars      = base.BuildArgumentList ( state, obj, args, out outParams );
-			object      retv      = null;
+			List< int > outParams;
+			object[] pars = base.BuildArgumentList ( state, obj, args, out outParams );
+			object retv;
 
 			if ( m_OptimizedFunc != null ) {
 				retv = m_OptimizedFunc ( obj, pars );

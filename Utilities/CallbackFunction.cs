@@ -62,7 +62,7 @@ namespace RubySharp {
 #if DEBUG
 			}
 			catch ( Exception e ) {
-				Console.WriteLine ( $"Exception on CallbackFunction::Invoke() {Name}" );
+				Console.WriteLine ( $"Exception on CallbackFunction::Invoke() {Name}\n{e.Message}" );
 				throw;
 			}
 #endif
@@ -94,12 +94,12 @@ namespace RubySharp {
 		/// <param name="del">The delegate.</param>
 		/// <param name="accessMode">The access mode.</param>
 		/// <returns></returns>
-		public static CallbackFunction FromDelegate ( Delegate del ) {
-
+		public static CallbackFunction FromDelegate ( Delegate del, IntPtr dataTypePtr) {
 #if NETFX_CORE
 			MethodMemberDescriptor descr = new MethodMemberDescriptor ( del.GetMethodInfo () );
 #else
 			MethodMemberDescriptor descr = new MethodMemberDescriptor ( del.Method );
+			descr.DataTypePtr = dataTypePtr;
 #endif
 			return descr.GetCallbackFunction ().SetCallbackTarget ( del.Target );
 		}
@@ -108,36 +108,39 @@ namespace RubySharp {
 		/// <summary>
 		/// Creates a CallbackFunction from a MethodInfo relative to a function.
 		/// </summary>
-		/// <param name="script">The script.</param>
 		/// <param name="mi">The MethodInfo object.</param>
 		/// <param name="obj">The object to which the function applies, or null for static methods.</param>
-		/// <param name="accessMode">The access mode.</param>
 		/// <returns></returns>
 		/// <exception cref="System.ArgumentException">The method is not static.</exception>
-		public static CallbackFunction FromMethodInfo ( System.Reflection.MethodBase mi, object obj = null ) {
+		public static CallbackFunction FromMethodInfo ( System.Reflection.MethodBase mi, IntPtr dataTypePtr, object obj = null ) {
 			MethodMemberDescriptor descr = new MethodMemberDescriptor ( mi );
+			descr.DataTypePtr = dataTypePtr;
 			return descr.GetCallbackFunction ().SetCallbackTarget ( obj );
 		}
 		
 		
-		public static CallbackFunction FromFieldInfo_Get ( System.Reflection.FieldInfo field ) {
+		public static CallbackFunction FromFieldInfo_Get ( System.Reflection.FieldInfo field, IntPtr dataTypePtr ) {
 			FieldDescriptor descr = new FieldDescriptor ( field );
+			descr.DataTypePtr = dataTypePtr;
 			return descr.GetGetCallbackFunction ();
 		}
 		
-		public static CallbackFunction FromFieldInfo_Set ( System.Reflection.FieldInfo field ) {
+		public static CallbackFunction FromFieldInfo_Set ( System.Reflection.FieldInfo field, IntPtr dataTypePtr ) {
 			FieldDescriptor descr = new FieldDescriptor ( field );
+			descr.DataTypePtr = dataTypePtr;
 			return !field.IsInitOnly ? descr.GetSetCallbackFunction () : null;
 		}
 		
-		public static CallbackFunction FromPropertyInfo_Get ( System.Reflection.PropertyInfo property ) {
+		public static CallbackFunction FromPropertyInfo_Get ( System.Reflection.PropertyInfo property, IntPtr dataTypePtr ) {
 			PropertyDescriptor descr = new PropertyDescriptor ( property );
+			descr.DataTypePtr = dataTypePtr;
 			UserDataUtility.TestPropertyCanAccess ( property, out var canGet, out var canSet );
 			return canGet ? descr.GetGetCallbackFunction () : null;
 		}
 		
-		public static CallbackFunction FromPropertyInfo_Set ( System.Reflection.PropertyInfo property ) {
+		public static CallbackFunction FromPropertyInfo_Set ( System.Reflection.PropertyInfo property, IntPtr dataTypePtr ) {
 			PropertyDescriptor descr = new PropertyDescriptor ( property );
+			descr.DataTypePtr = dataTypePtr;
 			UserDataUtility.TestPropertyCanAccess ( property, out var canGet, out var canSet );
 			return canSet ? descr.GetSetCallbackFunction () : null;
 		}

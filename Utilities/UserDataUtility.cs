@@ -27,13 +27,20 @@ namespace RubySharp {
 			return DefineCSharpClass ( state, type );
 		}
 
+		
+		/// <summary>
+		/// DefineCSharpClass in ruby and set data type
+		/// </summary>
+		/// <param name="state"></param>
+		/// <param name="type"></param>
+		/// <returns></returns>
 		public static IntPtr DefineCSharpClass ( RubyState state, Type type ) {
 			// 模块和类的开头必须是大写字母
-			IntPtr   @class        = IntPtr.Zero;
+			IntPtr @class = IntPtr.Zero;
 			string[] namespacePath = type.FullName.Split ( '.' );
 
 			if ( namespacePath.Length == 1 ) {
-				@class = RubyDLL.r_define_class ( state, type.Name, IntPtr.Zero );
+				@class = RubyDLL.r_define_class ( state, type.Name, state.SystemObjectRClass );
 			}
 			else {
 				foreach ( var name in namespacePath ) {
@@ -58,7 +65,7 @@ namespace RubySharp {
 
 					}
 					else if ( name.Equals ( namespacePath[ namespacePath.Length - 1 ] ) ) {
-						@class = RubyDLL.r_define_class_under ( state, @class, validName, IntPtr.Zero );
+						@class = RubyDLL.r_define_class_under ( state, @class, validName, state.SystemObjectRClass );
 						RubyDLL.mrb_set_instance_tt ( @class, rb_vtype.RUBY_T_DATA );
 					}
 					else {
@@ -71,9 +78,10 @@ namespace RubySharp {
 			return @class;
 		}
 		
+		
 		public static IntPtr DefineCSharpEnum ( RubyState state, Type type ) {
 			// 模块的开头必须是大写字母
-			IntPtr   @class        = IntPtr.Zero;
+			IntPtr @class = IntPtr.Zero;
 			string[] namespacePath = type.FullName.Split ( '.' );
 
 			if ( namespacePath.Length == 1 ) {
@@ -86,7 +94,7 @@ namespace RubySharp {
 					
 					// 检查命名开头字母大小写
 					if ( !char.IsUpper ( name[ 0 ] ) ) {
-						char   head    = char.ToUpper ( name[ 0 ] );
+						char head = char.ToUpper ( name[ 0 ] );
 						string newName = name;
 						newName = name.Remove ( 0, 1 );
 						newName = newName.Insert ( 0, head.ToString () );
@@ -123,6 +131,7 @@ namespace RubySharp {
 			RegisterClass < T > ( state );
 		}
 		
+		
 		public static void RegisterEnum < T > ( RubyState state ) {
 			
 			Type type = typeof ( T );
@@ -134,27 +143,43 @@ namespace RubySharp {
 			}
 		}
 
+		
 		public static void RegisterClass < T > ( RubyState state ) {
 			
 			Type type = typeof ( T );
 			
 			IntPtr @class = UserDataUtility.DefineCSharpClass ( state, type );
 			
+			mrb_data_type dataType = RubyState.ObjectDataType;
+			IntPtr dataTypePtr = RubyState.ObjectDataTypePtr;
+			// state.AffirmDataTypeStruct< T >( out dataType, out dataTypePtr );
+			state.AddRegistedTypeInfo< T >( @class, dataType, dataTypePtr );
+			RegistedTypeInfo registedTypeInfo = state.GetRegistedTypeInfo ( type );
+			Dictionary< string, RubyDLL.RubyCSFunction > instanceFunction = new Dictionary< string, RubyDLL.RubyCSFunction > ();
+			Dictionary< string, RubyDLL.RubyCSFunction > classFunction = new Dictionary< string, RubyDLL.RubyCSFunction > ();
+			
 			// Reg Ctor
 			if ( !type.IsAbstract || !type.IsSealed ) {
 				ConstructorInfo publicCtor = type.GetConstructors ( BindingFlags.Public | BindingFlags.Instance ).OrderBy ( c => c.GetParameters ().Length ).FirstOrDefault ();
 				if ( publicCtor != null ) {
 
-					CallbackFunction function = CallbackFunction.FromMethodInfo ( publicCtor );
+					// CallbackFunction function = CallbackFunction.FromMethodInfo ( publicCtor );
 
 					RubyDLL.RubyCSFunction rubyFunction = ( mrb, self ) => {
-						T obj = RubyDLL.ValueToDataObject< T > ( mrb, function.Invoke ( state, self ), RubyState.DATA_TYPE_PTR );
-						RubyDLL.mrb_data_init ( self, RubyDLL.ObjectToInPtr ( obj ), RubyState.DATA_TYPE_PTR );
+						// T obj = RubyDLL.ValueToDataObject< T > ( mrb, function.Invoke ( state, self ), RubyState.DATA_TYPE_PTR );
+						// RubyDLL.mrb_data_init ( self, RubyDLL.ObjectToInPtr ( obj ), RubyState.DATA_TYPE_PTR );
+						
+						object obj = Activator.CreateInstance ( type, RubyState.RubyFunctionParamsToObjects ( mrb, dataTypePtr ) );
+						RubyDLL.mrb_data_init ( self, state.PushRegistedCSharpObject ( obj ), dataTypePtr );
+
+						// 添加实例映射
+						state.AddCRInstanceMap ( obj, self );
+						
 						return self;
 					};
 
-					RubyDLL.r_define_method ( state, @class, "initialize", rubyFunction, rb_args.ANY () );
-					
+					RubyDLL.r_define_method ( state, @class, "initialize", rubyFunction, rb_args.REQ ( (uint)publicCtor.GetParameters ().Length ) );
+					registedTypeInfo.ctorFunction = rubyFunction;
 				}
 			}
 			
@@ -171,23 +196,27 @@ namespace RubySharp {
 					continue;
 				}
 
-				CallbackFunction getFunc = CallbackFunction.FromFieldInfo_Get ( field );
-				CallbackFunction setFunc = CallbackFunction.FromFieldInfo_Set ( field );
+				CallbackFunction getFunc = CallbackFunction.FromFieldInfo_Get ( field, dataTypePtr );
+				CallbackFunction setFunc = CallbackFunction.FromFieldInfo_Set ( field, dataTypePtr );
 
 				RubyDLL.RubyCSFunction getFunction = ( mrb, self ) => {
-					T obj = RubyDLL.ValueToDataObject< T > ( mrb, self, RubyState.DATA_TYPE_PTR );
+					// T obj = RubyDLL.ValueToDataObject< T > ( mrb, self, dataTypePtr );
+					object obj = RubyState.ValueToRefObject ( state, self, dataTypePtr );
 					return getFunc.SetCallbackTarget ( obj ).Invoke ( state, self );
 				};
 
 				RubyDLL.r_define_method ( state, @class, field.Name, getFunction, rb_args.NONE () );
+				instanceFunction.Add ( field.Name, getFunction );
 				
 				if ( setFunc != null ) {
 					RubyDLL.RubyCSFunction setFunction = ( mrb, self ) => {
-						T obj = RubyDLL.ValueToDataObject< T > ( mrb, self, RubyState.DATA_TYPE_PTR );
+						// T obj = RubyDLL.ValueToDataObject< T > ( mrb, self, dataTypePtr );
+						object obj = RubyState.ValueToRefObject ( state, self, dataTypePtr );
 						return setFunc.SetCallbackTarget ( obj ).Invoke ( state, self );
 					};
 
-					RubyDLL.r_define_method ( state, @class, field.Name + "=", setFunction, rb_args.REQ ( 1 ) );
+					RubyDLL.r_define_method ( state, @class, $"{field.Name}=", setFunction, rb_args.REQ ( 1 ) );
+					instanceFunction.Add ( $"{field.Name}=", setFunction );
 				}
 			}
 			
@@ -204,25 +233,29 @@ namespace RubySharp {
 					continue;
 				}
 				
-				CallbackFunction getFunc = CallbackFunction.FromPropertyInfo_Get ( property );
-				CallbackFunction setFunc = CallbackFunction.FromPropertyInfo_Set ( property );
+				CallbackFunction getFunc = CallbackFunction.FromPropertyInfo_Get ( property, dataTypePtr );
+				CallbackFunction setFunc = CallbackFunction.FromPropertyInfo_Set ( property, dataTypePtr );
 
 				if ( getFunc != null ) {
 					RubyDLL.RubyCSFunction getFunction = ( mrb, self ) => {
-						T obj = RubyDLL.ValueToDataObject< T > ( mrb, self, RubyState.DATA_TYPE_PTR );
+						// T obj = RubyDLL.ValueToDataObject< T > ( mrb, self, dataTypePtr );
+						object obj = RubyState.ValueToRefObject ( state, self, dataTypePtr );
 						return getFunc.SetCallbackTarget ( obj ).Invoke ( state, self );
 					};
 
 					RubyDLL.r_define_method ( state, @class, property.Name, getFunction, rb_args.NONE () );
+					instanceFunction.Add ( property.Name, getFunction );
 				}
 				
 				if ( setFunc != null ) {
 					RubyDLL.RubyCSFunction setFunction = ( mrb, self ) => {
-						T obj = RubyDLL.ValueToDataObject< T > ( mrb, self, RubyState.DATA_TYPE_PTR );
+						// T obj = RubyDLL.ValueToDataObject< T > ( mrb, self, dataTypePtr );
+						object obj = RubyState.ValueToRefObject ( state, self, dataTypePtr );
 						return setFunc.SetCallbackTarget ( obj ).Invoke ( state, self );
 					};
 
-					RubyDLL.r_define_method ( state, @class, property.Name + "=", setFunction, rb_args.REQ ( 1 ) );
+					RubyDLL.r_define_method ( state, @class,  $"{property.Name}=", setFunction, rb_args.REQ ( 1 ) );
+					instanceFunction.Add ( $"{property.Name}=", setFunction );
 				}
 			}
 			
@@ -240,15 +273,21 @@ namespace RubySharp {
 				// if ( generatedMethods.ContainsKey ( method.Name ) ) {
 				// 	continue;
 				// }
+
+				if ( instanceFunction.ContainsKey ( method.Name ) ) {
+					continue;
+				}
 				
-				CallbackFunction function = CallbackFunction.FromMethodInfo ( method );
+				CallbackFunction function = CallbackFunction.FromMethodInfo ( method, dataTypePtr );
 
 				RubyDLL.RubyCSFunction rubyFunction = ( mrb, self ) => {
-					T obj = RubyDLL.ValueToDataObject< T > ( mrb, self, RubyState.DATA_TYPE_PTR );
+					// T obj = RubyDLL.ValueToDataObject< T > ( mrb, self, dataTypePtr );
+					object obj = RubyState.ValueToRefObject ( state, self, dataTypePtr );
 					return function.SetCallbackTarget ( obj ).Invoke ( state, self );
 				};
 
 				RubyDLL.r_define_method ( state, @class, method.Name, rubyFunction, rb_args.ANY () );
+				instanceFunction.Add ( method.Name, rubyFunction );
 			}
 			
 			IList< MethodInfo > publicStaticMethods = type.GetMethods ( BindingFlags.Public | BindingFlags.Static )
@@ -265,16 +304,22 @@ namespace RubySharp {
 				// 	continue;
 				// }
 				
-				CallbackFunction function = CallbackFunction.FromMethodInfo ( method );
+				if ( classFunction.ContainsKey ( method.Name ) ) {
+					continue;
+				}
+				
+				CallbackFunction function = CallbackFunction.FromMethodInfo ( method, dataTypePtr );
 
 				RubyDLL.RubyCSFunction rubyFunction = ( mrb, self ) => {
 					return function.Invoke ( state, self );
 				};
 
 				RubyDLL.r_define_class_method ( state, @class, method.Name, rubyFunction, rb_args.ANY () );
+				classFunction.Add ( method.Name, rubyFunction );
 			}
 			
 			// Reg Operator Function Static ??
+			// 当前可以注册为ruby类方法问题，运算符在ruby中是实例方法，在C#中是静态方法
 			foreach ( var kv in operator_methods ) {
 				
 				var methodInfo = type.GetMethods ( BindingFlags.Public | BindingFlags.Static )
@@ -299,15 +344,19 @@ namespace RubySharp {
 				if ( !TestTypeSupport ( methodInfo.GetParameters ()[ 1 ].ParameterType ) ) {
 					continue;
 				}
-				
-				CallbackFunction function = CallbackFunction.FromMethodInfo ( methodInfo );
+
+				CallbackFunction function = CallbackFunction.FromMethodInfo ( methodInfo, dataTypePtr );
 
 				RubyDLL.RubyCSFunction rubyFunction = ( mrb, self ) => {
 					return function.Invoke ( state, self );
 				};
 
-				RubyDLL.r_define_class_method ( state, @class, kv.Value, rubyFunction, rb_args.ANY () );
+				RubyDLL.r_define_class_method ( state, @class, kv.Value, rubyFunction, rb_args.REQ ( 1 ) );
+				classFunction.Add ( kv.Value, rubyFunction );
 			}
+
+			registedTypeInfo.instanceFunction = instanceFunction;
+			registedTypeInfo.classFunction = classFunction;
 		}
 #endif
 		
@@ -378,6 +427,12 @@ namespace RubySharp {
 			}
 			
 			return true;
+		}
+		
+		
+		public static bool IsValueType ( object obj ) {
+			Type t = obj.GetType ();
+			return !t.IsEnum && t.IsValueType;
 		}
 	}
 }

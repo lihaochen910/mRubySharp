@@ -252,6 +252,16 @@ MRB_API mrb_value mrb_data_wrap_struct_obj(mrb_state *mrb, struct RClass *klass,
   return mrb_obj_value(Data_Wrap_Struct(mrb, klass, type, ptr));
 }
 
+MRB_API void mrb_set_data_type(mrb_state *mrb, mrb_value v, const mrb_data_type *type)
+{
+  DATA_TYPE(v) = type;
+}
+
+MRB_API void mrb_set_data_ptr(mrb_state *mrb, mrb_value v, void *ptr)
+{
+  DATA_PTR(v) = ptr;
+}
+
 MRB_API void mrb_set_instance_tt(struct RClass *c, enum mrb_vtype tt)
 {
   MRB_SET_INSTANCE_TT(c, tt);

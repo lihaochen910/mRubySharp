@@ -1,14 +1,12 @@
 ﻿using System;
 using System.IO;
-using System.Runtime.InteropServices;
 
 
-namespace RubySharp {
+namespace RubySharp.Sample {
     
     class Program {
-
-
-		static RubyState state;
+		
+		private static RubyState _state;
 
         /// <summary>
         /// The main entry point for the application.
@@ -27,14 +25,14 @@ namespace RubySharp {
 			
 			// Console.WriteLine ( (GC.GetTotalMemory(false) / 1048576f).ToString("F") + " MB" );
 			
-            state = new RubyState ();
-			state.DoString ( "puts \"ruby #{RUBY_VERSION}\"" );
+            _state = new RubyState ();
+			_state.DoString ( "puts \"ruby #{RUBY_VERSION}\"" );
 
 			// Console.WriteLine ( (GC.GetTotalMemory(false) / 1048576f).ToString("F") + " MB" );
 
 #if MRUBY
-			R_VAL v1 = R_VAL.Create ( state, 2333 );
-			R_VAL v2 = R_VAL.Create ( state, 3.1415926535897932f );
+			R_VAL v1 = R_VAL.Create ( _state, 2333 );
+			R_VAL v2 = R_VAL.Create ( _state, 3.1415926535897932f );
 #else
 			R_VAL v1 = R_VAL.Create ( 2333 );
             R_VAL v2 = R_VAL.Create ( 3.1415926535897932d );
@@ -44,17 +42,17 @@ namespace RubySharp {
             R_VAL v5 = R_VAL.NIL;
 
 #if MRUBY
-            Console.WriteLine ( v1.ToString ( state ) );
-            Console.WriteLine ( v2.ToString ( state ) );
-            Console.WriteLine ( v3.ToString ( state ) );
-            Console.WriteLine ( v4.ToString ( state ) );
-            Console.WriteLine ( v5.ToString ( state ) );
+            Console.WriteLine ( v1.ToString ( _state ) );
+            Console.WriteLine ( v2.ToString ( _state ) );
+            Console.WriteLine ( v3.ToString ( _state ) );
+            Console.WriteLine ( v4.ToString ( _state ) );
+            Console.WriteLine ( v5.ToString ( _state ) );
 			
-			state.DefineMethod ( "WriteLine", WriteLine, rb_args.ANY () );
-            state.DefineMethod ( "show_backtrace", ShowBackTrace, rb_args.NONE () );
-            state.DefineMethod ( "WriteLineNormal", new System.Action< string, int, float, bool > ( TestDelegate ), rb_args.ANY () );
+			_state.DefineMethod ( "WriteLine", WriteLine, rb_args.ANY () );
+            _state.DefineMethod ( "show_backtrace", ShowBackTrace, rb_args.NONE () );
+            _state.DefineMethod ( "WriteLineNormal", new System.Action< string, int, float, bool > ( TestDelegate ), rb_args.ANY () );
 			
-			mRubyClass klass = new mRubyClass ( state, "CSharpClass" );
+			mRubyClass klass = new mRubyClass ( _state, "CSharpClass" );
 
             klass.DefineMethod ( "write", WriteLine, rb_args.ANY () );
 			
@@ -66,8 +64,8 @@ namespace RubySharp {
             // WrapperUtility.GenCSharpClass ( typeof ( CustomClass ) );
             // WrapperUtility.GenCSharpClass ( typeof ( CustomEnum ) );
 
-            UserDataUtility.RegisterType< CustomClass > ( state );
-            UserDataUtility.RegisterType< CustomEnum > ( state );
+            UserDataUtility.RegisterType< CustomClass > ( _state );
+            UserDataUtility.RegisterType< CustomEnum > ( _state );
 
             // CustomClass_Wrapper.__Register__ ( state );
             // CustomEnum_Wrapper.__Register__ ( state );
@@ -85,24 +83,24 @@ namespace RubySharp {
 			state.DefineMethod ( "show_backtrace", ShowBackTrace, rb_args.NONE () );
 #endif
 			
-            state.DoString ( "WriteLine(\"System::Object.new\")" );
-            state.DoString ( "show_backtrace" );
-            state.DoString ( "WriteLineNormal( 'mruby ok!', 1, 9.9, true )" );
-            state.DoString ( "puts RubySharp::CustomEnum::A" );
-            state.DoString ( "puts RubySharp::CustomEnum::B" );
-            state.DoString ( "puts RubySharp::CustomEnum::C" );
-            state.DoString ( "puts RubySharp::CustomClass.new.FuncB( 999 )" );
-            state.DoString ( "puts RubySharp::CustomClass.new.FuncC( 'AABB' )" );
-            state.DoString ( "puts RubySharp::CustomClass.new.FuncD( 1, 2.0, true, 'HelloString', RubySharp::CustomClass.new )" );
-            state.DoString ( "puts RubySharp::CustomClass.+( RubySharp::CustomClass.new, 100 )" );
-            state.DoString ( "puts RubySharp::CustomClass::FuncE( nil )" );
-            state.DoString ( "puts RubySharp::CustomClass.FuncF( RubySharp::CustomClass.new, 900.0 )" );
-            state.DoString ( "puts RubySharp::CustomClass.new.FuncG( RubySharp::CustomClass.new )" );
+            _state.DoString ( "WriteLine(\"System::Object.new\")" );
+            _state.DoString ( "show_backtrace" );
+            _state.DoString ( "WriteLineNormal( 'mruby ok!', 1, 9.9, true )" );
+            _state.DoString ( "puts RubySharp::CustomEnum::A" );
+            _state.DoString ( "puts RubySharp::CustomEnum::B" );
+            _state.DoString ( "puts RubySharp::CustomEnum::C" );
+            _state.DoString ( "puts RubySharp::CustomClass.new.FuncB( 999 )" );
+            _state.DoString ( "puts RubySharp::CustomClass.new.FuncC( 'AABB' )" );
+            _state.DoString ( "puts RubySharp::CustomClass.new.FuncD( 1, 2.0, true, 'HelloString', RubySharp::CustomClass.new )" );
+            _state.DoString ( "puts RubySharp::CustomClass.+( RubySharp::CustomClass.new, 100 )" );
+            _state.DoString ( "puts RubySharp::CustomClass::FuncE( nil )" );
+            _state.DoString ( "puts RubySharp::CustomClass.FuncF( RubySharp::CustomClass.new, 900.0 )" );
+            _state.DoString ( "puts RubySharp::CustomClass.new.FuncG( RubySharp::CustomClass.new )" );
 
 #if MRUBY
-            if ( RubyDLL.mrb_has_exc ( state ) ) {
-                Console.WriteLine ( state.GetExceptionBackTrace () );
-                RubyDLL.mrb_exc_clear ( state );
+            if ( RubyDLL.mrb_has_exc ( _state ) ) {
+                Console.WriteLine ( _state.GetExceptionBackTrace () );
+                RubyDLL.mrb_exc_clear ( _state );
             }
 #else
 			R_VAL exc = RubyDLL.rb_errinfo ();
@@ -111,7 +109,7 @@ namespace RubySharp {
 			}
 #endif
 			
-			( state as IDisposable ).Dispose ();
+			( _state as IDisposable ).Dispose ();
             
             // Console.ReadKey ();
         }
@@ -128,7 +126,7 @@ namespace RubySharp {
         }
 
         static R_VAL ShowBackTrace ( IntPtr state, R_VAL context ) {
-            Console.WriteLine ( Program.state.GetExceptionBackTrace () );
+            Console.WriteLine ( Program._state.GetExceptionBackTrace () );
             return context;
         }
 

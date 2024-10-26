@@ -1,7 +1,8 @@
 ﻿#if MRUBY
+using System;
+
+
 namespace RubySharp {
-	
-	using System;
 	
 	/// <summary>
 	/// This class wraps a CLR function 
@@ -32,7 +33,7 @@ namespace RubySharp {
 		/// </summary>
 		/// <param name="callBack">The callback function to be called.</param>
 		/// <param name="name">The callback name, used in stacktraces, debugger, etc..</param>
-		public CallbackFunction ( Func< RubyState, object, CallbackArguments, R_VAL > callBack, string name = null ) {
+		public CallbackFunction( Func< RubyState, object, CallbackArguments, R_VAL > callBack, string name = null ) {
 			ClrCallback = callBack;
 			Name = name;
 		}
@@ -41,7 +42,7 @@ namespace RubySharp {
 		/// Set target
 		/// </summary>
 		/// <param name="target"></param>
-		public CallbackFunction SetCallbackTarget ( object target ) {
+		public CallbackFunction SetCallbackTarget( object target ) {
 			Target = target;
 			return this;
 		}
@@ -54,15 +55,15 @@ namespace RubySharp {
 		/// <param name="args">The arguments.</param>
 		/// <param name="isMethodCall">if set to <c>true</c> this is a method call.</param>
 		/// <returns></returns>
-		public R_VAL Invoke ( RubyState state, R_VAL self ) {
+		public R_VAL Invoke( RubyState state, R_VAL self ) {
 #if DEBUG
 			try {
 #endif
-				return ClrCallback ( state, Target, new CallbackArguments ( RubyDLL.GetFunctionArgs ( state ) ) );
+				return ClrCallback( state, Target, new CallbackArguments( RubyDLL.GetFunctionArgs( state ) ) );
 #if DEBUG
 			}
 			catch ( Exception e ) {
-				Console.WriteLine ( $"Exception on CallbackFunction::Invoke() {Name}\n{e.Message}" );
+				Console.WriteLine( $"Exception on CallbackFunction::Invoke() {Name}\n{e.Message}" );
 				throw;
 			}
 #endif
@@ -94,14 +95,14 @@ namespace RubySharp {
 		/// <param name="del">The delegate.</param>
 		/// <param name="accessMode">The access mode.</param>
 		/// <returns></returns>
-		public static CallbackFunction FromDelegate ( Delegate del, IntPtr dataTypePtr) {
+		public static CallbackFunction FromDelegate( Delegate del, IntPtr dataTypePtr) {
 #if NETFX_CORE
-			MethodMemberDescriptor descr = new MethodMemberDescriptor ( del.GetMethodInfo () );
+			MethodMemberDescriptor descr = new MethodMemberDescriptor( del.GetMethodInfo () );
 #else
-			MethodMemberDescriptor descr = new MethodMemberDescriptor ( del.Method );
+			MethodMemberDescriptor descr = new MethodMemberDescriptor( del.Method );
 			descr.DataTypePtr = dataTypePtr;
 #endif
-			return descr.GetCallbackFunction ().SetCallbackTarget ( del.Target );
+			return descr.GetCallbackFunction ().SetCallbackTarget( del.Target );
 		}
 
 
@@ -112,37 +113,37 @@ namespace RubySharp {
 		/// <param name="obj">The object to which the function applies, or null for static methods.</param>
 		/// <returns></returns>
 		/// <exception cref="System.ArgumentException">The method is not static.</exception>
-		public static CallbackFunction FromMethodInfo ( System.Reflection.MethodBase mi, IntPtr dataTypePtr, object obj = null ) {
-			MethodMemberDescriptor descr = new MethodMemberDescriptor ( mi );
+		public static CallbackFunction FromMethodInfo( System.Reflection.MethodBase mi, IntPtr dataTypePtr, object obj = null ) {
+			MethodMemberDescriptor descr = new MethodMemberDescriptor( mi );
 			descr.DataTypePtr = dataTypePtr;
-			return descr.GetCallbackFunction ().SetCallbackTarget ( obj );
+			return descr.GetCallbackFunction().SetCallbackTarget( obj );
 		}
 		
 		
-		public static CallbackFunction FromFieldInfo_Get ( System.Reflection.FieldInfo field, IntPtr dataTypePtr ) {
-			FieldDescriptor descr = new FieldDescriptor ( field );
+		public static CallbackFunction FromFieldInfo_Get( System.Reflection.FieldInfo field, IntPtr dataTypePtr ) {
+			FieldDescriptor descr = new FieldDescriptor( field );
 			descr.DataTypePtr = dataTypePtr;
-			return descr.GetGetCallbackFunction ();
+			return descr.GetGetCallbackFunction();
 		}
 		
-		public static CallbackFunction FromFieldInfo_Set ( System.Reflection.FieldInfo field, IntPtr dataTypePtr ) {
-			FieldDescriptor descr = new FieldDescriptor ( field );
+		public static CallbackFunction FromFieldInfo_Set( System.Reflection.FieldInfo field, IntPtr dataTypePtr ) {
+			FieldDescriptor descr = new FieldDescriptor( field );
 			descr.DataTypePtr = dataTypePtr;
-			return !field.IsInitOnly ? descr.GetSetCallbackFunction () : null;
+			return !field.IsInitOnly ? descr.GetSetCallbackFunction() : null;
 		}
 		
-		public static CallbackFunction FromPropertyInfo_Get ( System.Reflection.PropertyInfo property, IntPtr dataTypePtr ) {
-			PropertyDescriptor descr = new PropertyDescriptor ( property );
+		public static CallbackFunction FromPropertyInfo_Get( System.Reflection.PropertyInfo property, IntPtr dataTypePtr ) {
+			PropertyDescriptor descr = new PropertyDescriptor( property );
 			descr.DataTypePtr = dataTypePtr;
-			UserDataUtility.TestPropertyCanAccess ( property, out var canGet, out var canSet );
-			return canGet ? descr.GetGetCallbackFunction () : null;
+			UserDataUtility.TestPropertyCanAccess( property, out var canGet, out var canSet );
+			return canGet ? descr.GetGetCallbackFunction() : null;
 		}
 		
-		public static CallbackFunction FromPropertyInfo_Set ( System.Reflection.PropertyInfo property, IntPtr dataTypePtr ) {
-			PropertyDescriptor descr = new PropertyDescriptor ( property );
+		public static CallbackFunction FromPropertyInfo_Set( System.Reflection.PropertyInfo property, IntPtr dataTypePtr ) {
+			PropertyDescriptor descr = new PropertyDescriptor( property );
 			descr.DataTypePtr = dataTypePtr;
-			UserDataUtility.TestPropertyCanAccess ( property, out var canGet, out var canSet );
-			return canSet ? descr.GetSetCallbackFunction () : null;
+			UserDataUtility.TestPropertyCanAccess( property, out var canGet, out var canSet );
+			return canSet ? descr.GetSetCallbackFunction() : null;
 		}
 
 
@@ -155,15 +156,16 @@ namespace RubySharp {
 		/// <summary>
 		/// Checks the callback signature of a method is compatible for callbacks
 		/// </summary>
-		public static bool CheckCallbackSignature ( System.Reflection.MethodInfo mi, bool requirePublicVisibility ) {
-			System.Reflection.ParameterInfo[] pi = mi.GetParameters ();
+		public static bool CheckCallbackSignature( System.Reflection.MethodInfo mi, bool requirePublicVisibility ) {
+			System.Reflection.ParameterInfo[] pi = mi.GetParameters();
 
-			return ( pi.Length == 2 && pi[ 0 ].ParameterType == typeof ( IntPtr )
-			                        && pi[ 1 ].ParameterType == typeof ( R_VAL ) &&
-			                        mi.ReturnType == typeof ( R_VAL ) &&
+			return ( pi.Length == 2 && pi[ 0 ].ParameterType == typeof( IntPtr )
+			                        && pi[ 1 ].ParameterType == typeof( R_VAL ) &&
+			                        mi.ReturnType == typeof( R_VAL ) &&
 			                        ( requirePublicVisibility || mi.IsPublic ) );
 		}
 		
 	}
+	
 }
 #endif

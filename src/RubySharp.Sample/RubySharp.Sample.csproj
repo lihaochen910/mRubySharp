@@ -1,0 +1,37 @@
+<Project>
+    <PropertyGroup>
+        <BaseIntermediateOutputPath>../../bin/$(Configuration)/obj</BaseIntermediateOutputPath>
+    </PropertyGroup>
+    <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.props" />
+
+    <PropertyGroup>
+        <LangVersion>latest</LangVersion>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <RootNamespace>RubySharp.Sample</RootNamespace>
+        <AssemblyName>RubySharp.Sample</AssemblyName>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+        <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+        <StartupObject>RubySharp.Program</StartupObject>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+        <DefineConstants>TRACE;DEBUG</DefineConstants>
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <DefineConstants >TRACE;DEBUG;MRUBY</DefineConstants>
+        <OutputPath>..\..\bin\$(Configuration)</OutputPath>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\RubySharp\RubySharp.csproj" />
+    </ItemGroup>
+
+    <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.targets" />
+</Project>

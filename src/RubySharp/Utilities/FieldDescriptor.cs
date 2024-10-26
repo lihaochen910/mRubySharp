@@ -1,9 +1,10 @@
 #if MRUBY
+using System;
+using System.Reflection;
+
+
 namespace RubySharp {
 	
-	using System;
-	using System.Reflection;
-
 	/// <summary>
 	/// Class providing easier marshalling of get / set CLR fields
 	/// </summary>
@@ -27,7 +28,7 @@ namespace RubySharp {
 
 		public IntPtr DataTypePtr { get; set; }
 		
-		public FieldDescriptor ( FieldInfo fieldInfo ) {
+		public FieldDescriptor( FieldInfo fieldInfo ) {
 			this.FieldInfo = fieldInfo;
 			IsStatic = fieldInfo.IsStatic;
 			Name = fieldInfo.Name;
@@ -38,7 +39,7 @@ namespace RubySharp {
 		/// </summary>
 		/// <param name="obj">The object (null for static).</param>
 		/// <returns></returns>
-		public Func< RubyState, object, CallbackArguments, R_VAL > GetGetCallback () {
+		public Func< RubyState, object, CallbackArguments, R_VAL > GetGetCallback() {
 			return ExecuteGet;
 		}
 		
@@ -48,7 +49,7 @@ namespace RubySharp {
 		/// <param name="script">The script for which the callback must be generated.</param>
 		/// <param name="obj">The object (null for static).</param>
 		/// <returns></returns>
-		public Func< RubyState, object, CallbackArguments, R_VAL > GetSetCallback () {
+		public Func< RubyState, object, CallbackArguments, R_VAL > GetSetCallback() {
 			return ExecuteSet;
 		}
 
@@ -59,8 +60,8 @@ namespace RubySharp {
 		/// <param name="script">The script for which the callback must be generated.</param>
 		/// <param name="obj">The object (null for static).</param>
 		/// <returns></returns>
-		public CallbackFunction GetGetCallbackFunction () {
-			return new CallbackFunction ( GetGetCallback (), this.Name );
+		public CallbackFunction GetGetCallbackFunction() {
+			return new CallbackFunction( GetGetCallback(), Name );
 		}
 		
 		
@@ -69,8 +70,8 @@ namespace RubySharp {
 		/// </summary>
 		/// <param name="obj">The object (null for static).</param>
 		/// <returns></returns>
-		public CallbackFunction GetSetCallbackFunction () {
-			return new CallbackFunction ( GetSetCallback (), this.Name );
+		public CallbackFunction GetSetCallbackFunction() {
+			return new CallbackFunction( GetSetCallback(), Name );
 		}
 
 		
@@ -81,8 +82,8 @@ namespace RubySharp {
 		/// <param name="pars">The parameters passed to the function.</param>
 		/// <param name="retv">The return value from the function. Use DynValue.Void if the function returned no value.</param>
 		/// <returns>A DynValue to be returned to scripts</returns>
-		protected static R_VAL BuildReturnValue ( RubyState state, object retv ) {
-			return RubyState.ObjectToValue ( state, retv );
+		protected static R_VAL BuildReturnValue( RubyState state, object retv ) {
+			return RubyState.ObjectToValue( state, retv );
 		}
 
 		/// <summary>
@@ -91,15 +92,17 @@ namespace RubySharp {
 		/// <param name="obj">The object.</param>
 		/// <param name="args">The arguments.</param>
 		/// <returns></returns>
-		public R_VAL ExecuteGet ( RubyState state, object obj, CallbackArguments args ) {
-			return RubyState.ObjectToValue ( state, FieldInfo.GetValue ( obj ) );
+		public R_VAL ExecuteGet( RubyState state, object obj, CallbackArguments args ) {
+			return RubyState.ObjectToValue( state, FieldInfo.GetValue( obj ) );
 		}
 		
-		public R_VAL ExecuteSet ( RubyState state, object obj, CallbackArguments args ) {
-			var arg = args.RawGet ( 0, false );
-			FieldInfo.SetValue ( obj, RubyState.ValueToObjectOfType ( state, arg, DataTypePtr, FieldInfo.FieldType, FieldInfo.FieldType, false ) );
+		public R_VAL ExecuteSet( RubyState state, object obj, CallbackArguments args ) {
+			var arg = args.RawGet( 0, false );
+			FieldInfo.SetValue( obj, RubyState.ValueToObjectOfType( state, arg, DataTypePtr, FieldInfo.FieldType, FieldInfo.FieldType, false ) );
 			return R_VAL.NIL;
 		}
+		
 	}
+	
 }
 #endif

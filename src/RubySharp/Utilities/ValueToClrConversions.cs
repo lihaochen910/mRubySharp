@@ -1,6 +1,7 @@
-﻿using System;
+﻿#if false
+using System;
 
-namespace CandyFramework.mRuby
+namespace RubySharp
 {
 	internal static class ValueToClrConversions
 	{
@@ -195,3 +196,4 @@ namespace CandyFramework.mRuby
 
 	}
 }
+#endif

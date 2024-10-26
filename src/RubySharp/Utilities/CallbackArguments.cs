@@ -1,11 +1,13 @@
-﻿namespace RubySharp {
-	
-	using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
+
+namespace RubySharp {
+	
 	/// <summary>
 	/// This class is a container for arguments received by a CallbackFunction
 	/// </summary>
 	public class CallbackArguments {
+		
 		IList< R_VAL > m_Args;
 		int m_Count;
 		// bool m_LastIsTuple = false;
@@ -15,7 +17,7 @@
 		/// </summary>
 		/// <param name="args">The arguments.</param>
 		/// <param name="isMethodCall">if set to <c>true</c> [is method call].</param>
-		public CallbackArguments ( IList< R_VAL > args ) {
+		public CallbackArguments( IList< R_VAL > args ) {
 			m_Args = args;
 
 			if ( m_Args.Count > 0 ) {
@@ -44,9 +46,7 @@
 		/// <summary>
 		/// Gets the count of arguments
 		/// </summary>
-		public int Count {
-			get { return m_Count; }
-		}
+		public int Count => m_Count;
 
 		/// <summary>
 		/// Gets or sets a value indicating whether this is a method call.
@@ -57,9 +57,8 @@
 		/// <summary>
 		/// Gets the <see cref="DynValue"/> at the specified index, or Void if not found 
 		/// </summary>
-		public R_VAL this [ int index ] {
-			get { return RawGet ( index, true ); }
-		}
+		public R_VAL this[ int index ] => RawGet( index, true );
+
 
 		/// <summary>
 		/// Gets the <see cref="DynValue" /> at the specified index, or null.
@@ -67,12 +66,13 @@
 		/// <param name="index">The index.</param>
 		/// <param name="translateVoids">if set to <c>true</c> all voids are translated to nils.</param>
 		/// <returns></returns>
-		public R_VAL RawGet ( int index, bool translateVoids ) {
-			R_VAL v;
+		public R_VAL RawGet( int index, bool translateVoids ) {
 
 			if ( index >= m_Count ) {
 				return R_VAL.NIL;
 			}
+			
+			R_VAL v;
 
 			// if ( !m_LastIsTuple || index < m_Args.Count - 1 )
 			// 	v = m_Args[ index ];
@@ -101,13 +101,13 @@
 		/// </summary>
 		/// <param name="skip">The number of elements to skip (default= 0).</param>
 		/// <returns></returns>
-		public R_VAL[] GetArray ( int skip = 0 ) {
+		public R_VAL[] GetArray( int skip = 0 ) {
 			if ( skip >= m_Count )
-				return new R_VAL[0];
+				return new R_VAL[ 0 ];
 
-			R_VAL[] vals = new R_VAL[m_Count - skip];
+			R_VAL[] vals = new R_VAL[ m_Count - skip ];
 
-			for ( int i = skip; i < m_Count; i++ )
+			for ( var i = skip; i < m_Count; i++ )
 				vals[ i - skip ] = this[ i ];
 
 			return vals;
@@ -198,13 +198,16 @@
 		/// otherwise returns itself.
 		/// </summary>
 		/// <returns></returns>
-		public CallbackArguments SkipMethodCall () {
-			if ( this.IsMethodCall ) {
+		public CallbackArguments SkipMethodCall() {
+			if ( IsMethodCall ) {
 				// Slice< DynValue > slice = new Slice< DynValue > ( m_Args, 1, m_Args.Count - 1, false );
 				// return new CallbackArguments ( m_Args, false );
-				return new CallbackArguments ( m_Args );
+				return new CallbackArguments( m_Args );
 			}
-			else return this;
+			
+			return this;
 		}
+		
 	}
+	
 }

@@ -1,14 +1,15 @@
 ﻿#if MRUBY
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Threading;
+
+
 namespace RubySharp {
 	
-	using System;
-	using System.Collections.Generic;
-	using System.Linq;
-	using System.Linq.Expressions;
-	using System.Reflection;
-	using System.Runtime.CompilerServices;
-	using System.Threading;
-
 	/// <summary>
 	/// Class providing easier marshalling of CLR functions
 	/// </summary>
@@ -25,10 +26,10 @@ namespace RubySharp {
 		public bool IsConstructor { get; private set; }
 
 
-		private Func< object, object[], object > m_OptimizedFunc   = null;
-		private Action< object, object[] >       m_OptimizedAction = null;
-		private bool                             m_IsAction        = false;
-		private bool                             m_IsArrayCtor     = false;
+		private Func< object, object[], object > m_OptimizedFunc = null;
+		private Action< object, object[] > m_OptimizedAction = null;
+		private bool m_IsAction = false;
+		private bool m_IsArrayCtor = false;
 
 		
 		/// <summary>
@@ -37,8 +38,8 @@ namespace RubySharp {
 		/// <param name="methodBase">The MethodBase (MethodInfo or ConstructorInfo) got through reflection.</param>
 		/// <param name="accessMode">The interop access mode.</param>
 		/// <exception cref="System.ArgumentException">Invalid accessMode</exception>
-		public MethodMemberDescriptor ( MethodBase methodBase ) {
-			CheckMethodIsCompatible ( methodBase, true );
+		public MethodMemberDescriptor( MethodBase methodBase ) {
+			CheckMethodIsCompatible( methodBase, true );
 
 			IsConstructor = methodBase is ConstructorInfo;
 			MethodInfo = methodBase;
@@ -48,30 +49,30 @@ namespace RubySharp {
 			if ( IsConstructor )
 				m_IsAction = false;
 			else
-				m_IsAction = ( ( MethodInfo )methodBase ).ReturnType == typeof ( void );
+				m_IsAction = ( ( MethodInfo )methodBase ).ReturnType == typeof( void );
 
-			ParameterInfo[] reflectionParams = methodBase.GetParameters ();
+			ParameterInfo[] reflectionParams = methodBase.GetParameters();
 			ParameterDescriptor[] parameters;
 
 			if ( MethodInfo.DeclaringType.IsArray ) {
 				m_IsArrayCtor = true;
 
-				int rank = MethodInfo.DeclaringType.GetArrayRank ();
+				int rank = MethodInfo.DeclaringType.GetArrayRank();
 
 				parameters = new ParameterDescriptor[ rank ];
 
 				for ( int i = 0; i < rank; i++ )
-					parameters[ i ] = new ParameterDescriptor ( $"idx_{i}", typeof ( int ) );
+					parameters[ i ] = new ParameterDescriptor( $"idx_{i}", typeof( int ) );
 			}
 			else {
-				parameters = reflectionParams.Select ( pi => new ParameterDescriptor ( pi ) ).ToArray ();
+				parameters = reflectionParams.Select( pi => new ParameterDescriptor( pi ) ).ToArray();
 			}
 
 
 			bool isExtensionMethod = ( methodBase.IsStatic && parameters.Length > 0 &&
-			                           methodBase.GetCustomAttributes ( typeof ( ExtensionAttribute ), false ).Any () );
+			                           methodBase.GetCustomAttributes( typeof( ExtensionAttribute ), false ).Any() );
 
-			base.Initialize ( methodBase.Name, isStatic, parameters, isExtensionMethod );
+			Initialize( methodBase.Name, isStatic, parameters, isExtensionMethod );
 
 			// adjust access mode
 			// if ( Script.GlobalOptions.Platform.IsRunningOnAOT () )
@@ -103,14 +104,14 @@ namespace RubySharp {
 		/// <returns>
 		/// A new MethodMemberDescriptor or null.
 		/// </returns>
-		public static MethodMemberDescriptor TryCreateIfVisible ( MethodBase methodBase, bool forceVisibility = false ) {
-			if ( !CheckMethodIsCompatible ( methodBase, false ) )
+		public static MethodMemberDescriptor TryCreateIfVisible( MethodBase methodBase, bool forceVisibility = false ) {
+			if ( !CheckMethodIsCompatible( methodBase, false ) )
 				return null;
 
 			// if ( forceVisibility || ( methodBase.GetVisibilityFromAttributes () ?? methodBase.IsPublic ) )
 			// 	return new MethodMemberDescriptor ( methodBase, accessMode );
 
-			return new MethodMemberDescriptor ( methodBase );
+			return new MethodMemberDescriptor( methodBase );
 		}
 
 		/// <summary>
@@ -125,15 +126,15 @@ namespace RubySharp {
 		/// or
 		/// The method contains pointer parameters, or has a pointer return type
 		/// </exception>
-		public static bool CheckMethodIsCompatible ( MethodBase methodBase, bool throwException ) {
+		public static bool CheckMethodIsCompatible( MethodBase methodBase, bool throwException ) {
 			if ( methodBase.ContainsGenericParameters ) {
 				if ( throwException )
-					throw new ArgumentException ( "Method cannot contain unresolved generic parameters" );
+					throw new ArgumentException( "Method cannot contain unresolved generic parameters" );
 				return false;
 			}
 
-			if ( methodBase.GetParameters ().Any ( p => p.ParameterType.IsPointer ) ) {
-				if ( throwException ) throw new ArgumentException ( "Method cannot contain pointer parameters" );
+			if ( methodBase.GetParameters().Any( p => p.ParameterType.IsPointer ) ) {
+				if ( throwException ) throw new ArgumentException( "Method cannot contain pointer parameters" );
 				return false;
 			}
 
@@ -141,13 +142,13 @@ namespace RubySharp {
 
 			if ( mi != null ) {
 				if ( mi.ReturnType.IsPointer ) {
-					if ( throwException ) throw new ArgumentException ( "Method cannot have a pointer return type" );
+					if ( throwException ) throw new ArgumentException( "Method cannot have a pointer return type" );
 					return false;
 				}
 
 				if ( mi.ReturnType.IsGenericTypeDefinition ) {
 					if ( throwException )
-						throw new ArgumentException ( "Method cannot have an unresolved generic return type" );
+						throw new ArgumentException( "Method cannot have an unresolved generic return type" );
 					return false;
 				}
 			}
@@ -163,91 +164,91 @@ namespace RubySharp {
 		/// <param name="context">The context.</param>
 		/// <param name="args">The arguments.</param>
 		/// <returns></returns>
-		public override R_VAL Execute ( RubyState state, object obj, CallbackArguments args ) {
+		public override R_VAL Execute( RubyState state, object obj, CallbackArguments args ) {
 
 			// if ( AccessMode == InteropAccessMode.LazyOptimized &&
 			//      m_OptimizedFunc == null && m_OptimizedAction == null )
 			// 	( ( IOptimizableDescriptor )this ).Optimize ();
 
-			List< int > outParams;
-			object[] pars = base.BuildArgumentList ( state, obj, args, out outParams );
+			object[] pars = base.BuildArgumentList( state, obj, args, out var outParams );
 			object retv;
 
 			if ( m_OptimizedFunc != null ) {
-				retv = m_OptimizedFunc ( obj, pars );
+				retv = m_OptimizedFunc( obj, pars );
 			}
 			else if ( m_OptimizedAction != null ) {
-				m_OptimizedAction ( obj, pars );
+				m_OptimizedAction( obj, pars );
 				retv = R_VAL.NIL;
 			}
 			else if ( m_IsAction ) {
-				MethodInfo.Invoke ( obj, pars );
+				MethodInfo.Invoke( obj, pars );
 				retv = R_VAL.NIL;
 			}
 			else {
 				if ( IsConstructor )
-					retv = ( ( ConstructorInfo )MethodInfo ).Invoke ( pars );
+					retv = ( ( ConstructorInfo )MethodInfo ).Invoke( pars );
 				else
-					retv = MethodInfo.Invoke ( obj, pars );
+					retv = MethodInfo.Invoke( obj, pars );
 			}
 
-			return BuildReturnValue ( state, outParams, pars, retv );
+			return BuildReturnValue( state, outParams, pars, retv );
 		}
 
 		/// <summary>
 		/// Called by standard descriptors when background optimization or preoptimization needs to be performed.
 		/// </summary>
 		/// <exception cref="InternalErrorException">Out/Ref params cannot be precompiled.</exception>
-		void Optimize () {
+		void Optimize() {
 			ParameterDescriptor[] parameters = Parameters;
 
 			// if ( AccessMode == InteropAccessMode.Reflection )
 			// 	return;
 
-			MethodInfo methodInfo = this.MethodInfo as MethodInfo;
+			MethodInfo methodInfo = MethodInfo as MethodInfo;
 
 			if ( methodInfo == null )
 				return;
 
 			// using ( PerformanceStatistics.StartGlobalStopwatch ( PerformanceCounter.AdaptersCompilation ) ) {
-				var ep      = Expression.Parameter ( typeof ( object[] ), "pars" );
-				var objinst = Expression.Parameter ( typeof ( object ), "instance" );
-				var inst    = Expression.Convert ( objinst, MethodInfo.DeclaringType );
+				var ep      = Expression.Parameter( typeof ( object[] ), "pars" );
+				var objinst = Expression.Parameter( typeof ( object ), "instance" );
+				var inst    = Expression.Convert( objinst, MethodInfo.DeclaringType );
 
-				Expression[] args = new Expression[parameters.Length];
+				Expression[] args = new Expression[ parameters.Length ];
 
 				for ( int i = 0; i < parameters.Length; i++ ) {
 					if ( parameters[ i ].OriginalType.IsByRef ) {
-						throw new Exception ( "Out/Ref params cannot be precompiled." );
+						throw new Exception( "Out/Ref params cannot be precompiled." );
 					}
 					else {
-						var x = Expression.ArrayIndex ( ep, Expression.Constant ( i ) );
-						args[ i ] = Expression.Convert ( x, parameters[ i ].OriginalType );
+						var x = Expression.ArrayIndex( ep, Expression.Constant( i ) );
+						args[ i ] = Expression.Convert( x, parameters[ i ].OriginalType );
 					}
 				}
 
 				Expression fn;
 
 				if ( IsStatic ) {
-					fn = Expression.Call ( methodInfo, args );
+					fn = Expression.Call( methodInfo, args );
 				}
 				else {
-					fn = Expression.Call ( inst, methodInfo, args );
+					fn = Expression.Call( inst, methodInfo, args );
 				}
 
 
 				if ( this.m_IsAction ) {
-					var lambda = Expression.Lambda< Action< object, object[] > > ( fn, objinst, ep );
-					Interlocked.Exchange ( ref m_OptimizedAction, lambda.Compile () );
+					var lambda = Expression.Lambda< Action< object, object[] > >( fn, objinst, ep );
+					Interlocked.Exchange( ref m_OptimizedAction, lambda.Compile () );
 				}
 				else {
-					var fnc    = Expression.Convert ( fn, typeof ( object ) );
-					var lambda = Expression.Lambda< Func< object, object[], object > > ( fnc, objinst, ep );
-					Interlocked.Exchange ( ref m_OptimizedFunc, lambda.Compile () );
+					var fnc = Expression.Convert( fn, typeof ( object ) );
+					var lambda = Expression.Lambda< Func< object, object[], object > >( fnc, objinst, ep );
+					Interlocked.Exchange( ref m_OptimizedFunc, lambda.Compile () );
 				}
 			// }
 		}
 		
 	}
+	
 }
 #endif

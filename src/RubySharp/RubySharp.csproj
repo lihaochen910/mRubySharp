@@ -1,0 +1,33 @@
+<Project>
+    <PropertyGroup>
+        <BaseIntermediateOutputPath>../../bin/$(Configuration)/obj</BaseIntermediateOutputPath>
+    </PropertyGroup>
+    <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.props" />
+
+    <PropertyGroup>
+        <LangVersion>default</LangVersion>
+        <OutputType>Library</OutputType>
+        <Platforms>AnyCPU</Platforms>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <Configurations>Debug;Release</Configurations>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+        <RootNamespace>RubySharp</RootNamespace>
+        <AssemblyName>RubySharp</AssemblyName>
+        <!-- <IntermediateOutputPath Condition=" '$(OS)' == 'Windows_NT' ">D:\GitWorkspace\GameScriptLibrary\$(MSBuildProjectName)\$(Configuration)\obj</IntermediateOutputPath>
+        <IntermediateOutputPath Condition=" '$(OS)' == 'UNIX' ">$(HOME)/GitWorkspace/GameScriptLibrary/$(MSBuildProjectName)/$(Configuration)/obj</IntermediateOutputPath> -->
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+        <DefineConstants >TRACE;DEBUG;MRUBY</DefineConstants>
+        <OutputPath>..\..\bin\$(Configuration)</OutputPath>
+    </PropertyGroup>
+
+    <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.targets" />
+
+</Project>

@@ -19,12 +19,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-namespace RubySharp {
-	
-	using System;
-	using System.Collections.Generic;
-	using System.Runtime.CompilerServices;
+using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
+
+namespace RubySharp {
 	
 	public class ObjectTranslator : IDisposable {
 		
@@ -43,13 +43,13 @@ namespace RubySharp {
 
 
 		private class CompareObject : IEqualityComparer< object > {
-			public new bool Equals ( object x, object y ) {
-				return object.ReferenceEquals ( x, y );
+			public new bool Equals( object x, object y ) {
+				return object.ReferenceEquals( x, y );
 			}
 
 
-			public int GetHashCode ( object obj ) {
-				return RuntimeHelpers.GetHashCode ( obj );
+			public int GetHashCode( object obj ) {
+				return RuntimeHelpers.GetHashCode( obj );
 			}
 		}
 
@@ -57,9 +57,9 @@ namespace RubySharp {
 		public bool LogGC { get; set; } = true;
 
 		
-		public readonly Dictionary< object, int > objectsBackMap = new Dictionary< object, int > ( 257, new CompareObject () );
+		public readonly Dictionary< object, int > objectsBackMap = new ( 257, new CompareObject () );
 
-		public readonly RubyObjectPool objects = new RubyObjectPool ();
+		public readonly RubyObjectPool objects = new ();
 		// private List< DelayGC > gcList = new List< DelayGC > ();
 		private Action< object, int > removeInvalidObject;
 
@@ -68,7 +68,7 @@ namespace RubySharp {
 #endif
 
 
-		public ObjectTranslator () {
+		public ObjectTranslator() {
 			// LogGC = false;
 #if !MULTI_STATE
 			_translator = this;
@@ -77,10 +77,10 @@ namespace RubySharp {
 		}
 
 
-		public int AddObject ( object obj ) {
-			int index = objects.Add ( obj );
+		public int AddObject( object obj ) {
+			int index = objects.Add( obj );
 
-			if ( !IsValueType ( obj.GetType () ) ) {
+			if ( !IsValueType( obj.GetType() ) ) {
 				objectsBackMap[ obj ] = index;
 			}
 
@@ -88,58 +88,58 @@ namespace RubySharp {
 		}
 
 
-		public static ObjectTranslator Get ( IntPtr mrbState ) {
+		public static ObjectTranslator Get( IntPtr mrbState ) {
 #if !MULTI_STATE
 			return _translator;
 #else
-            return RubyState.GetTranslator ( mrbState );
+            return RubyState.GetTranslator( mrbState );
 #endif
 		}
 
 
 		//fixed 枚举唯一性问题（对象唯一，没有实现__eq操作符）
-		void RemoveObject ( object o, int udata ) {
+		void RemoveObject( object o, int udata ) {
 			int index = -1;
 
-			if ( objectsBackMap.TryGetValue ( o, out index ) && index == udata ) {
-				objectsBackMap.Remove ( o );
+			if ( objectsBackMap.TryGetValue( o, out index ) && index == udata ) {
+				objectsBackMap.Remove( o );
 			}
 		}
 
 
 		//lua gc一个对象(lua 库不再引用，但不代表c#没使用)
-		public void RemoveObject ( int udata ) {
+		public void RemoveObject( int udata ) {
 			//只有lua gc才能移除
-			object o = objects.Remove ( udata );
+			object o = objects.Remove( udata );
 
 			if ( o != null ) {
-				if ( !IsValueType ( o.GetType () ) ) {
-					RemoveObject ( o, udata );
+				if ( !IsValueType( o.GetType() ) ) {
+					RemoveObject( o, udata );
 				}
 
 				if ( LogGC ) {
-					Console.WriteLine ( "gc object {0}, id {1}", o, udata );
+					Console.WriteLine( "gc object {0}, id {1}", o, udata );
 				}
 			}
 		}
 
 
-		public object GetObject ( int udata ) {
-			return objects.TryGetValue ( udata );
+		public object GetObject( int udata ) {
+			return objects.TryGetValue( udata );
 		}
 
 
 		//预删除，但不移除一个lua对象(移除id只能由gc完成)
-		public void Destroy ( int udata ) {
-			object o = objects.Destroy ( udata );
+		public void Destroy( int udata ) {
+			object o = objects.Destroy( udata );
 
 			if ( o != null ) {
-				if ( !IsValueType ( o.GetType () ) ) {
-					RemoveObject ( o, udata );
+				if ( !IsValueType( o.GetType() ) ) {
+					RemoveObject( o, udata );
 				}
 
 				if ( LogGC ) {
-					Console.WriteLine ( "destroy object {0}, id {1}", o, udata );
+					Console.WriteLine( "destroy object {0}, id {1}", o, udata );
 				}
 			}
 		}
@@ -155,19 +155,19 @@ namespace RubySharp {
 		// }
 
 
-		public bool Getudata ( object o, out int index ) {
+		public bool Getudata( object o, out int index ) {
 			index = -1;
-			return objectsBackMap.TryGetValue ( o, out index );
+			return objectsBackMap.TryGetValue( o, out index );
 		}
 
 
-		public void Destroyudata ( int udata ) {
-			objects.Destroy ( udata );
+		public void Destroyudata( int udata ) {
+			objects.Destroy( udata );
 		}
 
 
-		public void SetBack ( int index, object o ) {
-			objects.Replace ( index, o );
+		public void SetBack( int index, object o ) {
+			objects.Replace( index, o );
 		}
 
 
@@ -202,7 +202,7 @@ namespace RubySharp {
 		// }
 
 
-		public void Collect () {
+		public void Collect() {
 			// if ( gcList.Count == 0 ) {
 			// 	return;
 			// }
@@ -223,14 +223,14 @@ namespace RubySharp {
 		}
 
 
-		public void StepCollect () {
-			objects.StepCollect ( removeInvalidObject );
+		public void StepCollect() {
+			objects.StepCollect( removeInvalidObject );
 		}
 
 
-		public void Dispose () {
-			objectsBackMap.Clear ();
-			objects.Clear ();
+		public void Dispose() {
+			objectsBackMap.Clear();
+			objects.Clear();
 
 #if !MULTI_STATE
 			_translator = null;
@@ -238,7 +238,7 @@ namespace RubySharp {
 		}
 		
 		
-		private static bool IsValueType ( Type t ) {
+		private static bool IsValueType( Type t ) {
 			return !t.IsEnum && t.IsValueType;
 		}
 	}
@@ -251,7 +251,7 @@ namespace RubySharp {
 			public int index;
 			public object obj;
 			
-			public PoolNode ( int index, object obj ) {
+			public PoolNode( int index, object obj ) {
 				this.index = index;
 				this.obj = obj;
 			}
@@ -267,16 +267,16 @@ namespace RubySharp {
 		private int collectedIndex = -1;
 
 
-		public RubyObjectPool () {
-			list = new List< PoolNode > ( 512 );
-			head = new PoolNode ( 0, null );
-			list.Add ( head );
+		public RubyObjectPool() {
+			list = new List< PoolNode >( 512 );
+			head = new PoolNode( 0, null );
+			list.Add( head );
 			// list.Add ( new PoolNode ( 1, null ) );
 			count = list.Count;
 		}
 
 
-		public object this [ int i ] {
+		public object this[ int i ] {
 			get {
 				if ( i > 0 && i < count ) {
 					return list[ i ].obj;
@@ -287,14 +287,14 @@ namespace RubySharp {
 		}
 
 
-		public void Clear () {
-			list.Clear ();
+		public void Clear() {
+			list.Clear();
 			head = null;
 			count = 0;
 		}
 
 
-		public int Add ( object obj ) {
+		public int Add( object obj ) {
 			int pos = -1;
 
 			if ( head.index != 0 ) {
@@ -304,7 +304,7 @@ namespace RubySharp {
 			}
 			else {
 				pos = list.Count;
-				list.Add ( new PoolNode ( pos, obj ) );
+				list.Add( new PoolNode( pos, obj ) );
 				count = pos + 1;
 			}
 
@@ -312,7 +312,7 @@ namespace RubySharp {
 		}
 
 
-		public object TryGetValue ( int index ) {
+		public object TryGetValue( int index ) {
 			if ( index > 0 && index < count ) {
 				return list[ index ].obj;
 			}
@@ -321,7 +321,7 @@ namespace RubySharp {
 		}
 
 
-		public object Remove ( int pos ) {
+		public object Remove( int pos ) {
 			if ( pos > 0 && pos < count ) {
 				object o = list[ pos ].obj;
 				list[ pos ].obj = null;
@@ -335,7 +335,7 @@ namespace RubySharp {
 		}
 
 
-		public object Destroy ( int pos ) {
+		public object Destroy( int pos ) {
 			if ( pos > 0 && pos < count ) {
 				object o = list[ pos ].obj;
 				list[ pos ].obj = null;
@@ -346,7 +346,7 @@ namespace RubySharp {
 		}
 
 
-		public void StepCollect ( Action< object, int > collectListener ) {
+		public void StepCollect( Action< object, int > collectListener ) {
 			++collectedIndex;
 			for ( int i = 0; i < collectStep; ++i ) {
 				collectedIndex += i;
@@ -357,17 +357,17 @@ namespace RubySharp {
 
 				PoolNode node = list[ collectedIndex ];
 				object o = node.obj;
-				if ( o != null && o.Equals ( null ) ) {
+				if ( o != null && o.Equals( null ) ) {
 					node.obj = null;
 					if ( collectListener != null ) {
-						collectListener ( o, collectedIndex );
+						collectListener( o, collectedIndex );
 					}
 				}
 			}
 		}
 
 
-		public object Replace ( int pos, object o ) {
+		public object Replace( int pos, object o ) {
 			if ( pos > 0 && pos < count ) {
 				object obj = list[ pos ].obj;
 				list[ pos ].obj = o;
@@ -376,6 +376,7 @@ namespace RubySharp {
 
 			return null;
 		}
+		
 	}
 
 }

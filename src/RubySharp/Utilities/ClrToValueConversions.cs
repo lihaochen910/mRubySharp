@@ -1,10 +1,12 @@
-﻿using System;
+﻿#if false
+using System;
 using System.Reflection;
 using System.Text;
 using MoonSharp.Interpreter.Interop.RegistrationPolicies;
 
 
-namespace CandyFramework.mRuby {
+namespace RubySharp {
+	
 	internal static class ClrToValueConversions {
 
 		/// <summary>
@@ -129,3 +131,4 @@ namespace CandyFramework.mRuby {
 		// }
 	}
 }
+#endif

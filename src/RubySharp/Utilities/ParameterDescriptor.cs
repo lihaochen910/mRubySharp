@@ -48,17 +48,12 @@ namespace RubySharp {
 		/// <summary>
 		/// Gets a value indicating whether this instance has been restricted.
 		/// </summary>
-		public bool HasBeenRestricted {
-			get { return m_OriginalType != null; }
-		}
+		public bool HasBeenRestricted => m_OriginalType != null;
 
 		/// <summary>
 		/// Gets the original type of the parameter before any restriction has been applied.
 		/// </summary>
-		public Type OriginalType {
-			get { return m_OriginalType ?? Type; }
-		}
-
+		public Type OriginalType => m_OriginalType ?? Type;
 
 		/// <summary>
 		/// If the type got restricted, the original type before the restriction.
@@ -75,9 +70,9 @@ namespace RubySharp {
 		/// <param name="isOut">if set to <c>true</c>, is an out param.</param>
 		/// <param name="isRef">if set to <c>true</c> is a ref param.</param>
 		/// <param name="isVarArgs">if set to <c>true</c> is variable arguments param.</param>
-		public ParameterDescriptor ( string name, Type type, bool hasDefaultValue = false, object defaultValue = null,
-		                             bool   isOut = false,
-		                             bool   isRef = false, bool isVarArgs = false ) {
+		public ParameterDescriptor( string name, Type type, bool hasDefaultValue = false, object defaultValue = null,
+		                             bool  isOut = false,
+		                             bool  isRef = false, bool isVarArgs = false ) {
 			Name            = name;
 			Type            = type;
 			HasDefaultValue = hasDefaultValue;
@@ -98,9 +93,9 @@ namespace RubySharp {
 		/// <param name="isRef">if set to <c>true</c> is a ref param.</param>
 		/// <param name="isVarArgs">if set to <c>true</c> is variable arguments param.</param>
 		/// <param name="typeRestriction">The type restriction, or nll.</param>
-		public ParameterDescriptor ( string name, Type type, bool hasDefaultValue, object defaultValue,
-		                             bool   isOut,
-		                             bool   isRef, bool isVarArgs, Type typeRestriction ) {
+		public ParameterDescriptor( string name, Type type, bool hasDefaultValue, object defaultValue,
+		                             bool  isOut,
+		                             bool  isRef, bool isVarArgs, Type typeRestriction ) {
 			Name            = name;
 			Type            = type;
 			HasDefaultValue = hasDefaultValue;
@@ -110,7 +105,7 @@ namespace RubySharp {
 			IsVarArgs       = isVarArgs;
 
 			if ( typeRestriction != null ) {
-				RestrictType ( typeRestriction );
+				RestrictType( typeRestriction );
 			}
 		}
 
@@ -119,7 +114,7 @@ namespace RubySharp {
 		/// Initializes a new instance of the <see cref="ParameterDescriptor"/> class.
 		/// </summary>
 		/// <param name="pi">A ParameterInfo taken from reflection.</param>
-		public ParameterDescriptor ( ParameterInfo pi ) {
+		public ParameterDescriptor( ParameterInfo pi ) {
 			Name            = pi.Name;
 			Type            = pi.ParameterType;
 			HasDefaultValue = pi.DefaultValue != null;
@@ -127,7 +122,7 @@ namespace RubySharp {
 			IsOut           = pi.IsOut;
 			IsRef           = pi.ParameterType.IsByRef;
 			IsVarArgs = ( pi.ParameterType.IsArray &&
-			              pi.GetCustomAttributes ( typeof ( ParamArrayAttribute ), true ).Any () );
+			              pi.GetCustomAttributes( typeof( ParamArrayAttribute ), true ).Any() );
 		}
 
 
@@ -137,8 +132,8 @@ namespace RubySharp {
 		/// <returns>
 		/// A <see cref="System.String" /> that represents this instance.
 		/// </returns>
-		public override string ToString () {
-			return string.Format ( "{0} {1}{2}", Type.Name, Name, HasDefaultValue ? " = ..." : "" );
+		public override string ToString() {
+			return string.Format( "{0} {1}{2}", Type.Name, Name, HasDefaultValue ? " = ..." : "" );
 		}
 
 		/// <summary>
@@ -152,9 +147,9 @@ namespace RubySharp {
 		/// or
 		/// Specified operation is not a restriction
 		/// </exception>
-		public void RestrictType ( Type type ) {
+		public void RestrictType( Type type ) {
 			if ( IsOut || IsRef || IsVarArgs )
-				throw new InvalidOperationException ( "Cannot restrict a ref/out or varargs param" );
+				throw new InvalidOperationException( "Cannot restrict a ref/out or varargs param" );
 
 			// if ( !Framework.Do.IsAssignableFrom ( Type, type ) )
 			// 	throw new InvalidOperationException ( "Specified operation is not a restriction" );

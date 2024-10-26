@@ -1,15 +1,13 @@
 #if MRUBY
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using System.Linq;
+using System.Reflection;
+
+
 namespace RubySharp {
-	
-	using System;
-	using System.Collections;
-	using System.Collections.Generic;
-	using System.IO;
-	using System.Text;
-	using System.Linq;
-	using System.Reflection;
-	using System.Runtime.InteropServices;
-	
 	
 	public partial class WrapperUtility {
 		
@@ -30,28 +28,28 @@ namespace RubySharp {
 		public static void GenByAssembly ( Assembly assembly ) {
 			
 			List<Type> generatedType = new List< Type >();
-			var types = assembly.GetTypes ();
+			var types = assembly.GetTypes();
 			
 			WrapperUtility.exportingTypeList = types;
 			
 			foreach ( var type in types ) {
-				bool result = GenCSharpClass ( type );
+				bool result = GenCSharpClass( type );
 				if ( result ) {
-					generatedType.Add ( type );
+					generatedType.Add( type );
 				}
 			}
 			
 			WrapperUtility.exportingTypeList = null;
 
-			GenBindingManifestFile ( generatedType );
+			GenBindingManifestFile( generatedType );
 		}
 
-		public static void RegByNamespace ( RubyState state, Assembly assembly, string @namespace ) {
-			Type[] types = assembly.GetTypes ()
-			                       .Where ( t => String.Equals ( t.Namespace, @namespace, StringComparison.Ordinal ) )
-			                       .ToArray ();
+		public static void RegByNamespace( RubyState state, Assembly assembly, string @namespace ) {
+			Type[] types = assembly.GetTypes()
+			                       .Where( t => string.Equals( t.Namespace, @namespace, StringComparison.Ordinal ) )
+			                       .ToArray();
 			foreach ( var type in types ) {
-				GenCSharpClass ( type );
+				GenCSharpClass( type );
 			}
 		}
 
@@ -61,103 +59,103 @@ namespace RubySharp {
 			
 			IList< Type > typeList = new List< Type > {
 				// 静态类
-				typeof ( UnityEngine.Application ),
-				typeof ( UnityEngine.Time ),
-				typeof ( UnityEngine.Debug ),
-				typeof ( UnityEngine.Screen ),
-				typeof ( UnityEngine.SleepTimeout ),
-				typeof ( UnityEngine.Input ),
-				typeof ( UnityEngine.Resources ),
-				typeof ( UnityEngine.Physics ),
-				typeof ( UnityEngine.Physics2D ),
-				typeof ( UnityEngine.RenderSettings ),
-				typeof ( UnityEngine.QualitySettings ),
-				typeof ( UnityEngine.GL ),
-				typeof ( UnityEngine.Graphics ),
+				typeof( UnityEngine.Application ),
+				typeof( UnityEngine.Time ),
+				typeof( UnityEngine.Debug ),
+				typeof( UnityEngine.Screen ),
+				typeof( UnityEngine.SleepTimeout ),
+				typeof( UnityEngine.Input ),
+				typeof( UnityEngine.Resources ),
+				typeof( UnityEngine.Physics ),
+				typeof( UnityEngine.Physics2D ),
+				typeof( UnityEngine.RenderSettings ),
+				typeof( UnityEngine.QualitySettings ),
+				typeof( UnityEngine.GL ),
+				typeof( UnityEngine.Graphics ),
 
 				// struct
-				typeof ( UnityEngine.Vector2 ),
-				typeof ( UnityEngine.Vector2Int ),
-				typeof ( UnityEngine.Vector3 ),
-				typeof ( UnityEngine.Vector3Int ),
-				typeof ( UnityEngine.Vector4 ),
-				typeof ( UnityEngine.Quaternion ),
-				typeof ( UnityEngine.Matrix4x4 ),
-				typeof ( UnityEngine.Ray ),
-				typeof ( UnityEngine.Ray2D ),
-				typeof ( UnityEngine.Bounds ),
-				typeof ( UnityEngine.Rect ),
-				typeof ( UnityEngine.RectInt ),
-				typeof ( UnityEngine.Color ),
-				typeof ( UnityEngine.Color32 ),
+				typeof( UnityEngine.Vector2 ),
+				typeof( UnityEngine.Vector2Int ),
+				typeof( UnityEngine.Vector3 ),
+				typeof( UnityEngine.Vector3Int ),
+				typeof( UnityEngine.Vector4 ),
+				typeof( UnityEngine.Quaternion ),
+				typeof( UnityEngine.Matrix4x4 ),
+				typeof( UnityEngine.Ray ),
+				typeof( UnityEngine.Ray2D ),
+				typeof( UnityEngine.Bounds ),
+				typeof( UnityEngine.Rect ),
+				typeof( UnityEngine.RectInt ),
+				typeof( UnityEngine.Color ),
+				typeof( UnityEngine.Color32 ),
 				
 				// comp
-				typeof ( UnityEngine.Object ),
-				typeof ( UnityEngine.Component ),
-				typeof ( UnityEngine.Transform ),
-				typeof ( UnityEngine.Material ),
-				typeof ( UnityEngine.Light ),
-				typeof ( UnityEngine.Rigidbody ),
-				typeof ( UnityEngine.Camera ),
-				typeof ( UnityEngine.AudioSource ),
+				typeof( UnityEngine.Object ),
+				typeof( UnityEngine.Component ),
+				typeof( UnityEngine.Transform ),
+				typeof( UnityEngine.Material ),
+				typeof( UnityEngine.Light ),
+				typeof( UnityEngine.Rigidbody ),
+				typeof( UnityEngine.Camera ),
+				typeof( UnityEngine.AudioSource ),
 
-				typeof ( UnityEngine.Behaviour ),
-				typeof ( UnityEngine.MonoBehaviour ),
-				typeof ( UnityEngine.GameObject ),
-				typeof ( UnityEngine.TrackedReference ),
-				typeof ( UnityEngine.Application ),
-				typeof ( UnityEngine.Physics ),
-				typeof ( UnityEngine.Collider ),
-				typeof ( UnityEngine.Time ),
-				typeof ( UnityEngine.Texture ),
-				typeof ( UnityEngine.Texture2D ),
-				typeof ( UnityEngine.Shader ),
-				typeof ( UnityEngine.Renderer ),
-				typeof ( UnityEngine.WWW ),
-				typeof ( UnityEngine.Screen ),
-				typeof ( UnityEngine.CameraClearFlags ),
-				typeof ( UnityEngine.AudioClip ),
-				typeof ( UnityEngine.AssetBundle ),
-				typeof ( UnityEngine.ParticleSystem ),
-				typeof ( UnityEngine.AsyncOperation ),
-				typeof ( UnityEngine.LightType ),
-				typeof ( UnityEngine.SleepTimeout ),
+				typeof( UnityEngine.Behaviour ),
+				typeof( UnityEngine.MonoBehaviour ),
+				typeof( UnityEngine.GameObject ),
+				typeof( UnityEngine.TrackedReference ),
+				typeof( UnityEngine.Application ),
+				typeof( UnityEngine.Physics ),
+				typeof( UnityEngine.Collider ),
+				typeof( UnityEngine.Time ),
+				typeof( UnityEngine.Texture ),
+				typeof( UnityEngine.Texture2D ),
+				typeof( UnityEngine.Shader ),
+				typeof( UnityEngine.Renderer ),
+				typeof( UnityEngine.WWW ),
+				typeof( UnityEngine.Screen ),
+				typeof( UnityEngine.CameraClearFlags ),
+				typeof( UnityEngine.AudioClip ),
+				typeof( UnityEngine.AssetBundle ),
+				typeof( UnityEngine.ParticleSystem ),
+				typeof( UnityEngine.AsyncOperation ),
+				typeof( UnityEngine.LightType ),
+				typeof( UnityEngine.SleepTimeout ),
 #if UNITY_5_3_OR_NEWER && !UNITY_5_6_OR_NEWER
 				typeof(UnityEngine.UnityEngine.Experimental.Director.DirectorPlayer),
 #endif
-				typeof ( UnityEngine.Animator ),
-				typeof ( UnityEngine.Input ),
-				typeof ( UnityEngine.KeyCode ),
-				typeof ( UnityEngine.SkinnedMeshRenderer ),
-				typeof ( UnityEngine.Space ),
+				typeof( UnityEngine.Animator ),
+				typeof( UnityEngine.Input ),
+				typeof( UnityEngine.KeyCode ),
+				typeof( UnityEngine.SkinnedMeshRenderer ),
+				typeof( UnityEngine.Space ),
 
 
-				typeof ( UnityEngine.MeshRenderer ),
+				typeof( UnityEngine.MeshRenderer ),
 #if !UNITY_5_4_OR_NEWER
-				// typeof ( UnityEngine.ParticleEmitter ),
-				// typeof ( UnityEngine.ParticleRenderer ),
-				// typeof ( UnityEngine.ParticleAnimator ),
+				// typeof( UnityEngine.ParticleEmitter ),
+				// typeof( UnityEngine.ParticleRenderer ),
+				// typeof( UnityEngine.ParticleAnimator ),
 #endif
 
-				typeof ( UnityEngine.BoxCollider ),
-				typeof ( UnityEngine.MeshCollider ),
-				typeof ( UnityEngine.SphereCollider ),
-				typeof ( UnityEngine.CharacterController ),
-				typeof ( UnityEngine.CapsuleCollider ),
+				typeof( UnityEngine.BoxCollider ),
+				typeof( UnityEngine.MeshCollider ),
+				typeof( UnityEngine.SphereCollider ),
+				typeof( UnityEngine.CharacterController ),
+				typeof( UnityEngine.CapsuleCollider ),
 
-				typeof ( UnityEngine.Animation ),
-				typeof ( UnityEngine.AnimationClip ),
-				typeof ( UnityEngine.AnimationState ),
-				typeof ( UnityEngine.AnimationBlendMode ),
-				typeof ( UnityEngine.QueueMode ),
-				typeof ( UnityEngine.PlayMode ),
-				typeof ( UnityEngine.WrapMode ),
+				typeof( UnityEngine.Animation ),
+				typeof( UnityEngine.AnimationClip ),
+				typeof( UnityEngine.AnimationState ),
+				typeof( UnityEngine.AnimationBlendMode ),
+				typeof( UnityEngine.QueueMode ),
+				typeof( UnityEngine.PlayMode ),
+				typeof( UnityEngine.WrapMode ),
 
-				typeof ( UnityEngine.QualitySettings ),
-				typeof ( UnityEngine.RenderSettings ),
-				typeof ( UnityEngine.BlendWeights ),
-				typeof ( UnityEngine.RenderTexture ),
-				typeof ( UnityEngine.Resources ),
+				typeof( UnityEngine.QualitySettings ),
+				typeof( UnityEngine.RenderSettings ),
+				typeof( UnityEngine.BlendWeights ),
+				typeof( UnityEngine.RenderTexture ),
+				typeof( UnityEngine.Resources ),
 			};
 
 			UserDataUtility.exportingTypeList = typeList;
@@ -174,24 +172,24 @@ namespace RubySharp {
 		#endregion
 		
 		public static void GenCSharpClass<T> () {
-			Type type = typeof ( T );
-			GenCSharpClass ( type );
+			Type type = typeof( T );
+			GenCSharpClass( type );
 		}
 
 		
-		public static bool GenCSharpClass ( Type type ) {
+		public static bool GenCSharpClass( Type type ) {
 			
 			// Console.WriteLine ( $"Namespace: {type.Namespace}" );
 			// Console.WriteLine ( $"FullName: {type.FullName}" );
 			// Console.WriteLine ( $"Name: {type.Name}" );
 			
 			// skip Attribute
-			if ( type.IsSubclassOf ( typeof ( System.Attribute ) ) ) {
+			if ( type.IsSubclassOf( typeof( System.Attribute ) ) ) {
 				return false;
 			}
 			
 			// skip Exception
-			if ( type.IsSubclassOf ( typeof ( System.Exception ) ) ) {
+			if ( type.IsSubclassOf( typeof( System.Exception ) ) ) {
 				return false;
 			}
 			
@@ -201,7 +199,7 @@ namespace RubySharp {
 			}
 			
 			// skip non public
-			if ( !TestTypeIsPublic ( type ) ) {
+			if ( !TestTypeIsPublic( type ) ) {
 				return false;
 			}
 			
@@ -216,29 +214,29 @@ namespace RubySharp {
 			}
 			
 			if ( type.IsEnum ) {
-				GenCSharpEnumClassSourceCode ( type, new StringBuilder () );
+				GenCSharpEnumClassSourceCode( type, new StringBuilder () );
 				return true;
 			}
 
-			if ( ignored_classes.Contains ( type.FullName ) ) {
-				Console.WriteLine ( $"skip: {type.FullName}" );
+			if ( ignored_classes.Contains( type.FullName ) ) {
+				Console.WriteLine( $"skip: {type.FullName}" );
 				return false;
 			}
 			
-			GenCSharpClassSourceCode ( type, new StringBuilder () );
+			GenCSharpClassSourceCode( type, new StringBuilder () );
 			
 			return true;
 		}
 
-		public static string GetWrapperClassName ( Type type ) {
+		public static string GetWrapperClassName( Type type ) {
 			return $"{type.FullName}{RUBYSHARP_WRAPPERCLASS_POSTFIX}";
 		}
 		
-		public static string GetShortWrapperClassName ( Type type ) {
+		public static string GetShortWrapperClassName( Type type ) {
 			return $"{type.Name}{RUBYSHARP_WRAPPERCLASS_POSTFIX}";
 		}
 
-		public static void GenBindingManifestFile ( IList<Type> generatedType ) {
+		public static void GenBindingManifestFile( IList<Type> generatedType ) {
 			
 			StringBuilder manifest = new StringBuilder ();
 			
@@ -309,7 +307,7 @@ namespace RubySharp {
 			// Gen Static Register function
 			builder.AppendLine ( "\t\tpublic static void " + RUBYSHARP_StaticRegisterFunctionName + " ( RubyState state ) {" );
 			builder.AppendLine ( $"\t\t\t{wrapperClassName}.{RUBYSHARP_FIELD_MRubyStateVarName} = state;" );
-			builder.AppendLine ( $"\t\t\t{wrapperClassName}.{RUBYSHARP_FIELD_RModuleVarName} = UserDataUtility.DefineCSharpEnum ( state, typeof ( {type.FullName} ) );" );
+			builder.AppendLine ( $"\t\t\t{wrapperClassName}.{RUBYSHARP_FIELD_RModuleVarName} = UserDataUtility.DefineCSharpEnum ( state, typeof( {type.FullName} ) );" );
 			builder.AppendLine ( $"\t\t\t{wrapperClassName}.{RUBYSHARP_FIELD_DataTypePtrVarName} = RubyDLL.ObjectToInPtr ( data_type );" );
 			builder.AppendLine ();
 			foreach ( int i in System.Enum.GetValues ( type ) ) {
@@ -386,7 +384,7 @@ namespace RubySharp {
 				}
 
 				// skip Obsolete
-				if ( field.IsDefined ( typeof ( System.ObsoleteAttribute ), false ) ) {
+				if ( field.IsDefined ( typeof( System.ObsoleteAttribute ), false ) ) {
 					continue;
 				}
 				
@@ -412,7 +410,7 @@ namespace RubySharp {
 				}
 				
 				// skip Obsolete
-				if ( property.IsDefined ( typeof ( System.ObsoleteAttribute ), false ) ) {
+				if ( property.IsDefined ( typeof( System.ObsoleteAttribute ), false ) ) {
 					continue;
 				}
 				
@@ -494,7 +492,7 @@ namespace RubySharp {
 			// Gen Static Register function
 			builder.AppendLine ( "\t\tpublic static void " + RUBYSHARP_StaticRegisterFunctionName + " ( RubyState state ) {" );
 			builder.AppendLine ( $"\t\t\t{wrapperClassName}.state = state;" );
-			builder.AppendLine ( $"\t\t\t{wrapperClassName}.@class = UserDataUtility.DefineCSharpClass ( state, typeof ( {type.FullName} ) );" );
+			builder.AppendLine ( $"\t\t\t{wrapperClassName}.@class = UserDataUtility.DefineCSharpClass ( state, typeof( {type.FullName} ) );" );
 			builder.AppendLine ( $"\t\t\t{wrapperClassName}.data_type_ptr = RubyDLL.ObjectToInPtr ( {RUBYSHARP_FIELD_DataTypePtrVarName} );" );
 			builder.AppendLine ();
 			foreach ( var kv in generatedMethods ) {
@@ -585,7 +583,7 @@ namespace RubySharp {
 			GenCheckParamCount ( className, methodInfo, builder );
 			GenCheckParamsType ( className, methodInfo, builder );
 
-			if ( methodInfo.ReturnType == typeof ( void ) ) {
+			if ( methodInfo.ReturnType == typeof( void ) ) {
 				builder.AppendLine ( $"\t\t\tinstance.{functionName} ({GenCallFunctionParams ( methodInfo )});" );
 				builder.AppendLine ( "\t\t\treturn self;" );
 			}
@@ -610,7 +608,7 @@ namespace RubySharp {
 			GenCheckParamCount ( className, methodInfo, builder );
 			GenCheckParamsType ( className, methodInfo, builder );
 
-			if ( methodInfo.ReturnType == typeof ( void ) ) {
+			if ( methodInfo.ReturnType == typeof( void ) ) {
 				builder.AppendLine ( $"\t\t\t{className}.{functionName} ({GenCallFunctionParams ( methodInfo )});" );
 				builder.AppendLine ( "\t\t\treturn self;" );
 			}
@@ -809,20 +807,20 @@ namespace RubySharp {
 			string ret = null;
 			
 			if ( type.IsValueType ) {
-				if ( type == typeof ( int ) || type == typeof ( short ) || type == typeof ( long ) ||
-				     type == typeof ( uint ) || type == typeof ( ushort ) || type == typeof ( ulong ) ||
-				     type == typeof ( int? ) || type == typeof ( short? ) || type == typeof ( long? ) ||
-				     type == typeof ( uint? ) || type == typeof ( ushort? ) || type == typeof ( ulong? ) ||
-				     type == typeof ( byte ) || type == typeof ( sbyte ) ||
-				     type == typeof ( byte? ) || type == typeof ( sbyte? ) ||
+				if ( type == typeof( int ) || type == typeof( short ) || type == typeof( long ) ||
+				     type == typeof( uint ) || type == typeof( ushort ) || type == typeof( ulong ) ||
+				     type == typeof( int? ) || type == typeof( short? ) || type == typeof( long? ) ||
+				     type == typeof( uint? ) || type == typeof( ushort? ) || type == typeof( ulong? ) ||
+				     type == typeof( byte ) || type == typeof( sbyte ) ||
+				     type == typeof( byte? ) || type == typeof( sbyte? ) ||
 				     type.IsEnum ) {
 					ret = $"!R_VAL.IsFixnum ( {varName} )";
 				}
-				else if ( type == typeof ( float ) || type == typeof ( double ) ||
-				          type == typeof ( float? ) || type == typeof ( double? ) ) {
+				else if ( type == typeof( float ) || type == typeof( double ) ||
+				          type == typeof( float? ) || type == typeof( double? ) ) {
 					ret = $"!R_VAL.IsFloat ( {varName} )";
 				}
-				else if ( type == typeof ( bool ) || type == typeof ( bool? ) ) {
+				else if ( type == typeof( bool ) || type == typeof( bool? ) ) {
 					ret = $"!R_VAL.IsBool ( {varName} )";
 				}
 				else {
@@ -830,10 +828,10 @@ namespace RubySharp {
 				}
 			}
 			else {
-				if ( type == typeof ( string ) || type == typeof ( System.String ) ) {
+				if ( type == typeof( string ) || type == typeof( System.String ) ) {
 					ret = $"!R_VAL.IsString ( {varName} )";
 				}
-				else if ( type == typeof ( object ) ) {
+				else if ( type == typeof( object ) ) {
 					ret = string.Empty;
 				}
 				else {
@@ -853,24 +851,24 @@ namespace RubySharp {
 			string valueToCSValue = string.Empty;
             
 			if ( type.IsValueType ) {
-				if ( type == typeof ( int ) || type == typeof ( short ) || type == typeof ( long ) ||
-				     type == typeof ( uint ) || type == typeof ( ushort ) || type == typeof ( ulong ) ||
-				     type == typeof ( int? ) || type == typeof ( short? ) || type == typeof ( long? ) ||
-				     type == typeof ( uint? ) || type == typeof ( ushort? ) || type == typeof ( ulong? ) ||
-				     type == typeof ( byte ) || type == typeof ( sbyte ) ||
-				     type == typeof ( byte? ) || type == typeof ( sbyte? ) ||
+				if ( type == typeof( int ) || type == typeof( short ) || type == typeof( long ) ||
+				     type == typeof( uint ) || type == typeof( ushort ) || type == typeof( ulong ) ||
+				     type == typeof( int? ) || type == typeof( short? ) || type == typeof( long? ) ||
+				     type == typeof( uint? ) || type == typeof( ushort? ) || type == typeof( ulong? ) ||
+				     type == typeof( byte ) || type == typeof( sbyte ) ||
+				     type == typeof( byte? ) || type == typeof( sbyte? ) ||
 				     type.IsEnum ) {
 					valueToCSValue = $"( {type.FullName} )RubyDLL.mrb_fixnum ( {varName} )";
 				}
-				else if ( type == typeof ( float ) || type == typeof ( double ) ||
-				          type == typeof ( float? ) || type == typeof ( double? ) ) {
+				else if ( type == typeof( float ) || type == typeof( double ) ||
+				          type == typeof( float? ) || type == typeof( double? ) ) {
 					valueToCSValue = $"( {type.Name} )RubyDLL.mrb_float ( {varName} )";
 				}
-				else if ( type == typeof ( bool ) || type == typeof ( bool? ) ) {
+				else if ( type == typeof( bool ) || type == typeof( bool? ) ) {
 					valueToCSValue = $"R_VAL.Test ( {varName} )";
 				}
 				else if ( type.IsArray ) {
-					// valueToCSValue = $"( {type.FullName} )" + string.Format ( valueToCSInstance, "System.Array", GetWrapperClassName ( typeof ( System.Array ) ), varName );
+					// valueToCSValue = $"( {type.FullName} )" + string.Format ( valueToCSInstance, "System.Array", GetWrapperClassName ( typeof( System.Array ) ), varName );
 					valueToCSValue = $"( {type.FullName} )" + string.Format ( valueToCSInstance, "System.Array", RUBYSHARP_COMMON_DATA_TYPE_PTR, varName );
 				}
 				else if ( System.Nullable.GetUnderlyingType ( type ) != null ) {
@@ -883,15 +881,15 @@ namespace RubySharp {
 				}
 			}
 			else {
-				if ( type == typeof ( string ) || type == typeof ( System.String ) ) {
+				if ( type == typeof( string ) || type == typeof( System.String ) ) {
 					valueToCSValue = $"{varName}.ToString ( state )";
 				}
 				else if ( type.IsArray ) {
-					// valueToCSValue = $"( {type.FullName} )" + string.Format ( valueToCSInstance, "System.Array", GetWrapperClassName ( typeof ( System.Array ) ), varName );
+					// valueToCSValue = $"( {type.FullName} )" + string.Format ( valueToCSInstance, "System.Array", GetWrapperClassName ( typeof( System.Array ) ), varName );
 					valueToCSValue = $"( {type.FullName} )" + string.Format ( valueToCSInstance, "System.Array", RUBYSHARP_COMMON_DATA_TYPE_PTR, varName );
 				}
-				else if ( type == typeof ( System.Object ) ) {
-					// valueToCSValue = $"( {type.FullName} )" + string.Format ( valueToCSInstance, "System.Object", GetWrapperClassName ( typeof ( System.Object ) ), varName );
+				else if ( type == typeof( System.Object ) ) {
+					// valueToCSValue = $"( {type.FullName} )" + string.Format ( valueToCSInstance, "System.Object", GetWrapperClassName ( typeof( System.Object ) ), varName );
 					valueToCSValue = string.Format ( valueToCSObject, varName );
 				}
 				else {
@@ -906,32 +904,32 @@ namespace RubySharp {
 		private static string GenCSObjectToValue ( Type type, string retVarName ) {
 			string csValueToValue = null;
 			if ( type.IsValueType ) {
-				if ( type == typeof ( int ) || type == typeof ( short ) || type == typeof ( long ) ||
-				     type == typeof ( uint ) || type == typeof ( ushort ) || type == typeof ( ulong ) ||
-				     type == typeof ( byte ) || type == typeof ( sbyte ) ||
+				if ( type == typeof( int ) || type == typeof( short ) || type == typeof( long ) ||
+				     type == typeof( uint ) || type == typeof( ushort ) || type == typeof( ulong ) ||
+				     type == typeof( byte ) || type == typeof( sbyte ) ||
 				     type.IsEnum ) {
 					csValueToValue = $"RubyDLL.mrb_fixnum_value ( ( int ){retVarName} )";
 				}
-				else if ( type == typeof ( int? ) || type == typeof ( short? ) || type == typeof ( long? ) ||
-				          type == typeof ( uint? ) || type == typeof ( ushort? ) || type == typeof ( ulong? ) ||
-				          type == typeof ( byte? ) || type == typeof ( sbyte? ) ) {
+				else if ( type == typeof( int? ) || type == typeof( short? ) || type == typeof( long? ) ||
+				          type == typeof( uint? ) || type == typeof( ushort? ) || type == typeof( ulong? ) ||
+				          type == typeof( byte? ) || type == typeof( sbyte? ) ) {
 					csValueToValue = $"RubyDLL.mrb_fixnum_value ( ( int )( {retVarName}.HasValue ? {retVarName}.Value : 0 ) )";
 				}
-				else if ( type == typeof ( float ) || type == typeof ( double ) ) {
+				else if ( type == typeof( float ) || type == typeof( double ) ) {
 					csValueToValue = $"RubyDLL.mrb_float_value ( mrb, ( double ){retVarName} )";
 				}
-				else if ( type == typeof ( float? ) || type == typeof ( double? ) ) {
+				else if ( type == typeof( float? ) || type == typeof( double? ) ) {
 					csValueToValue = $"RubyDLL.mrb_float_value ( mrb, ( double )( {retVarName}.HasValue ? {retVarName}.Value : 0f ) )";
 				}
-				else if ( type == typeof ( bool ) ) {
+				else if ( type == typeof( bool ) ) {
 					csValueToValue = $"R_VAL.Create ( {retVarName} )";
 				}
-				else if ( type == typeof ( bool? ) ) {
+				else if ( type == typeof( bool? ) ) {
 					csValueToValue = $"R_VAL.Create ( {retVarName}.HasValue ? {retVarName}.Value : false )";
 				}
 				else if ( type.IsArray ) {
-					// csValueToValue = $"RubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( typeof ( System.Array ) )}.@class, {GetWrapperClassName ( typeof ( System.Array ) )}.data_type_ptr, {retVarName} )";
-					csValueToValue = $"RubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( typeof ( System.Array ) )}.@class, {RUBYSHARP_COMMON_DATA_TYPE_PTR}, {retVarName} )";
+					// csValueToValue = $"RubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( typeof( System.Array ) )}.@class, {GetWrapperClassName ( typeof( System.Array ) )}.data_type_ptr, {retVarName} )";
+					csValueToValue = $"RubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( typeof( System.Array ) )}.@class, {RUBYSHARP_COMMON_DATA_TYPE_PTR}, {retVarName} )";
 				}
 				else if ( System.Nullable.GetUnderlyingType ( type ) != null ) {
 					// csValueToValue = $"RubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( System.Nullable.GetUnderlyingType ( type ) )}.@class, {GetWrapperClassName ( System.Nullable.GetUnderlyingType ( type ) )}.data_type_ptr, {retVarName} )";
@@ -943,16 +941,16 @@ namespace RubySharp {
 				}
 			}
 			else {
-				if ( type == typeof ( string ) || type == typeof ( System.String ) ) {
+				if ( type == typeof( string ) || type == typeof( System.String ) ) {
 					csValueToValue = $"R_VAL.Create ( mrb, {retVarName} )";
 				}
 				else if ( type.IsArray ) {
-					// csValueToValue = $"RubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( typeof ( System.Array ) )}.@class, {GetWrapperClassName ( typeof ( System.Array ) )}.data_type_ptr, {retVarName} )";
-					csValueToValue = $"RubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( typeof ( System.Array ) )}.@class, {RUBYSHARP_COMMON_DATA_TYPE_PTR}, {retVarName} )";
+					// csValueToValue = $"RubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( typeof( System.Array ) )}.@class, {GetWrapperClassName ( typeof( System.Array ) )}.data_type_ptr, {retVarName} )";
+					csValueToValue = $"RubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( typeof( System.Array ) )}.@class, {RUBYSHARP_COMMON_DATA_TYPE_PTR}, {retVarName} )";
 				}
-				else if ( type == typeof ( System.Type ) ) {
-					// csValueToValue = $"RubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( typeof ( System.Object ) )}.@class, {GetWrapperClassName ( typeof ( System.Object ) )}.data_type_ptr, {retVarName} )";
-					csValueToValue = $"RubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( typeof ( System.Object ) )}.@class, {RUBYSHARP_COMMON_DATA_TYPE_PTR}, {retVarName} )";
+				else if ( type == typeof( System.Type ) ) {
+					// csValueToValue = $"RubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( typeof( System.Object ) )}.@class, {GetWrapperClassName ( typeof( System.Object ) )}.data_type_ptr, {retVarName} )";
+					csValueToValue = $"RubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( typeof( System.Object ) )}.@class, {RUBYSHARP_COMMON_DATA_TYPE_PTR}, {retVarName} )";
 				}
 				else {
 					// csValueToValue = $"RubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( type )}.@class, {GetWrapperClassName ( type )}.data_type_ptr, {retVarName} )";

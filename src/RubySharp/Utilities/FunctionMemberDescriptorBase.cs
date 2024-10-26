@@ -1,9 +1,10 @@
 ﻿#if MRUBY
-namespace RubySharp {
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-	using System;
-	using System.Collections.Generic;
-	using System.Linq;
+
+namespace RubySharp {
 	
 	/// <summary>
 	/// Class providing easier marshalling of CLR functions
@@ -57,20 +58,20 @@ namespace RubySharp {
 		/// <param name="isStatic">if set to <c>true</c> [is static].</param>
 		/// <param name="parameters">The parameters.</param>
 		/// <param name="isExtensionMethod">if set to <c>true</c> [is extension method].</param>
-		protected void Initialize ( string funcName, bool isStatic, ParameterDescriptor[] parameters, bool isExtensionMethod ) {
-			this.Name       = funcName;
-			this.IsStatic   = isStatic;
-			this.Parameters = parameters;
+		protected void Initialize( string funcName, bool isStatic, ParameterDescriptor[] parameters, bool isExtensionMethod ) {
+			Name = funcName;
+			IsStatic= isStatic;
+			Parameters = parameters;
 
 			if ( isExtensionMethod )
 				this.ExtensionMethodType = Parameters[ 0 ].Type;
 
 			if ( Parameters.Length > 0 && Parameters[ Parameters.Length - 1 ].IsVarArgs ) {
 				VarArgsArrayType   = Parameters[ Parameters.Length - 1 ].Type;
-				VarArgsElementType = Parameters[ Parameters.Length - 1 ].Type.GetElementType ();
+				VarArgsElementType = Parameters[ Parameters.Length - 1 ].Type.GetElementType();
 			}
 
-			SortDiscriminant = string.Join ( ":", Parameters.Select ( pi => pi.Type.FullName ).ToArray () );
+			SortDiscriminant = string.Join( ":", Parameters.Select( pi => pi.Type.FullName ).ToArray() );
 		}
 
 		
@@ -80,7 +81,7 @@ namespace RubySharp {
 		/// <param name="script">The script for which the callback must be generated.</param>
 		/// <param name="obj">The object (null for static).</param>
 		/// <returns></returns>
-		public Func< RubyState, object, CallbackArguments, R_VAL > GetCallback () {
+		public Func< RubyState, object, CallbackArguments, R_VAL > GetCallback() {
 			return Execute;
 			// return ( mrb_state, obj, args ) => Execute ( mrb_state, obj, args );
 		}
@@ -92,8 +93,8 @@ namespace RubySharp {
 		/// <param name="script">The script for which the callback must be generated.</param>
 		/// <param name="obj">The object (null for static).</param>
 		/// <returns></returns>
-		public CallbackFunction GetCallbackFunction () {
-			return new CallbackFunction ( GetCallback (), this.Name );
+		public CallbackFunction GetCallbackFunction() {
+			return new CallbackFunction( GetCallback(), this.Name );
 		}
 
 
@@ -105,7 +106,7 @@ namespace RubySharp {
 		/// <param name="args">The arguments.</param>
 		/// <param name="outParams">Output: A list containing the indices of all "out" parameters, or null if no out parameters are specified.</param>
 		/// <returns>The arguments, appropriately converted.</returns>
-		protected virtual object[] BuildArgumentList ( RubyState state, object obj, CallbackArguments args, out List< int > outParams ) {
+		protected virtual object[] BuildArgumentList( RubyState state, object obj, CallbackArguments args, out List< int > outParams ) {
 			ParameterDescriptor[] parameters = Parameters;
 
 			object[] pars = new object[ parameters.Length ];
@@ -118,7 +119,7 @@ namespace RubySharp {
 				// keep track of out and ref params
 				if ( parameters[ i ].Type.IsByRef ) {
 					if ( outParams == null ) outParams = new List< int > ();
-					outParams.Add ( i );
+					outParams.Add( i );
 				}
 
 				// if an ext method, we have an obj -> fill the first param
@@ -126,21 +127,21 @@ namespace RubySharp {
 					pars[ i ] = obj;
 					continue;
 				}
-				else if ( parameters[ i ].Type == typeof ( CallbackArguments ) ) {
-					pars[ i ] = args.SkipMethodCall ();
+				else if ( parameters[ i ].Type == typeof( CallbackArguments ) ) {
+					pars[ i ] = args.SkipMethodCall();
 				}
 				// else, ignore out params
 				else if ( parameters[ i ].IsOut ) {
 					pars[ i ] = null;
 				}
 				else if ( i == parameters.Length - 1 && VarArgsArrayType != null ) {
-					List< R_VAL > extraArgs = new List< R_VAL > ();
+					List< R_VAL > extraArgs = new List< R_VAL >();
 
 					while ( true ) {
-						var arg = args.RawGet ( j, false );
+						var arg = args.RawGet( j, false );
 						j += 1;
-						if ( !R_VAL.IsNil ( arg ) )
-							extraArgs.Add ( arg );
+						if ( !R_VAL.IsNil( arg ) )
+							extraArgs.Add( arg );
 						else
 							break;
 					}
@@ -151,20 +152,20 @@ namespace RubySharp {
 					if ( extraArgs.Count == 1 ) {
 						R_VAL arg = extraArgs[ 0 ];
 
-						if ( R_VAL.IsData ( arg ) ) {
+						if ( R_VAL.IsData( arg ) ) {
 							// if ( Framework.Do.IsAssignableFrom ( VarArgsArrayType, arg.UserData.Object.GetType () ) ) {
 							// pars[ i ] = RubyDLL.ValueToDataObject< object > ( state, arg, RubyState.DATA_TYPE_PTR );
-							pars[ i ] = RubyState.ValueToRefObject ( state, arg, DataTypePtr );
+							pars[ i ] = RubyState.ValueToRefObject( state, arg, DataTypePtr );
 							continue;
 							// }
 						}
 					}
 
 					// ok let's create an array, and loop
-					Array vararg = Array.CreateInstance ( VarArgsElementType, extraArgs.Count );
+					Array vararg = Array.CreateInstance( VarArgsElementType, extraArgs.Count );
 
 					for ( int ii = 0; ii < extraArgs.Count; ii++ ) {
-						vararg.SetValue ( RubyState.ValueToObjectOfType ( state, extraArgs[ ii ], DataTypePtr,
+						vararg.SetValue( RubyState.ValueToObjectOfType( state, extraArgs[ ii ], DataTypePtr,
 							VarArgsElementType,
 							null, false ), ii );
 					}
@@ -174,8 +175,8 @@ namespace RubySharp {
 				}
 				// else, convert it
 				else {
-					var arg = args.RawGet ( j, false );
-					pars[ i ] = RubyState.ValueToObjectOfType ( state, arg, DataTypePtr, parameters[ i ].Type,
+					var arg = args.RawGet( j, false );
+					pars[ i ] = RubyState.ValueToObjectOfType( state, arg, DataTypePtr, parameters[ i ].Type,
 						parameters[ i ].DefaultValue, parameters[ i ].HasDefaultValue );
 					j += 1;
 				}
@@ -191,27 +192,27 @@ namespace RubySharp {
 		/// <param name="pars">The parameters passed to the function.</param>
 		/// <param name="retv">The return value from the function. Use DynValue.Void if the function returned no value.</param>
 		/// <returns>A DynValue to be returned to scripts</returns>
-		protected static R_VAL BuildReturnValue ( RubyState state, List< int > outParams, object[] pars, object retv ) {
+		protected static R_VAL BuildReturnValue( RubyState state, List< int > outParams, object[] pars, object retv ) {
 			
 			if ( outParams == null ) {
-				return RubyState.ObjectToValue ( state, retv );
+				return RubyState.ObjectToValue( state, retv );
 			}
 			else {
-				R_VAL[] rets = new R_VAL[outParams.Count + 1];
+				R_VAL[] rets = new R_VAL[ outParams.Count + 1 ];
 
-				if ( retv is R_VAL && R_VAL.IsNil ( ( R_VAL )retv ) )
+				if ( retv is R_VAL && R_VAL.IsNil( ( R_VAL )retv ) )
 					rets[ 0 ] = R_VAL.NIL;
 				else
-					rets[ 0 ] = RubyState.ObjectToValue ( state, retv );
+					rets[ 0 ] = RubyState.ObjectToValue( state, retv );
 
 				for ( int i = 0; i < outParams.Count; i++ ) {
-					rets[ i + 1 ] = RubyState.ObjectToValue ( state, pars[ outParams[ i ] ] );
+					rets[ i + 1 ] = RubyState.ObjectToValue( state, pars[ outParams[ i ] ] );
 				}
 
-				R_VAL ary = RubyDLL.r_ary_new ();
+				R_VAL ary = RubyDLL.r_ary_new();
 
 				foreach ( var p in rets ) {
-					RubyDLL.r_ary_push ( state, ary, p );
+					RubyDLL.r_ary_push( state, ary, p );
 				}
 
 				return ary;
@@ -225,8 +226,9 @@ namespace RubySharp {
 		/// <param name="context">The context.</param>
 		/// <param name="args">The arguments.</param>
 		/// <returns></returns>
-		public abstract R_VAL Execute ( RubyState state, object obj, CallbackArguments args );
+		public abstract R_VAL Execute( RubyState state, object obj, CallbackArguments args );
 		
 	}
+	
 }
 #endif

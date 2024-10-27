@@ -7,6 +7,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RubySharp", "RubySharp\Ruby
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RubySharp.Sample", "RubySharp.Sample\RubySharp.Sample.csproj", "{C5528085-DBAD-4608-8FB9-8239B1BE124B}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "mruby", "mruby", "{01CF812A-D0D1-4549-86D5-DE499A2E40CA}"
+	ProjectSection(SolutionItems) = preProject
+		..\src_mruby\build_config.rb = ..\src_mruby\build_config.rb
+		..\src_mruby\mruby.def = ..\src_mruby\mruby.def
+		..\src_mruby\mruby_sharp.c = ..\src_mruby\mruby_sharp.c
+		..\src_mruby\mruby_sharp.h = ..\src_mruby\mruby_sharp.h
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

@@ -13,12 +13,13 @@
         <PlatformTarget>AnyCPU</PlatformTarget>
         <RootNamespace>RubySharp.Sample</RootNamespace>
         <AssemblyName>RubySharp.Sample</AssemblyName>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <PropertyGroup>
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
         <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
-        <StartupObject>RubySharp.Program</StartupObject>
+        <StartupObject>RubySharp.Sample.Program</StartupObject>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">

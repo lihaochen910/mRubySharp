@@ -9,7 +9,7 @@ using RubySharp.Utilities;
 
 namespace RubySharp {
 	
-	public class RubyState : IDisposable {
+	public class RubyState : SafeHandle, IDisposable {
         
         public IntPtr rb_state { get; private set; }
 
@@ -40,10 +40,10 @@ namespace RubySharp {
 		private readonly Dictionary< Type, RegistedTypeInfo > _registedTypeInfoDictionary = new ();
 
 		
-        public RubyState() {
+        public unsafe RubyState( IntPtr state ) : base( state, ownsHandle: true ) {
             #if MRUBY
             
-            rb_state = RubyDLL.mrb_open();
+            rb_state = ( IntPtr )RubyDLL.mrb_open();
             
             #else
 	        
@@ -62,7 +62,7 @@ namespace RubySharp {
             
 #if MRUBY
             // load file
-            DefineMethod( "dofile", _doFile, rb_args.REQ ( 1 ) );
+            DefineMethod( "dofile", _doFile, rb_args.REQ( 1 ) );
 #endif
         }
 
@@ -97,7 +97,7 @@ namespace RubySharp {
 		}
 
 		
-        public R_VAL DoString( string str ) {
+        public unsafe R_VAL DoString( string str ) {
 #if MRUBY
             int arena = RubyDLL.mrb_gc_arena_save( rb_state );
             IntPtr mrbc_context = RubyDLL.mrbc_context_new( rb_state );
@@ -106,7 +106,7 @@ namespace RubySharp {
             RubyDLL.mrbc_context_free( rb_state, mrbc_context );
             
             if ( RubyDLL.mrb_has_exc( rb_state ) ) {
-                Console.WriteLine( GetExceptionBackTrace () );
+                Console.WriteLine( GetExceptionBackTrace() );
 				RubyDLL.mrb_exc_clear( rb_state );
             }
             RubyDLL.mrb_gc_arena_restore( rb_state, arena );
@@ -120,7 +120,7 @@ namespace RubySharp {
         }
         
 		
-        public R_VAL DoFile( string path ) {
+        public unsafe R_VAL DoFile( string path ) {
             
             if ( !File.Exists( path ) ) {
                 return R_VAL.NIL;
@@ -781,7 +781,7 @@ namespace RubySharp {
 		/// <param name="obj"></param>
 		/// <returns></returns>
 		/// <exception cref="Exception"></exception>
-		public static R_VAL ObjectToValue( RubyState state, object obj ) {
+		public static unsafe R_VAL ObjectToValue( RubyState state, object obj ) {
 
 			if ( obj == null ) {
 				return R_VAL.NIL;
@@ -915,7 +915,7 @@ namespace RubySharp {
 		#endregion
 
         
-        void IDisposable.Dispose() {
+        unsafe void IDisposable.Dispose() {
 #if MRUBY
             RubyDLL.mrb_close( rb_state );
 #else
@@ -940,7 +940,18 @@ namespace RubySharp {
 			Console.WriteLine( "[DEBUG] RubyState::Disposed" );
 		}
 
-		
+		internal unsafe mrb_state* DangerousGetPtr() => ( mrb_state* )DangerousGetHandle();
+
+		protected override unsafe bool ReleaseHandle() {
+			if ( IsClosed ) {
+				return false;
+			}
+			RubyDLL.mrb_close( handle );
+			return true;
+		}
+
+		public override bool IsInvalid => handle == IntPtr.Zero;
+
 #if MRUBY
         private static R_VAL _doFile( IntPtr mrb, R_VAL self ) {
             R_VAL[] args = RubyDLL.GetFunctionArgs( mrb );
@@ -968,6 +979,12 @@ namespace RubySharp {
         public static implicit operator IntPtr( RubyState state ) {
             return state.rb_state;
         }
+		
+		
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public static unsafe implicit operator mrb_state*( RubyState state ) {
+			return state.DangerousGetPtr();
+		}
 
         
         #region All Wrapper Class Used Data Type

@@ -80,13 +80,13 @@ namespace RubySharp.Sample {
 		public static IntPtr data_type_ptr;
 		public static RubyState state;
 		
-		public static void __Register__ ( RubyState state ) {
+		public static void __Register__( RubyState state ) {
 			CustomEnum_Wrapper.state         = state;
-			CustomEnum_Wrapper.@module       = UserDataUtility.DefineCSharpEnum ( state, typeof ( CustomEnum ) );
+			CustomEnum_Wrapper.@module       = UserDataUtility.DefineCSharpEnum( state, typeof( CustomEnum ) );
 			CustomEnum_Wrapper.data_type_ptr = RubyState.EnumDataTypePtr;
 			
-			RubyDLL.r_define_const ( state, @module, "A", RubyDLL.mrb_fixnum_value ( state, ( int )CustomEnum.A ) );
-			RubyDLL.r_define_const ( state, @module, "B", RubyDLL.mrb_fixnum_value ( state, ( int )CustomEnum.B ) );
+			RubyDLL.r_define_const( state, @module, "A", RubyDLL.mrb_fixnum_value( state, ( int )CustomEnum.A ) );
+			RubyDLL.r_define_const( state, @module, "B", RubyDLL.mrb_fixnum_value( state, ( int )CustomEnum.B ) );
 		}
 	}
 	

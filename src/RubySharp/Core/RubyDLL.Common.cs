@@ -16,15 +16,17 @@ namespace RubySharp {
         /// <summary>
         /// 使用平台特定API加载动态库
         /// </summary>
-        public static IntPtr RubyLibrary = GetNativeLibrary();
+        [Obsolete]
+		private static IntPtr RubyLibrary = GetNativeLibrary();
 
+		[Obsolete]
 		private static IntPtr GetNativeLibrary() {
 			
 			IntPtr ret = IntPtr.Zero;
 
 			string rubyDLLStr =
 #if MRUBY
-				MRubyDll;
+				__DllName;
 #else
 				RubyDll;
 #endif

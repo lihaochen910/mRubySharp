@@ -1,35 +1,33 @@
 #if MRUBY
+using System;
+using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
+
+using mrb_float = System.Double;
+using mrb_int = System.Int32;
+using mrb_sym = System.UInt32;
+using mrb_bool = System.Boolean;
+
+
 namespace RubySharp {
 	
-	using System;
-	using System.Runtime.InteropServices;
-	using System.Runtime.CompilerServices;
-
-	using mrb_float = System.Double;
-	using mrb_int = System.Int32;
-	using mrb_sym = System.UInt32;
-	using mrb_bool = System.Boolean;
-
-
-	public static partial class RubyDLL {
+	public static unsafe partial class RubyDLL {
 		
 		/// <summary>
 		/// DLL ファイルのパスです。
 		/// </summary>
-		public const string MRubyDll = "mruby";
+		private const string __DllName = "mruby";
 
 
-		static RubyDLL () {
-			// Console.WriteLine ( "static init." );
-		}
+		// static RubyDLL() {
+		// 	Console.WriteLine ( "static init." );
+		// }
 		
 		
 		/// <summary>
 		/// 从mruby中调用C#方法委托
 		/// mrb_func_t
 		/// </summary>
-		/// <param name="state"></param>
-		/// <param name="instance"></param>
 		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
 		public delegate R_VAL RubyCSFunction( IntPtr state, R_VAL self );
 
@@ -39,7 +37,11 @@ namespace RubySharp {
 		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
 		public delegate R_VAL RubyDFreeFunction( IntPtr state, IntPtr data );
 
+		
+		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
+		public delegate R_VAL RubyAllocFunction( mrb_state* mrb, IntPtr ptr, ulong size, IntPtr ud );
 
+		
 		/// <summary>
 		/// Custom data type description.
 		/// </summary>
@@ -57,58 +59,58 @@ namespace RubySharp {
         /// 初始化mruby虚拟机
         /// </summary>
         /// <returns>pointer</returns>
-        [UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-        public delegate IntPtr d_mrb_open ();
-        public static d_mrb_open mrb_open { get; } = FuncLoader.LoadFunction< d_mrb_open >( RubyLibrary, "mrb_open" );
-
-
+		[DllImport(__DllName, EntryPoint = "mrb_open", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_state* mrb_open();
+		
+		
+		[DllImport(__DllName, EntryPoint = "mrb_open_allocf", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_state* mrb_open_allocf( RubyAllocFunction f, IntPtr ud );
+		
+		
+		[DllImport(__DllName, EntryPoint = "mrb_open_core", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_state* mrb_open_core( RubyAllocFunction f, IntPtr ud );
+		
+		
         /// <summary>
         /// 关闭并释放mruby虚拟机
         /// </summary>
         /// <param name="mrb_state"></param>
-        [UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-        public delegate void d_mrb_close( IntPtr mrb_state );
-        public static d_mrb_close mrb_close { get; } = FuncLoader.LoadFunction< d_mrb_close >( RubyLibrary, "mrb_close" );
-
+		[DllImport(__DllName, EntryPoint = "mrb_close", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern void mrb_close( IntPtr mrb );
 
 		//
 		// rb_eval*
 		// mruby 运行函数
 		// 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_load_string( IntPtr mrb_state, byte[] script_string );
-		public static d_mrb_load_string mrb_load_string { get; } = FuncLoader.LoadFunction< d_mrb_load_string >( RubyLibrary, "mrb_load_string" );
+		[DllImport(__DllName, EntryPoint = "mrb_load_string", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_load_string( IntPtr mrb, byte[] s );
+		
+		
+		// [UnmanagedFunctionPointer( CallingConvention.Cdecl )]
+		// public delegate R_VAL d_mrb_load_nstring( IntPtr mrb_state, byte[] script_string, long len );
+		// public static d_mrb_load_nstring mrb_load_nstring { get; } = FuncLoader.LoadFunction< d_mrb_load_nstring >( RubyLibrary, "mrb_load_nstring" );
 
-
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_load_string_cxt( IntPtr mrb_state, byte[] script_string, IntPtr mrbc_context );
-		public static d_mrb_load_string_cxt mrb_load_string_cxt { get; } = FuncLoader.LoadFunction< d_mrb_load_string_cxt >( RubyLibrary, "mrb_load_string_cxt" );
-
-
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_load_file( IntPtr mrb_state, IntPtr file );
-		public static d_mrb_load_file mrb_load_file { get; } = FuncLoader.LoadFunction< d_mrb_load_file >( RubyLibrary, "mrb_load_file" );
-
-
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_load_file_cxt( IntPtr mrb_state, IntPtr file, IntPtr mrbc_context );
-		public static d_mrb_load_file_cxt mrb_load_file_cxt { get; } = FuncLoader.LoadFunction< d_mrb_load_file_cxt >( RubyLibrary, "mrb_load_file_cxt" );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_load_string_cxt", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_load_string_cxt( IntPtr mrb, byte[] s, IntPtr cxt );
+		
+		
+		[DllImport(__DllName, EntryPoint = "mrb_load_file", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_load_file( IntPtr mrb, IntPtr f );
+		
+		
+		[DllImport(__DllName, EntryPoint = "mrb_load_file_cxt", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_load_file_cxt( IntPtr mrb, IntPtr f, IntPtr c );
 		
 		
 		/// <summary>
 		/// 加载mrbc字节码
 		/// </summary>
-		/// <param name="mrb_state"></param>
-		/// <param name="byte_code"></param>
+		/// <param name="mrb"></param>
+		/// <param name="bin"></param>
 		/// <returns></returns>
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_load_irep( IntPtr mrb_state, byte[] byte_code );
-		public static d_mrb_load_irep mrb_load_irep { get; } = FuncLoader.LoadFunction< d_mrb_load_irep >( RubyLibrary, "mrb_load_irep" );
-
-
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_load_nstring( IntPtr mrb_state, byte[] script_string, long len );
-		public static d_mrb_load_nstring mrb_load_nstring { get; } = FuncLoader.LoadFunction< d_mrb_load_nstring >( RubyLibrary, "mrb_load_nstring" );
+		[DllImport(__DllName, EntryPoint = "mrb_load_irep", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_load_irep( IntPtr mrb, byte[] bin );
 
 
 		//
@@ -123,199 +125,180 @@ namespace RubySharp {
 		//    return (val & MRB_FIXNUM_FLAG) != 0;
 		//}
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_to_int( IntPtr mrb_state, R_VAL v );
-
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_to_str( IntPtr mrb_state, R_VAL v );
-
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_any_to_s( IntPtr mrb_state, R_VAL obj );
-
-		public static d_mrb_to_int mrb_to_int { get; } = FuncLoader.LoadFunction< d_mrb_to_int >( RubyLibrary, "mrb_to_int" );
-
-		public static d_mrb_to_str mrb_to_str { get; } = FuncLoader.LoadFunction< d_mrb_to_str >( RubyLibrary, "mrb_to_str" );
-
-		public static d_mrb_any_to_s mrb_any_to_s { get; } = FuncLoader.LoadFunction< d_mrb_any_to_s >( RubyLibrary, "mrb_any_to_s" );
-
-
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_float_value( IntPtr mrb_state, mrb_float f );
-		public static d_mrb_float_value mrb_float_value { get; } = FuncLoader.LoadFunction< d_mrb_float_value >( RubyLibrary, "mrb_float_value_ex" );
-
-
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_fixnum_value( IntPtr mrb_state, mrb_int i );
-		public static d_mrb_fixnum_value mrb_fixnum_value { get; } = FuncLoader.LoadFunction< d_mrb_fixnum_value >( RubyLibrary, "mrb_fixnum_value_ex" );
-
-
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_bool_value( mrb_bool b );
-		public static d_mrb_bool_value mrb_bool_value { get; } = FuncLoader.LoadFunction< d_mrb_bool_value >( RubyLibrary, "mrb_bool_value_ex" );
-
-
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_nil_value();
-		public static d_mrb_nil_value mrb_nil_value { get; } = FuncLoader.LoadFunction< d_mrb_nil_value >( RubyLibrary, "mrb_nil_value_ex" );
-
-
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_undef_value();
-		public static d_mrb_undef_value mrb_undef_value { get; } = FuncLoader.LoadFunction< d_mrb_undef_value >( RubyLibrary, "mrb_undef_value_ex" );
-
-
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_false_value();
-		public static d_mrb_false_value mrb_false_value { get; } = FuncLoader.LoadFunction< d_mrb_false_value >( RubyLibrary, "mrb_false_value_ex" );
-
-
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_true_value();
-		public static d_mrb_true_value mrb_true_value { get; } = FuncLoader.LoadFunction< d_mrb_true_value >( RubyLibrary, "mrb_true_value_ex" );
-
-
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_cptr_value( IntPtr mrb_state, IntPtr p );
-		public static d_mrb_cptr_value mrb_cptr_value { get; } = FuncLoader.LoadFunction< d_mrb_cptr_value >( RubyLibrary, "mrb_cptr_value_ex" );
-
-
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_obj_value( IntPtr p );
-		public static d_mrb_obj_value mrb_obj_value { get; } = FuncLoader.LoadFunction< d_mrb_obj_value >( RubyLibrary, "mrb_obj_value_ex" );
+		// [UnmanagedFunctionPointer( CallingConvention.Cdecl )]
+		// public delegate R_VAL d_mrb_to_int( IntPtr mrb_state, R_VAL v );
+		//
+		// [UnmanagedFunctionPointer( CallingConvention.Cdecl )]
+		// public delegate R_VAL d_mrb_to_str( IntPtr mrb_state, R_VAL v );
+		//
+		// [UnmanagedFunctionPointer( CallingConvention.Cdecl )]
+		// public delegate R_VAL d_mrb_any_to_s( IntPtr mrb_state, R_VAL obj );
+		//
+		// public static d_mrb_to_int mrb_to_int { get; } = FuncLoader.LoadFunction< d_mrb_to_int >( RubyLibrary, "mrb_to_int" );
+		//
+		// public static d_mrb_to_str mrb_to_str { get; } = FuncLoader.LoadFunction< d_mrb_to_str >( RubyLibrary, "mrb_to_str" );
+		//
+		// public static d_mrb_any_to_s mrb_any_to_s { get; } = FuncLoader.LoadFunction< d_mrb_any_to_s >( RubyLibrary, "mrb_any_to_s" );
 
 		
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate IntPtr d_mrb_ptr( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate IntPtr d_mrb_cptr( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate mrb_float d_mrb_float( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate mrb_int d_mrb_fixnum( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate mrb_sym d_mrb_symbol( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate rb_vtype d_mrb_type( R_VAL o );
-		public static d_mrb_ptr mrb_ptr { get; } = FuncLoader.LoadFunction< d_mrb_ptr >( RubyLibrary, "mrb_ptr_ex" );
-		public static d_mrb_cptr mrb_cptr { get; } = FuncLoader.LoadFunction< d_mrb_cptr >( RubyLibrary, "mrb_cptr_ex" );
-		public static d_mrb_float mrb_float { get; } = FuncLoader.LoadFunction< d_mrb_float >( RubyLibrary, "mrb_float_ex" );
-		public static d_mrb_fixnum mrb_fixnum { get; } = FuncLoader.LoadFunction< d_mrb_fixnum >( RubyLibrary, "mrb_fixnum_ex" );
-		public static d_mrb_symbol mrb_symbol { get; } = FuncLoader.LoadFunction< d_mrb_symbol >( RubyLibrary, "mrb_symbol_ex" );
-		public static d_mrb_type r_type { get; } = FuncLoader.LoadFunction< d_mrb_type >( RubyLibrary, "mrb_type_ex" );
+		[DllImport(__DllName, EntryPoint = "mrb_float_value_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_float_value( IntPtr mrb, mrb_float f );
+
+		
+		[DllImport(__DllName, EntryPoint = "mrb_fixnum_value_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_fixnum_value( IntPtr mrb, mrb_int i );
+
+		
+		[DllImport(__DllName, EntryPoint = "mrb_bool_value_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_bool_value( IntPtr mrb, mrb_bool b );
+
+		
+		[DllImport(__DllName, EntryPoint = "mrb_nil_value_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_nil_value();
+
+		
+		[DllImport(__DllName, EntryPoint = "mrb_undef_value_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_undef_value();
+
+		
+		[DllImport(__DllName, EntryPoint = "mrb_false_value_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_false_value();
+
+		
+		[DllImport(__DllName, EntryPoint = "mrb_true_value_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_true_value();
+
+		
+		[DllImport(__DllName, EntryPoint = "mrb_cptr_value_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_cptr_value( IntPtr mrb, IntPtr p );
+
+		
+		[DllImport(__DllName, EntryPoint = "mrb_obj_value_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_obj_value( IntPtr p );
+
+		
+		[DllImport(__DllName, EntryPoint = "mrb_ptr_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern IntPtr mrb_ptr( R_VAL o );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_cptr_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern IntPtr mrb_cptr( R_VAL o );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_float_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_float mrb_float( R_VAL o );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_fixnum_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_int mrb_fixnum( R_VAL o );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_symbol_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_sym mrb_symbol( R_VAL o );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_type_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern rb_vtype r_type( R_VAL o );
 		
 		
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate mrb_bool d_mrb_immediate_p( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate mrb_bool d_mrb_fixnum_p( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate mrb_bool d_mrb_symbol_p( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate mrb_bool d_mrb_undef_p( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate mrb_bool d_mrb_nil_p( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate mrb_bool d_mrb_false_p( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate mrb_bool d_mrb_true_p( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate mrb_bool d_mrb_float_p( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate mrb_bool d_mrb_array_p( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate mrb_bool d_mrb_string_p( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate mrb_bool d_mrb_hash_p( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate mrb_bool d_mrb_cptr_p( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate mrb_bool d_mrb_exception_p( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate mrb_bool d_mrb_free_p( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate mrb_bool d_mrb_object_p( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate mrb_bool d_mrb_class_p( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate mrb_bool d_mrb_module_p( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate mrb_bool d_mrb_iclass_p( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate mrb_bool d_mrb_sclass_p( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate mrb_bool d_mrb_proc_p( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate mrb_bool d_mrb_range_p( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate mrb_bool d_mrb_file_p( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate mrb_bool d_mrb_env_p( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate mrb_bool d_mrb_data_p( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate mrb_bool d_mrb_fiber_p( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate mrb_bool d_mrb_istruct_p( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate mrb_bool d_mrb_break_p( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate mrb_bool d_mrb_bool( R_VAL o );
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate bool d_mrb_test( R_VAL o );
+		[DllImport(__DllName, EntryPoint = "mrb_immediate_p_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_bool mrb_immediate_p( R_VAL o );
 		
-		public static d_mrb_immediate_p mrb_immediate_p { get; } = FuncLoader.LoadFunction< d_mrb_immediate_p >( RubyLibrary, "mrb_immediate_p_ex" );
-		public static d_mrb_fixnum_p mrb_fixnum_p { get; } = FuncLoader.LoadFunction< d_mrb_fixnum_p >( RubyLibrary, "mrb_fixnum_p_ex" );
-		public static d_mrb_symbol_p mrb_symbol_p { get; } = FuncLoader.LoadFunction< d_mrb_symbol_p >( RubyLibrary, "mrb_symbol_p_ex" );
-		public static d_mrb_undef_p mrb_undef_p { get; } = FuncLoader.LoadFunction< d_mrb_undef_p >( RubyLibrary, "mrb_undef_p_ex" );
-		public static d_mrb_nil_p mrb_nil_p { get; } = FuncLoader.LoadFunction< d_mrb_nil_p >( RubyLibrary, "mrb_nil_p_ex" );
-		public static d_mrb_false_p mrb_false_p { get; } = FuncLoader.LoadFunction< d_mrb_false_p >( RubyLibrary, "mrb_false_p_ex" );
-		public static d_mrb_true_p mrb_true_p { get; } = FuncLoader.LoadFunction< d_mrb_true_p >( RubyLibrary, "mrb_true_p_ex" );
-		public static d_mrb_float_p mrb_float_p { get; } = FuncLoader.LoadFunction< d_mrb_float_p >( RubyLibrary, "mrb_float_p_ex" );
-		public static d_mrb_array_p mrb_array_p { get; } = FuncLoader.LoadFunction< d_mrb_array_p >( RubyLibrary, "mrb_array_p_ex" );
-		public static d_mrb_string_p mrb_string_p { get; } = FuncLoader.LoadFunction< d_mrb_string_p >( RubyLibrary, "mrb_string_p_ex" );
-		public static d_mrb_hash_p mrb_hash_p { get; } = FuncLoader.LoadFunction< d_mrb_hash_p >( RubyLibrary, "mrb_hash_p_ex" );
-		public static d_mrb_cptr_p mrb_cptr_p { get; } = FuncLoader.LoadFunction< d_mrb_cptr_p >( RubyLibrary, "mrb_cptr_p_ex" );
-		public static d_mrb_exception_p mrb_exception_p { get; } = FuncLoader.LoadFunction< d_mrb_exception_p >( RubyLibrary, "mrb_exception_p_ex" );
-		public static d_mrb_free_p mrb_free_p { get; } = FuncLoader.LoadFunction< d_mrb_free_p >( RubyLibrary, "mrb_free_p_ex" );
-		public static d_mrb_object_p mrb_object_p { get; } = FuncLoader.LoadFunction< d_mrb_object_p >( RubyLibrary, "mrb_object_p_ex" );
-		public static d_mrb_class_p mrb_class_p { get; } = FuncLoader.LoadFunction< d_mrb_class_p >( RubyLibrary, "mrb_class_p_ex" );
-		public static d_mrb_module_p mrb_module_p { get; } = FuncLoader.LoadFunction< d_mrb_module_p >( RubyLibrary, "mrb_module_p_ex" );
-		public static d_mrb_iclass_p mrb_iclass_p { get; } = FuncLoader.LoadFunction< d_mrb_iclass_p >( RubyLibrary, "mrb_iclass_p_ex" );
-		public static d_mrb_sclass_p mrb_sclass_p { get; } = FuncLoader.LoadFunction< d_mrb_sclass_p >( RubyLibrary, "mrb_sclass_p_ex" );
-		public static d_mrb_proc_p mrb_proc_p { get; } = FuncLoader.LoadFunction< d_mrb_proc_p >( RubyLibrary, "mrb_proc_p_ex" );
-		public static d_mrb_range_p mrb_range_p { get; } = FuncLoader.LoadFunction< d_mrb_range_p >( RubyLibrary, "mrb_range_p_ex" );
-		// public static d_mrb_file_p mrb_file_p { get; } = FuncLoader.LoadFunction< d_mrb_file_p >( RubyLibrary, "mrb_file_p_ex" );
-		public static d_mrb_env_p mrb_env_p { get; } = FuncLoader.LoadFunction< d_mrb_env_p >( RubyLibrary, "mrb_env_p_ex" );
-		public static d_mrb_data_p mrb_data_p { get; } = FuncLoader.LoadFunction< d_mrb_data_p >( RubyLibrary, "mrb_data_p_ex" );
-		public static d_mrb_fiber_p mrb_fiber_p { get; } = FuncLoader.LoadFunction< d_mrb_fiber_p >( RubyLibrary, "mrb_fiber_p_ex" );
-		public static d_mrb_istruct_p mrb_istruct_p { get; } = FuncLoader.LoadFunction< d_mrb_istruct_p >( RubyLibrary, "mrb_istruct_p_ex" );
-		public static d_mrb_break_p mrb_break_p { get; } = FuncLoader.LoadFunction< d_mrb_break_p >( RubyLibrary, "mrb_break_p_ex" );
-		public static d_mrb_bool mrb_bool { get; } = FuncLoader.LoadFunction< d_mrb_bool >( RubyLibrary, "mrb_bool_ex" );
-		public static d_mrb_test r_test { get; } = FuncLoader.LoadFunction< d_mrb_test >( RubyLibrary, "mrb_test_ex" );
+		[DllImport(__DllName, EntryPoint = "mrb_fixnum_p_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_bool mrb_fixnum_p( R_VAL o );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_symbol_p_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_bool mrb_symbol_p( R_VAL o );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_undef_p_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_bool mrb_undef_p( R_VAL o );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_nil_p_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_bool mrb_nil_p( R_VAL o );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_false_p_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_bool mrb_false_p( R_VAL o );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_true_p_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_bool mrb_true_p( R_VAL o );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_float_p_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_bool mrb_float_p( R_VAL o );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_array_p_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_bool mrb_array_p( R_VAL o );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_string_p_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_bool mrb_string_p( R_VAL o );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_hash_p_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_bool mrb_hash_p( R_VAL o );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_cptr_p_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_bool mrb_cptr_p( R_VAL o );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_exception_p_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_bool mrb_exception_p( R_VAL o );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_free_p_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_bool mrb_free_p( R_VAL o );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_object_p_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_bool mrb_object_p( R_VAL o );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_class_p_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_bool mrb_class_p( R_VAL o );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_module_p_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_bool mrb_module_p( R_VAL o );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_iclass_p_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_bool mrb_iclass_p( R_VAL o );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_sclass_p_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_bool mrb_sclass_p( R_VAL o );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_proc_p_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_bool mrb_proc_p( R_VAL o );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_range_p_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_bool mrb_range_p( R_VAL o );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_env_p_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_bool mrb_env_p( R_VAL o );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_data_p_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_bool mrb_data_p( R_VAL o );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_fiber_p_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_bool mrb_fiber_p( R_VAL o );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_istruct_p_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_bool mrb_istruct_p( R_VAL o );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_break_p_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_bool mrb_break_p( R_VAL o );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_bool_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_bool mrb_bool( R_VAL o );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_test_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern bool r_test( R_VAL o );
 		
 		
 		
 		//
 		// 文字列
 		//
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_str_new( byte[] ptr, long len );
-		public static d_mrb_str_new r_str_new { get; } = FuncLoader.LoadFunction< d_mrb_str_new >( RubyLibrary, "mrb_str_new" );
+		[DllImport(__DllName, EntryPoint = "mrb_str_new", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_str_new( byte[] ptr, long len );
 
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_str_new_cstr( IntPtr mrb_state, byte[] ptr );
-		public static d_mrb_str_new_cstr mrb_str_new_cstr { get; } = FuncLoader.LoadFunction< d_mrb_str_new_cstr >( RubyLibrary, "mrb_str_new_cstr" );
+		[DllImport(__DllName, EntryPoint = "mrb_str_new_cstr", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_str_new_cstr( IntPtr mrb_state, byte[] ptr );
 
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_str_new_static( IntPtr mrb_state, byte[] ptr, long len );
-		public static d_mrb_str_new_static mrb_str_new_static { get; } = FuncLoader.LoadFunction< d_mrb_str_new_static >( RubyLibrary, "mrb_str_new_static" );
+		[DllImport(__DllName, EntryPoint = "mrb_str_new_static", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_str_new_static( IntPtr mrb, byte[] ptr, long len );
 
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_obj_as_string( IntPtr mrb_state, R_VAL obj );
-		public static d_mrb_obj_as_string mrb_obj_as_string { get; } = FuncLoader.LoadFunction< d_mrb_obj_as_string >( RubyLibrary, "mrb_obj_as_string" );
+		[DllImport(__DllName, EntryPoint = "mrb_obj_as_string", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_obj_as_string( IntPtr mrb, R_VAL obj );
 
 
 		/// <summary>
@@ -332,9 +315,8 @@ namespace RubySharp {
 		//    }
 		//}
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate IntPtr d_mrb_string_value_cstr( IntPtr mrb_state, ref R_VAL v_ptr );
-		public static d_mrb_string_value_cstr mrb_string_value_cstr { get; } = FuncLoader.LoadFunction< d_mrb_string_value_cstr >( RubyLibrary, "mrb_string_value_cstr" );
+		[DllImport(__DllName, EntryPoint = "mrb_string_value_cstr", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern IntPtr mrb_string_value_cstr( IntPtr mrb, ref R_VAL v_ptr );
 
 		public static string StringValuePtr( IntPtr mrb_state, R_VAL v ) {
 			int length = 0;
@@ -356,97 +338,78 @@ namespace RubySharp {
 		//
 		// Symbol
 		//
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		private delegate mrb_sym d_mrb_intern( IntPtr mrb_state, byte[] name, UInt64 s );
-		private static d_mrb_intern mrb_intern { get; } = FuncLoader.LoadFunction< d_mrb_intern >( RubyLibrary, "mrb_intern" );
+		[DllImport(__DllName, EntryPoint = "mrb_intern", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_sym mrb_intern( IntPtr mrb, byte[] name, UInt64 s );
 
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		private delegate mrb_sym d_mrb_intern_cstr( IntPtr mrb_state, byte[] name );
-		private static d_mrb_intern_cstr mrb_intern_cstr { get; } = FuncLoader.LoadFunction< d_mrb_intern_cstr >( RubyLibrary, "mrb_intern_cstr" );
+		[DllImport(__DllName, EntryPoint = "mrb_intern_cstr", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_sym mrb_intern_cstr( IntPtr mrb, byte[] name );
 
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		private delegate mrb_sym d_mrb_intern_static( IntPtr mrb_state, byte[] name, UInt64 s );
-		private static d_mrb_intern_static mrb_intern_static { get; } = FuncLoader.LoadFunction< d_mrb_intern_static >( RubyLibrary, "mrb_intern_static" );
+		[DllImport(__DllName, EntryPoint = "mrb_intern_static", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_sym mrb_intern_static( IntPtr mrb, byte[] name, UInt64 s );
 
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		private delegate Int64 d_mrb_obj_id( R_VAL obj );
-		private static d_mrb_obj_id mrb_obj_id { get; } = FuncLoader.LoadFunction< d_mrb_obj_id >( RubyLibrary, "mrb_obj_id" );
+		[DllImport(__DllName, EntryPoint = "mrb_obj_id", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern Int64 mrb_obj_id( R_VAL obj );
 
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		private delegate IntPtr d_mrb_obj_class( IntPtr mrb_state, R_VAL obj );
-		private static d_mrb_obj_class mrb_obj_class { get; } = FuncLoader.LoadFunction< d_mrb_obj_class >( RubyLibrary, "mrb_obj_class" );
+		[DllImport(__DllName, EntryPoint = "mrb_obj_class", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern IntPtr mrb_obj_class( IntPtr mrb, R_VAL obj );
 
 
 		//
 		// 定数
 		//
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate void d_mrb_define_const( IntPtr mrb_state, IntPtr klass, string name, R_VAL val );
-		public static d_mrb_define_const r_define_const { get; } = FuncLoader.LoadFunction< d_mrb_define_const >( RubyLibrary, "mrb_define_const" );
+		[DllImport(__DllName, EntryPoint = "mrb_define_const", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern void r_define_const( IntPtr mrb, IntPtr klass, string name, R_VAL val );
 
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate void d_mrb_define_global_const( IntPtr mrb_state, string name, R_VAL val );
-		public static d_mrb_define_global_const mrb_define_global_const { get; } = FuncLoader.LoadFunction< d_mrb_define_global_const >( RubyLibrary, "mrb_define_global_const" );
+		[DllImport(__DllName, EntryPoint = "mrb_define_global_const", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern void mrb_define_global_const( IntPtr mrb, string name, R_VAL val );
 
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_const_get( IntPtr mrb_state, R_VAL obj, mrb_sym sym );
-		public static d_mrb_const_get mrb_const_get { get; } = FuncLoader.LoadFunction< d_mrb_const_get >( RubyLibrary, "mrb_const_get" );
+		[DllImport(__DllName, EntryPoint = "mrb_const_get", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_const_get( IntPtr mrb, R_VAL obj, mrb_sym sym );
 
 
 		//
 		// module, class
 		//
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate IntPtr d_mrb_define_class( IntPtr mrb_state, string name, IntPtr super );
-		public static d_mrb_define_class r_define_class { get; } = FuncLoader.LoadFunction< d_mrb_define_class >( RubyLibrary, "mrb_define_class" );
+		[DllImport(__DllName, EntryPoint = "mrb_define_class", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern IntPtr r_define_class( IntPtr mrb, string name, IntPtr super );
 
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate IntPtr d_mrb_define_class_under( IntPtr mrb_state, IntPtr outer, string name, IntPtr super );
-		public static d_mrb_define_class_under r_define_class_under { get; } = FuncLoader.LoadFunction< d_mrb_define_class_under >( RubyLibrary, "mrb_define_class_under" );
+		[DllImport(__DllName, EntryPoint = "mrb_define_class_under", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern IntPtr r_define_class_under( IntPtr mrb, IntPtr outer, string name, IntPtr super );
 
 
 		// [DllImport ( MRubyDll, EntryPoint = "mrb_set_instance_tt" )]
 		// public static extern void MRB_SET_INSTANCE_TT ( IntPtr c, rb_vtype tt );
 
 		
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate IntPtr d_mrb_class_get( IntPtr mrb_state, string name );
-		public static d_mrb_class_get mrb_class_get { get; } = FuncLoader.LoadFunction< d_mrb_class_get >( RubyLibrary, "mrb_class_get" );
-
-		//[DllImport(MRubyDll)]
-		//public static extern R_VAL mrb_class_new_instance(IntPtr mrb_state, mrb_int argc, R_VAL[] argv, IntPtr c);
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_obj_new( IntPtr mrb_state, IntPtr c, mrb_int argc, R_VAL[] argv );
-		public static d_mrb_obj_new mrb_obj_new { get; } = FuncLoader.LoadFunction< d_mrb_obj_new >( RubyLibrary, "mrb_obj_new" );
+		[DllImport(__DllName, EntryPoint = "mrb_class_get", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern IntPtr mrb_class_get( IntPtr mrb, string name );
 
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate IntPtr d_mrb_define_module( IntPtr mrb_state, string name );
-		public static d_mrb_define_module r_define_module { get; } = FuncLoader.LoadFunction< d_mrb_define_module >( RubyLibrary, "mrb_define_module" );
+		[DllImport(__DllName, EntryPoint = "mrb_obj_new", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_obj_new( IntPtr mrb, IntPtr c, mrb_int argc, R_VAL[] argv );
 
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate IntPtr d_mrb_define_module_under( IntPtr mrb_state, IntPtr outer, string name, IntPtr super );
-		public static d_mrb_define_module_under r_define_module_under { get; } = FuncLoader.LoadFunction< d_mrb_define_module_under >( RubyLibrary, "mrb_define_module_under" );
-
-		
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate IntPtr d_mrb_module_get( IntPtr mrb_state, string name );
-		public static d_mrb_module_get mrb_module_get { get; } = FuncLoader.LoadFunction< d_mrb_module_get >( RubyLibrary, "mrb_module_get" );
+		[DllImport(__DllName, EntryPoint = "mrb_define_module", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern IntPtr r_define_module( IntPtr mrb, string name );
 
 
+		[DllImport(__DllName, EntryPoint = "mrb_define_module_under", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern IntPtr r_define_module_under( IntPtr mrb, IntPtr outer, string name, IntPtr super );
 
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate void d_mrb_get_args( IntPtr state, string format, out IntPtr argv, out int argc, out R_VAL block );
-		public static d_mrb_get_args mrb_get_args { get; } = FuncLoader.LoadFunction< d_mrb_get_args >( RubyLibrary, "mrb_get_args" );
+		[DllImport(__DllName, EntryPoint = "mrb_module_get", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern IntPtr mrb_module_get( IntPtr mrb, string name );
+
+
+		[DllImport(__DllName, EntryPoint = "mrb_get_args", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern void mrb_get_args( IntPtr mrb, string format, out IntPtr argv, out int argc, out R_VAL block );
 
 
 
@@ -464,24 +427,20 @@ namespace RubySharp {
 		//
 		// メソッド
 		//
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate void d_mrb_define_method( IntPtr state, IntPtr klass, string name, RubyCSFunction func, rb_args aspec );
-		public static d_mrb_define_method r_define_method { get; } = FuncLoader.LoadFunction< d_mrb_define_method >( RubyLibrary, "mrb_define_method" );
+		[DllImport(__DllName, EntryPoint = "mrb_define_method", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern void r_define_method( IntPtr mrb, IntPtr klass, string name, RubyCSFunction func, rb_args aspec );
 
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate void d_mrb_define_class_method( IntPtr state, IntPtr klass, string name, RubyCSFunction func, rb_args aspec );
-		public static d_mrb_define_class_method r_define_class_method { get; } = FuncLoader.LoadFunction< d_mrb_define_class_method >( RubyLibrary, "mrb_define_class_method" );
+		[DllImport(__DllName, EntryPoint = "mrb_define_class_method", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern void r_define_class_method( IntPtr mrb, IntPtr klass, string name, RubyCSFunction func, rb_args aspec );
 
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate void d_mrb_define_module_function( IntPtr state, IntPtr klass, string name, RubyCSFunction func, rb_args aspec );
-		public static d_mrb_define_module_function r_define_module_function { get; } = FuncLoader.LoadFunction< d_mrb_define_module_function >( RubyLibrary, "mrb_define_module_function" );
+		[DllImport(__DllName, EntryPoint = "mrb_define_module_function", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern void r_define_module_function( IntPtr mrb, IntPtr klass, string name, RubyCSFunction func, rb_args aspec );
 
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate void d_mrb_define_singleton_method( IntPtr state, IntPtr klass, string name, RubyCSFunction func, rb_args aspec );
-		public static d_mrb_define_singleton_method r_define_singleton_method { get; } = FuncLoader.LoadFunction< d_mrb_define_singleton_method >( RubyLibrary, "mrb_define_singleton_method" );
+		[DllImport(__DllName, EntryPoint = "mrb_define_singleton_method", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern void mrb_define_singleton_method( IntPtr mrb, IntPtr klass, string name, RubyCSFunction func, rb_args aspec );
 
 
 		//public static void mrb_define_method(IntPtr klass, string name, MRubyCSFunction func, mrb_args aspec)
@@ -541,14 +500,11 @@ namespace RubySharp {
 		//
 		// funcall
 		//
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_funcall( IntPtr mrb_state, R_VAL obj, string funcName, int argc );
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		public delegate R_VAL d_mrb_funcall_1( IntPtr mrb_state, R_VAL obj, string funcName, int argc, R_VAL arg1 );
+		[DllImport(__DllName, EntryPoint = "mrb_funcall", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL r_funcall( IntPtr mrb, R_VAL obj, string funcName, int argc );
 
-		public static d_mrb_funcall r_funcall { get; } = FuncLoader.LoadFunction< d_mrb_funcall >( RubyLibrary, "mrb_funcall" );
-
-		public static d_mrb_funcall_1 r_funcall_1 { get; } = FuncLoader.LoadFunction< d_mrb_funcall_1 >( RubyLibrary, "mrb_funcall" );
+		[DllImport(__DllName, EntryPoint = "mrb_funcall", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL r_funcall_1( IntPtr mrb, R_VAL obj, string funcName, int argc, R_VAL arg1 );
 
 		//[DllImport(MRubyDll)]
   //      public static extern R_VAL mrb_funcall(IntPtr mrb_state, R_VAL obj, string funcName, int argc, R_VAL arg1);
@@ -562,14 +518,14 @@ namespace RubySharp {
 		/// <param name="state"></param>
 		/// <param name="withBlock"></param>
 		/// <returns></returns>
-		public static R_VAL[] GetFunctionArgs ( IntPtr mrb_state, bool withBlock = false ) {
+		public static R_VAL[] GetFunctionArgs( IntPtr state, bool withBlock = false ) {
 			R_VAL[] values;
 			IntPtr argvPointer;
 			R_VAL value = R_VAL.NIL;
 			int i, argc, size;
 			R_VAL block;
 
-			RubyDLL.mrb_get_args ( mrb_state, "*&", out argvPointer, out argc, out block );
+			RubyDLL.mrb_get_args( state, "*&", out argvPointer, out argc, out block );
 
 			int valueCount = argc;
 			if ( withBlock ) {
@@ -594,201 +550,165 @@ namespace RubySharp {
 	  
 		// 変数
 		//
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_iv_get( IntPtr mrb_state, R_VAL obj, mrb_sym sym );
-		public static d_mrb_iv_get r_iv_get { get; } = FuncLoader.LoadFunction< d_mrb_iv_get >( RubyLibrary, "mrb_iv_get" );
+		[DllImport(__DllName, EntryPoint = "mrb_iv_get", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_iv_get( IntPtr mrb, R_VAL obj, mrb_sym sym );
 
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate void d_mrb_iv_set( IntPtr mrb_state, R_VAL obj, mrb_sym sym, R_VAL v );
-		public static d_mrb_iv_set r_iv_set { get; } = FuncLoader.LoadFunction< d_mrb_iv_set >( RubyLibrary, "mrb_iv_set" );
+		[DllImport(__DllName, EntryPoint = "mrb_iv_set", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern void mrb_iv_set( IntPtr mrb, R_VAL obj, mrb_sym sym, R_VAL v );
 
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_obj_iv_get( IntPtr mrb_state, IntPtr obj, mrb_sym sym );
-		public static d_mrb_obj_iv_get mrb_obj_iv_get { get; } = FuncLoader.LoadFunction< d_mrb_obj_iv_get >( RubyLibrary, "mrb_obj_iv_get" );
+		[DllImport(__DllName, EntryPoint = "mrb_obj_iv_get", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_obj_iv_get( IntPtr mrb, IntPtr obj, mrb_sym sym );
 
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate void d_mrb_obj_iv_set( IntPtr mrb_state, IntPtr obj, mrb_sym sym, R_VAL v );
-		public static d_mrb_obj_iv_set mrb_obj_iv_set { get; } = FuncLoader.LoadFunction< d_mrb_obj_iv_set >( RubyLibrary, "mrb_obj_iv_set" );
+		[DllImport(__DllName, EntryPoint = "mrb_obj_iv_set", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern void mrb_obj_iv_set( IntPtr mrb, IntPtr obj, mrb_sym sym, R_VAL v );
 
 
 		//
 		// 配列
 		//
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_ary_new();
-		public static d_mrb_ary_new r_ary_new { get; } = FuncLoader.LoadFunction< d_mrb_ary_new >( RubyLibrary, "mrb_ary_new" );
+		[DllImport(__DllName, EntryPoint = "mrb_ary_new", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL r_ary_new();
 
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate void d_mrb_ary_push( IntPtr mrb_state, R_VAL array, R_VAL value );
-		public static d_mrb_ary_push r_ary_push { get; } = FuncLoader.LoadFunction< d_mrb_ary_push >( RubyLibrary, "mrb_ary_push" );
+		[DllImport(__DllName, EntryPoint = "mrb_ary_push", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern void r_ary_push( IntPtr mrb, R_VAL array, R_VAL value );
 
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_ary_ref( IntPtr mrb_state, R_VAL ary, mrb_int n );
-		public static d_mrb_ary_ref r_ary_ref { get; } = FuncLoader.LoadFunction< d_mrb_ary_ref >( RubyLibrary, "mrb_ary_ref" );
+		[DllImport(__DllName, EntryPoint = "mrb_ary_ref", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL r_ary_ref( IntPtr mrb, R_VAL ary, mrb_int n );
 		
 
 		//
 		// Hash
 		//
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_hash_new();
-		public static d_mrb_hash_new r_hash_new { get; } = FuncLoader.LoadFunction< d_mrb_hash_new >( RubyLibrary, "mrb_hash_new" );
+		[DllImport(__DllName, EntryPoint = "mrb_hash_new", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_hash_new();
 
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate void d_mrb_hash_set( IntPtr mrb_state, R_VAL hash, R_VAL key, R_VAL val );
-		public static d_mrb_hash_set r_hash_set { get; } = FuncLoader.LoadFunction< d_mrb_hash_set >( RubyLibrary, "mrb_hash_set" );
+		[DllImport(__DllName, EntryPoint = "mrb_hash_set", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern void mrb_hash_set( IntPtr mrb, R_VAL hash, R_VAL key, R_VAL val );
 
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_hash_get( IntPtr mrb_state, R_VAL hash, R_VAL key );
-		public static d_mrb_hash_get r_hash_get { get; } = FuncLoader.LoadFunction< d_mrb_hash_get >( RubyLibrary, "mrb_hash_get" );
+		[DllImport(__DllName, EntryPoint = "mrb_hash_get", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_hash_get( IntPtr mrb, R_VAL hash, R_VAL key );
 
 
 		//
 		// Context
 		//
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate IntPtr d_mrbc_context_new( IntPtr mrb_state );
-		public static d_mrbc_context_new mrbc_context_new { get; } = FuncLoader.LoadFunction< d_mrbc_context_new >( RubyLibrary, "mrbc_context_new" );
+		[DllImport(__DllName, EntryPoint = "mrbc_context_new", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern IntPtr mrbc_context_new( IntPtr mrb );
 
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate void d_mrbc_context_free( IntPtr mrb_state, IntPtr mrbc_context );
-		public static d_mrbc_context_free mrbc_context_free { get; } = FuncLoader.LoadFunction< d_mrbc_context_free >( RubyLibrary, "mrbc_context_free" );
+		[DllImport(__DllName, EntryPoint = "mrbc_context_free", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern void mrbc_context_free( IntPtr mrb, IntPtr mrbc_context );
 
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate void d_mrbc_filename( IntPtr mrb_state, IntPtr mrbc_context, string name );
-		public static d_mrbc_filename mrbc_filename { get; } = FuncLoader.LoadFunction< d_mrbc_filename >( RubyLibrary, "mrbc_filename" );
+		[DllImport(__DllName, EntryPoint = "mrbc_filename", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern void mrbc_filename( IntPtr mrb, IntPtr mrbc_context, string name );
 
 		
 		//
 		// Data
 		// 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate IntPtr d_mrb_data_object_alloc( IntPtr mrb_state, IntPtr klass, IntPtr datap, IntPtr type );
-		public static d_mrb_data_object_alloc mrb_data_object_alloc { get; } = FuncLoader.LoadFunction< d_mrb_data_object_alloc >( RubyLibrary, "mrb_data_object_alloc" );
+		[DllImport(__DllName, EntryPoint = "mrb_data_object_alloc", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern IntPtr mrb_data_object_alloc( IntPtr mrb, IntPtr klass, IntPtr datap, IntPtr type );
 
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate IntPtr d_mrb_data_init( R_VAL v, IntPtr ptr, IntPtr data_type );
-		public static d_mrb_data_init mrb_data_init { get; } = FuncLoader.LoadFunction< d_mrb_data_init >( RubyLibrary, "mrb_data_init_ex" );
+		[DllImport(__DllName, EntryPoint = "mrb_data_init_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern IntPtr mrb_data_init( R_VAL v, IntPtr ptr, IntPtr data_type );
 
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate IntPtr d_mrb_data_get_ptr( IntPtr mrb_state, R_VAL obj, IntPtr type );
-		public static d_mrb_data_get_ptr mrb_data_get_ptr { get; } = FuncLoader.LoadFunction< d_mrb_data_get_ptr >( RubyLibrary, "mrb_data_get_ptr" );
+		[DllImport(__DllName, EntryPoint = "mrb_data_get_ptr", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern IntPtr mrb_data_get_ptr( IntPtr mrb, R_VAL obj, IntPtr type );
 
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate IntPtr d_mrb_set_instance_tt( IntPtr klass, rb_vtype tt );
-		public static d_mrb_set_instance_tt mrb_set_instance_tt { get; } = FuncLoader.LoadFunction< d_mrb_set_instance_tt >( RubyLibrary, "mrb_set_instance_tt" );
+		[DllImport(__DllName, EntryPoint = "mrb_set_instance_tt", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern IntPtr mrb_set_instance_tt( IntPtr klass, rb_vtype tt );
 
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate IntPtr d_mrb_data_wrap_struct( IntPtr mrb_state, IntPtr klass, IntPtr data_type, IntPtr ptr );
-		public static d_mrb_data_wrap_struct mrb_data_wrap_struct { get; } = FuncLoader.LoadFunction< d_mrb_data_wrap_struct >( RubyLibrary, "mrb_data_wrap_struct" );
+		[DllImport(__DllName, EntryPoint = "mrb_data_wrap_struct", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern IntPtr mrb_data_wrap_struct( IntPtr mrb, IntPtr klass, IntPtr data_type, IntPtr ptr );
 
 
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_data_wrap_struct_obj( IntPtr mrb_state, IntPtr klass, IntPtr data_type, IntPtr ptr );
-		public static d_mrb_data_wrap_struct_obj mrb_data_wrap_struct_obj { get; } = FuncLoader.LoadFunction< d_mrb_data_wrap_struct_obj >( RubyLibrary, "mrb_data_wrap_struct_obj" );
+		[DllImport(__DllName, EntryPoint = "mrb_data_wrap_struct_obj", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_data_wrap_struct_obj( IntPtr mrb, IntPtr klass, IntPtr data_type, IntPtr ptr );
+		
+		[DllImport(__DllName, EntryPoint = "mrb_set_data_type", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern IntPtr mrb_set_data_type( IntPtr mrb, R_VAL v, IntPtr data_type_ptr );
 		
 		
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate IntPtr d_mrb_set_data_type( IntPtr mrb_state, R_VAL v, IntPtr data_type_ptr );
-		public static d_mrb_set_data_type mrb_set_data_type { get; } = FuncLoader.LoadFunction< d_mrb_set_data_type >( RubyLibrary, "mrb_set_data_type" );
-		
-		
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate IntPtr d_mrb_set_data_ptr ( IntPtr mrb_state, R_VAL v, IntPtr data_ptr );
-		public static d_mrb_set_data_ptr mrb_set_data_ptr { get; } = FuncLoader.LoadFunction< d_mrb_set_data_ptr >( RubyLibrary, "mrb_set_data_ptr" );
+		[DllImport(__DllName, EntryPoint = "mrb_set_data_ptr", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern IntPtr mrb_set_data_ptr( IntPtr mrb, R_VAL v, IntPtr data_ptr );
 
 		
 		//
 		// 例外
 		//
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		private delegate IntPtr d_mrb_malloc( IntPtr mrb_state, long len );
-		private static d_mrb_malloc mrb_malloc { get; } = FuncLoader.LoadFunction < d_mrb_malloc >( RubyLibrary, "mrb_malloc" );
+		[DllImport(__DllName, EntryPoint = "mrb_malloc", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		private static extern IntPtr mrb_malloc( IntPtr mrb, long len );
 
 		
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		private delegate void d_mrb_raise ( IntPtr mrb_state, IntPtr obj, byte[] msg );
-		private static d_mrb_raise mrb_raise { get; } = FuncLoader.LoadFunction< d_mrb_raise >( RubyLibrary, "mrb_raise" );
+		[DllImport(__DllName, EntryPoint = "mrb_raise", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		private static extern void mrb_raise( IntPtr mrb, IntPtr obj, byte[] msg );
 
 
 		//
 		// そのほか
 		//
 		//private const int FL_FREEZE = (1 << 10);
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_inspect( IntPtr mrb_state, R_VAL obj );
-		public static d_mrb_inspect mrb_inspect { get; } = FuncLoader.LoadFunction< d_mrb_inspect >( RubyLibrary, "mrb_inspect" );
+		[DllImport(__DllName, EntryPoint = "mrb_inspect", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_inspect( IntPtr mrb, R_VAL obj );
 
 		
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_top_self( IntPtr mrb_state );
-		public static d_mrb_top_self mrb_top_self { get; } = FuncLoader.LoadFunction< d_mrb_top_self >( RubyLibrary, "mrb_top_self" );
+		[DllImport(__DllName, EntryPoint = "mrb_top_self", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_top_self( IntPtr mrb );
 
 		
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate bool d_mrb_has_exc( IntPtr mrb_state );
-		public static d_mrb_has_exc mrb_has_exc { get; } = FuncLoader.LoadFunction< d_mrb_has_exc >( RubyLibrary, "mrb_has_exc" );
+		[DllImport(__DllName, EntryPoint = "mrb_has_exc", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern bool mrb_has_exc( IntPtr mrb );
 		
 		
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate void d_mrb_exc_clear( IntPtr mrb_state );
-		public static d_mrb_exc_clear mrb_exc_clear { get; } = FuncLoader.LoadFunction< d_mrb_exc_clear >( RubyLibrary, "mrb_exc_clear" );
+		[DllImport(__DllName, EntryPoint = "mrb_exc_clear", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern void mrb_exc_clear( IntPtr mrb );
 		
 		
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_get_exc_value( IntPtr mrb_state );
-		public static d_mrb_get_exc_value mrb_get_exc_value { get; } = FuncLoader.LoadFunction< d_mrb_get_exc_value >( RubyLibrary, "mrb_get_exc_value" );
+		[DllImport(__DllName, EntryPoint = "mrb_get_exc_value", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_get_exc_value( IntPtr mrb );
 
 		
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_exc_detail( IntPtr mrb_state );
-		public static d_mrb_exc_detail mrb_exc_detail { get; } = FuncLoader.LoadFunction< d_mrb_exc_detail >( RubyLibrary, "mrb_exc_detail" );
+		[DllImport(__DllName, EntryPoint = "mrb_exc_detail", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_exc_detail( IntPtr mrb );
 
 		
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_get_backtrace( IntPtr mrb_state );
-		public static d_mrb_get_backtrace r_get_backtrace { get; } = FuncLoader.LoadFunction< d_mrb_get_backtrace >( RubyLibrary, "mrb_get_backtrace" );
+		[DllImport(__DllName, EntryPoint = "mrb_get_backtrace", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL r_get_backtrace( IntPtr mrb );
 
 		
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate R_VAL d_mrb_exc_backtrace( IntPtr mrb_state, R_VAL exc );
-		public static d_mrb_exc_backtrace r_exc_backtrace { get; } = FuncLoader.LoadFunction< d_mrb_exc_backtrace >( RubyLibrary, "mrb_exc_backtrace" );
+		[DllImport(__DllName, EntryPoint = "mrb_exc_backtrace", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL r_exc_backtrace( IntPtr mrb, R_VAL exc );
 
 		
 		//
 		// GC
 		//
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate int d_mrb_gc_arena_save( IntPtr mrb_state );
-		public static d_mrb_gc_arena_save mrb_gc_arena_save { get; } = FuncLoader.LoadFunction< d_mrb_gc_arena_save >( RubyLibrary, "mrb_gc_arena_save_ex" );
+		[DllImport(__DllName, EntryPoint = "mrb_gc_arena_save_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern int mrb_gc_arena_save( IntPtr mrb );
 		
 		
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate void d_mrb_gc_arena_restore( IntPtr mrb_state, int idx );
-		public static d_mrb_gc_arena_restore mrb_gc_arena_restore { get; } = FuncLoader.LoadFunction< d_mrb_gc_arena_restore >( RubyLibrary, "mrb_gc_arena_restore_ex" );
-
-		
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate void d_mrb_garbage_collect( IntPtr mrb_state );
-		public static d_mrb_garbage_collect mrb_garbage_collect { get; } = FuncLoader.LoadFunction< d_mrb_garbage_collect >( RubyLibrary, "mrb_garbage_collect" );
+		[DllImport(__DllName, EntryPoint = "mrb_gc_arena_restore_ex", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern void mrb_gc_arena_restore( IntPtr mrb, int idx );
 		
 		
-		[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-		public delegate void d_mrb_full_gc( IntPtr mrb_state );
-		public static d_mrb_full_gc mrb_full_gc { get; } = FuncLoader.LoadFunction< d_mrb_full_gc >( RubyLibrary, "mrb_full_gc" );
+		[DllImport(__DllName, EntryPoint = "mrb_garbage_collect", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern void mrb_garbage_collect( IntPtr mrb );
+		
+		
+		[DllImport(__DllName, EntryPoint = "mrb_full_gc", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern void mrb_full_gc( IntPtr mrb );
 
 		
 		
@@ -866,12 +786,12 @@ namespace RubySharp {
 	public enum rb_vtype {
 		RUBY_T_FALSE = 0, /*   0 */
 		RUBY_T_TRUE,      /*   1 */
-		RUBY_T_FLOAT,     /*   2 */
-		RUBY_T_INTEGER,   /*   3 */
-		RUBY_T_SYMBOL,    /*   4 */
-		RUBY_T_UNDEF,     /*   5 */
-		RUBY_T_CPTR,      /*   6 */
-		RUBY_T_FREE,      /*   7 */
+		RUBY_T_SYMBOL,    /*   2 */
+		RUBY_T_UNDEF,     /*   3 */
+		RUBY_T_FREE,      /*   4 */
+		RUBY_T_FLOAT,     /*   5 */
+		RUBY_T_INTEGER,   /*   6 */
+		RUBY_T_CPTR,      /*   7 */
 		RUBY_T_OBJECT,    /*   8 */
 		RUBY_T_CLASS,     /*   9 */
 		RUBY_T_MODULE,    /*  10 */
@@ -886,22 +806,27 @@ namespace RubySharp {
 		RUBY_T_ENV,       /*  19 */
 		RUBY_T_DATA,      /*  20 */
 		RUBY_T_FIBER,     /*  21 */
-		RUBY_T_ISTRUCT,   /*  22 */
-		RUBY_T_BREAK,     /*  23 */
-		RUBY_T_MAXDEFINE  /*  24 */
+		RUBY_T_STRUCT,	  /*  22 */
+		RUBY_T_ISTRUCT,   /*  23 */
+		RUBY_T_BREAK,     /*  24 */
+		RUBY_T_COMPLEX,   /*  25 */
+		RUBY_T_RATIONAL,  /*  26 */
+		RUBY_T_BIGINT,    /*  27 */
+		RUBY_T_BACKTRACE, /*  28 */
+		RUBY_T_MAXDEFINE  /*  29 */
 	}
 	
 	
 	/// <summary>
 	/// mruby方法参数配置 
 	/// </summary>
-	[StructLayout ( LayoutKind.Sequential )]
+	[StructLayout( LayoutKind.Sequential )]
 	public struct rb_args {
 		
 		public UInt32 Value;
 
 		public rb_args( UInt32 value ) {
-			this.Value = value;
+			Value = value;
 		}
 		
 		public static rb_args NONE() {
@@ -940,7 +865,7 @@ namespace RubySharp {
 	/// <param name="state">mrb_state *mrb</param>
 	/// <param name="data">void*</param>
 	/// <returns></returns>
-	[UnmanagedFunctionPointer ( CallingConvention.Cdecl )]
+	[UnmanagedFunctionPointer( CallingConvention.Cdecl )]
 	public delegate void MRubyDFreeFunction( IntPtr state, IntPtr data );
 
 	
@@ -1346,5 +1271,6 @@ namespace RubySharp {
         }
 		
     }
+	
 }
 #endif

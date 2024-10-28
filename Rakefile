@@ -19,20 +19,34 @@ PLATFORMS = {
   'wasm' => 'a',
 }
 
+def current_os
+  case RUBY_PLATFORM
+  when /darwin/
+    'macOS'
+  when /linux/
+    'linux'
+  when /winmingw32/
+  when /x64-mingw-ucrt/
+    'windows'
+  else
+    'unknown'
+  end
+end
+
 task :build, ['target'] do |t, args|
   # build_config_path = File.expand_path("build_config/build_config.#{args.target}.rb", __FILE__)
   
   # Dir.chdir(MRUBY_ROOT) do
   #   sh "MRUBY_CONFIG=#{build_config_path} rake"
   # end
-  # build_config_path = File.expand_path("build_config/build_config.windows.rb", File.dirname(__FILE__))
-  build_config_path = File.expand_path("build_config/build_config.macOS.rb", File.dirname(__FILE__))
+  build_config_path = File.expand_path("build_config/build_config.windows.rb", File.dirname(__FILE__))
+  # build_config_path = File.expand_path("build_config/build_config.macOS.rb", File.dirname(__FILE__))
 
-  # puts "MRUBY_ROOT: #{MRUBY_ROOT}"
-  # puts "build_config_path: #{build_config_path}"
+  puts "MRUBY_ROOT: #{MRUBY_ROOT}"
+  puts "build_config_path: #{build_config_path}"
 
   Dir.chdir(MRUBY_ROOT) do
-    if args.target == 'windows'
+    if current_os == 'windows'
       sh "SET MRUBY_CONFIG=#{build_config_path}"
       sh "rake"
     else

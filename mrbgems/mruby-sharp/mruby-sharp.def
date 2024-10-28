@@ -48,6 +48,7 @@ EXPORTS
 
 	mrb_has_exc
 	mrb_exc_clear
+	mrb_get_exc_value
 	mrb_exc_detail
 
     mrb_gc_arena_save_ex
@@ -67,7 +68,7 @@ EXPORTS
 	mrb_ary_new_from_values
 	mrb_ary_pop
 	mrb_ary_push
-	mrb_ary_ref
+	mrb_ary_entry
 	mrb_ary_replace
 	mrb_ary_resize
 	mrb_ary_set
@@ -80,7 +81,7 @@ EXPORTS
 	mrb_calloc
 
 	mrb_check_array_type
-	mrb_check_convert_type
+	mrb_type_convert_check
 	mrb_check_hash_type
 	mrb_check_intern
 	mrb_check_intern_cstr
@@ -107,8 +108,7 @@ EXPORTS
 	mrb_const_set
 	mrb_vm_run
 
-	mrb_convert_to_integer
-	mrb_convert_type
+	mrb_type_convert
 	mrb_cv_defined
 	mrb_cv_get
 	mrb_cv_set
@@ -155,9 +155,7 @@ EXPORTS
 	mrb_fiber_resume
 	mrb_fiber_yield
 	mrb_field_write_barrier
-	mrb_fixnum_to_str
-	mrb_flo_to_fixnum
-	mrb_Float
+	mrb_integer_to_str
 	mrb_float_to_str
 	mrb_format
 	mrb_free
@@ -195,7 +193,6 @@ EXPORTS
 	mrb_incremental_gc
 	mrb_inspect
 	mrb_instance_new
-	mrb_Integer
 	mrb_intern
 	mrb_intern_cstr
 	mrb_intern_static
@@ -264,7 +261,6 @@ EXPORTS
 	mrb_parser_parse
 	mrb_parser_set_filename
 	mrb_pool_alloc
-	mrb_pool_can_realloc
 	mrb_pool_close
 	mrb_pool_open
 	mrb_pool_realloc
@@ -283,13 +279,12 @@ EXPORTS
 	mrb_realloc
 	mrb_realloc_simple
 	mrb_respond_to
-	mrb_run
 	mrb_show_copyright
 	mrb_show_version
 	mrb_singleton_class
 	mrb_state_atexit
 	mrb_str_append
-	mrb_str_buf_new
+	mrb_str_new_capa
 	mrb_str_cat
 	mrb_str_cat_cstr
 	mrb_str_cat_str
@@ -307,14 +302,13 @@ EXPORTS
 	mrb_str_substr
 	mrb_str_to_cstr
 	mrb_str_to_dbl
-	mrb_str_to_inum
-	mrb_str_to_str
-	mrb_string_type
+	mrb_str_to_integer
+	mrb_obj_as_string
+	mrb_ensure_string_type
 	mrb_string_value_cstr
-	mrb_string_value_ptr
 	mrb_sys_fail
-	mrb_to_flo
-	mrb_to_int
+	mrb_ensure_float_type
+	mrb_ensure_int_type
 
 	mrb_top_self
 
@@ -327,7 +321,11 @@ EXPORTS
 	mrb_yield
 	mrb_yield_argv
 	mrb_yield_with_class
-	mrbc_context_free
-	mrbc_context_new
-	mrbc_filename
-	mrbc_partial_hook
+	mrb_ccontext_free
+	mrb_ccontext_new
+	mrb_ccontext_filename
+	mrb_ccontext_partial_hook
+
+	mrb_get_argc
+	mrb_get_argv
+	

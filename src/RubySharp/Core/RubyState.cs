@@ -220,6 +220,9 @@ namespace RubySharp {
 			if ( !RubyDLL.mrb_exception_p( exc ) ) {
 				return string.Empty;
 			}
+			if ( exc.tt == rb_vtype.RUBY_T_FALSE ) {
+				return string.Empty;
+			}
             R_VAL backtrace = RubyDLL.r_exc_backtrace( rb_state, exc );
             
             builder.AppendLine( RubyDLL.r_funcall( rb_state, exc, "inspect", 0 ).ToString( rb_state ) );
@@ -555,7 +558,7 @@ namespace RubySharp {
 			int index;
 			object obj = null;
 			if ( _typedReferenceMap.Forward.TryGetValue( data, out index ) ) {
-				obj = _translator.GetObject ( index );
+				obj = _translator.GetObject( index );
 			}
 			
 			if ( obj != null && _translator.Getudata( obj, out index ) ) {

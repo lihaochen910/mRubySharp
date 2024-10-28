@@ -57,21 +57,21 @@ namespace RubySharp.Sample {
 
             klass.DefineMethod( "write", WriteLine, rb_args.ANY() );
 			
-			// WrapperUtility.GenCSharpClass ( typeof ( System.Object ) );
-		    // WrapperUtility.GenCSharpClass ( typeof ( System.Array ) );
-		    // WrapperUtility.GenCSharpClass ( typeof ( System.TimeSpan ) );
-            // WrapperUtility.GenByAssembly ( typeof ( Microsoft.Xna.Framework.Game ).Assembly );
-            // WrapperUtility.GenUnityEngineCommon ();
-            // WrapperUtility.GenCSharpClass ( typeof ( CustomClass ) );
-            // WrapperUtility.GenCSharpClass ( typeof ( CustomEnum ) );
+			// WrapperUtility.GenCSharpClass( typeof( System.Object ) );
+		    // WrapperUtility.GenCSharpClass( typeof( System.Array ) );
+		    // WrapperUtility.GenCSharpClass( typeof( System.TimeSpan ) );
+            // WrapperUtility.GenByAssembly( typeof( Microsoft.Xna.Framework.Game ).Assembly );
+            // WrapperUtility.GenUnityEngineCommon();
+            // WrapperUtility.GenCSharpClass( typeof( CustomClass ) );
+            // WrapperUtility.GenCSharpClass( typeof( CustomEnum ) );
 
             UserDataUtility.RegisterType< CustomClass >( _state );
             UserDataUtility.RegisterType< CustomEnum >( _state );
 
-            // CustomClass_Wrapper.__Register__ ( state );
-            // CustomEnum_Wrapper.__Register__ ( state );
+            // CustomClass_Wrapper.__Register__( state );
+            // CustomEnum_Wrapper.__Register__( state );
 
-            // state.DoFile ( "main.rb" );
+            // state.DoFile( "main.rb" );
 
 #else
 			Console.WriteLine( v1.ToString() );
@@ -87,16 +87,16 @@ namespace RubySharp.Sample {
             _state.DoString( "WriteLine(\"System::Object.new\")" );
             _state.DoString( "show_backtrace" );
             _state.DoString( "WriteLineNormal( 'mruby ok!', 1, 9.9, true )" );
-            _state.DoString( "puts RubySharp::CustomEnum::A" );
-            _state.DoString( "puts RubySharp::CustomEnum::B" );
-            _state.DoString( "puts RubySharp::CustomEnum::C" );
-            _state.DoString( "puts RubySharp::CustomClass.new.FuncB( 999 )" );
-            _state.DoString( "puts RubySharp::CustomClass.new.FuncC( 'AABB' )" );
-            _state.DoString( "puts RubySharp::CustomClass.new.FuncD( 1, 2.0, true, 'HelloString', RubySharp::CustomClass.new )" );
-            _state.DoString( "puts RubySharp::CustomClass.+( RubySharp::CustomClass.new, 100 )" );
-            _state.DoString( "puts RubySharp::CustomClass::FuncE( nil )" );
-            _state.DoString( "puts RubySharp::CustomClass.FuncF( RubySharp::CustomClass.new, 900.0 )" );
-            _state.DoString( "puts RubySharp::CustomClass.new.FuncG( RubySharp::CustomClass.new )" );
+            _state.DoString( "puts RubySharp::Sample::CustomEnum::A" );
+            _state.DoString( "puts RubySharp::Sample::CustomEnum::B" );
+            _state.DoString( "puts RubySharp::Sample::CustomEnum::C" );
+            _state.DoString( "puts RubySharp::Sample::CustomClass.new.FuncB( 999 )" );
+            _state.DoString( "puts RubySharp::Sample::CustomClass.new.FuncC( 'AABB' )" );
+            _state.DoString( "puts RubySharp::Sample::CustomClass.new.FuncD( 1, 2.0, true, 'HelloString', RubySharp::Sample::CustomClass.new )" );
+            _state.DoString( "puts RubySharp::Sample::CustomClass.+( RubySharp::Sample::CustomClass.new, 100 )" );
+            _state.DoString( "puts RubySharp::Sample::CustomClass::FuncE( nil )" );
+            _state.DoString( "puts RubySharp::Sample::CustomClass.FuncF( RubySharp::Sample::CustomClass.new, 900.0 )" );
+            _state.DoString( "puts RubySharp::Sample::CustomClass.new.FuncG( RubySharp::Sample::CustomClass.new )" );
 
 #if MRUBY
             if ( RubyDLL.mrb_has_exc( _state ) ) {

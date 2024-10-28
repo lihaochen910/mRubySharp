@@ -934,12 +934,12 @@ namespace RubySharp {
 			
 			rb_state = IntPtr.Zero;
 			
-			Console.WriteLine( "[DEBUG] RubyState::Disposed" );
+			// Console.WriteLine( "[DEBUG] RubyState::Disposed" );
 		}
 
-		internal unsafe mrb_state* DangerousGetPtr() => ( mrb_state* )DangerousGetHandle();
+		private unsafe mrb_state* DangerousGetPtr() => ( mrb_state* )DangerousGetHandle();
 
-		protected override unsafe bool ReleaseHandle() {
+		protected override bool ReleaseHandle() {
 			if ( IsClosed ) {
 				return false;
 			}

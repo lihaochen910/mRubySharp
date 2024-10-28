@@ -418,10 +418,16 @@ namespace RubySharp {
 		public static extern IntPtr mrb_module_get( IntPtr mrb, string name );
 
 
-		[DllImport(__DllName, EntryPoint = "mrb_get_args", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
-		public static extern void mrb_get_args( IntPtr mrb, string format, out IntPtr argv, out int argc, out R_VAL block );
+		// [DllImport(__DllName, EntryPoint = "mrb_get_args", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		// public static extern void mrb_get_args( IntPtr mrb, string format, out IntPtr argv, out int argc, out R_VAL block );
+		
+		
+		[DllImport(__DllName, EntryPoint = "mrb_get_argc", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_int mrb_get_argc( IntPtr mrb );
 
 
+		[DllImport(__DllName, EntryPoint = "mrb_get_argv", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern IntPtr mrb_get_argv( IntPtr mrb );
 
 		//
 		// コールバック
@@ -529,22 +535,24 @@ namespace RubySharp {
 		/// <param name="withBlock"></param>
 		/// <returns></returns>
 		public static R_VAL[] GetFunctionArgs( IntPtr state, bool withBlock = false ) {
-			R_VAL[] values;
-			IntPtr argvPointer;
-			R_VAL value = R_VAL.NIL;
-			int i, argc, size;
-			R_VAL block;
-
-			RubyDLL.mrb_get_args( state, "*&", out argvPointer, out argc, out block );
+			// R_VAL block;
+			// RubyDLL.mrb_get_args( state, "*&", out argvPointer, out argc, out block );
+			var argc = RubyDLL.mrb_get_argc( state );
+			if ( argc < 1 ) {
+				return Array.Empty< R_VAL >();
+			}
+			var argvPointer = RubyDLL.mrb_get_argv( state );
 
 			int valueCount = argc;
 			if ( withBlock ) {
 				valueCount++;
 			}
+			
+			R_VAL value = R_VAL.NIL;
 
-			values = new R_VAL[ valueCount ]; // Include Block
-			size = Marshal.SizeOf( typeof( R_VAL ) );
-			for ( i = 0; i < argc; i++ ) {
+			var values = new R_VAL[ valueCount ]; // Include Block
+			var size = Marshal.SizeOf( typeof( R_VAL ) );
+			for ( var i = 0; i < argc; i++ ) {
 				value = ( R_VAL )Marshal.PtrToStructure( argvPointer + ( i * size ), typeof( R_VAL ) );
 				values[ i ] = value;
 			}
@@ -556,8 +564,7 @@ namespace RubySharp {
 			return values;
 		}
 
-
-	  
+		
 		// 変数
 		//
 		[DllImport(__DllName, EntryPoint = "mrb_iv_get", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]

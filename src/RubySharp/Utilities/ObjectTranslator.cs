@@ -100,17 +100,15 @@ namespace RubySharp {
 
 		//fixed 枚举唯一性问题（对象唯一，没有实现__eq操作符）
 		void RemoveObject( object o, int udata ) {
-			int index = -1;
-
-			if ( objectsBackMap.TryGetValue( o, out index ) && index == udata ) {
+			if ( objectsBackMap.TryGetValue( o, out var index ) && index == udata ) {
 				objectsBackMap.Remove( o );
 			}
 		}
 
 
-		//lua gc一个对象(lua 库不再引用，但不代表c#没使用)
+		//mruby gc一个对象(mruby 库不再引用，但不代表c#没使用)
 		public void RemoveObject( int udata ) {
-			//只有lua gc才能移除
+			//只有mruby gc才能移除
 			object o = objects.Remove( udata );
 
 			if ( o != null ) {
@@ -119,7 +117,7 @@ namespace RubySharp {
 				}
 
 				if ( LogGC ) {
-					Console.WriteLine( "gc object {0}, id {1}", o, udata );
+					Console.WriteLine( "[ObjectTranslator] gc object {0}, id {1}", o, udata );
 				}
 			}
 		}
@@ -130,7 +128,7 @@ namespace RubySharp {
 		}
 
 
-		//预删除，但不移除一个lua对象(移除id只能由gc完成)
+		//预删除，但不移除一个mruby对象(移除id只能由gc完成)
 		public void Destroy( int udata ) {
 			object o = objects.Destroy( udata );
 
@@ -140,7 +138,7 @@ namespace RubySharp {
 				}
 
 				if ( LogGC ) {
-					Console.WriteLine( "destroy object {0}, id {1}", o, udata );
+					Console.WriteLine( "[ObjectTranslator] destroy object {0}, id {1}", o, udata );
 				}
 			}
 		}
@@ -261,7 +259,7 @@ namespace RubySharp {
 
 		private List< PoolNode > list;
 
-		//同lua_ref策略，0作为一个回收链表头，不使用这个位置
+		//同mruby_ref策略，0作为一个回收链表头，不使用这个位置
 		private PoolNode head = null;
 		private int count = 0;
 		private int collectStep = 2;

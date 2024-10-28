@@ -4,7 +4,7 @@ MRuby::GemBox.new do |conf|
   conf.gem core: 'mruby-compiler'
   conf.gem core: 'mruby-fiber'
 
-  conf.gem '.'
+  conf.gem './mrbgems/mruby-sharp'
 
   # stdlibs
   conf.gem core: "mruby-compar-ext"
@@ -18,4 +18,7 @@ MRuby::GemBox.new do |conf|
   conf.gem core: "mruby-toplevel-ext"
   conf.gem core: "mruby-kernel-ext"
   conf.gem core: "mruby-random"
+  conf.gem core: "mruby-string-ext"
+  conf.gem core: "mruby-metaprog"
+  conf.gem core: "mruby-eval"
 end

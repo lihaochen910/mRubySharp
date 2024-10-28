@@ -1,10 +1,10 @@
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+
+
 namespace RubySharp {
 	
-	using System;
-	using System.Collections.Generic;
-	using System.Reflection;
-
-
 	/// <summary>
 	/// C#包装类生成, 性能应该比反射快
 	/// </summary>
@@ -16,7 +16,7 @@ namespace RubySharp {
 		private const string RUBYSHARP_STATIC_FUNCTION_PREFIX = "STATIC_";
 		
 		
-		private static Dictionary<string, string> operator_methods = new Dictionary<string, string> {
+		private static Dictionary<string, string> operator_methods = new () {
 			// { "op_LogicalNot", "!" },
 			{ "op_Addition", "+" }, { "op_Subtraction", "-" }, { "op_Multiply", "*" },
 			{ "op_Division", "/" }, { "op_BitwiseAnd", "&" }, { "op_BitwiseOr", "|" },
@@ -26,40 +26,40 @@ namespace RubySharp {
 			{ "op_RightShift", ">>" }, { "op_Modulus", "%" }
 		};
 		
-		private static List<string> ignored_classes = new List< string >() {
+		private static List<string> ignored_classes = new () {
 			"<PrivateImplementationDetails>"
 		};
 		
-		private static List<string> ignored_methods = new List< string >() {
+		private static List<string> ignored_methods = new () {
 			"Equals", "GetHashCode", "GetType", "ToString", "GetEnumerator"
 		};
 		
-		private static List<string> ignored_fields = new List< string >() {
+		private static List<string> ignored_fields = new () {
 			"Item"
 		};
 		
-		private static List< Type > base_value_types = new List< Type > {
-			typeof ( int ), typeof ( short ), typeof ( long ),
-			typeof ( uint ), typeof ( ushort ), typeof ( ulong ),
-			typeof ( int? ), typeof ( short? ), typeof ( long? ),
-			typeof ( uint? ), typeof ( ushort? ), typeof ( ulong? ),
-			typeof ( byte ), typeof ( sbyte ),
-			typeof ( byte? ), typeof ( sbyte? ),
-			typeof ( float ), typeof ( double ),
-			typeof ( float? ), typeof ( double? ),
-			typeof ( bool ), typeof ( bool? ),
-			typeof ( string ), typeof ( object )
+		private static List< Type > base_value_types = new () {
+			typeof( int ), typeof( short ), typeof( long ),
+			typeof( uint ), typeof( ushort ), typeof( ulong ),
+			typeof( int? ), typeof( short? ), typeof( long? ),
+			typeof( uint? ), typeof( ushort? ), typeof( ulong? ),
+			typeof( byte ), typeof( sbyte ),
+			typeof( byte? ), typeof( sbyte? ),
+			typeof( float ), typeof( double ),
+			typeof( float? ), typeof( double? ),
+			typeof( bool ), typeof( bool? ),
+			typeof( string ), typeof( object )
 		};
 
 		private static IList< Type > exportingTypeList;
 		
 		
-		private static bool TestTypeSupport ( Type type ) {
+		private static bool TestTypeSupport( Type type ) {
 			
 			// ignore unexported type
-			if ( exportingTypeList != null && !exportingTypeList.Contains ( type ) && !type.IsEnum ) {
+			if ( exportingTypeList != null && !exportingTypeList.Contains( type ) && !type.IsEnum ) {
 				// base type
-				if ( !base_value_types.Contains ( type ) ) {
+				if ( !base_value_types.Contains( type ) ) {
 					return false;
 				}
 			}
@@ -81,19 +81,19 @@ namespace RubySharp {
 		}
 
 		
-		private static bool TestFunctionSupport ( MethodInfo methodInfo ) {
+		private static bool TestFunctionSupport( MethodInfo methodInfo ) {
 			
 			if ( methodInfo.IsGenericMethod ) {
 				return false;
 			}
 				
 			// skip Obsolete
-			if ( methodInfo.IsDefined ( typeof ( System.ObsoleteAttribute ), false ) ) {
+			if ( methodInfo.IsDefined( typeof( System.ObsoleteAttribute ), false ) ) {
 				return false;
 			}
 			
 			// check param
-			var parameters = methodInfo.GetParameters ();
+			var parameters = methodInfo.GetParameters();
 			foreach ( var p in parameters ) {
 				
 				// out
@@ -102,17 +102,17 @@ namespace RubySharp {
 				}
 				
 				// ref
-				if ( p.ParameterType.IsValueType && p.ParameterType.IsByRef ) {
+				if ( p.ParameterType is { IsValueType: true, IsByRef: true } ) {
 					return false;
 				}
 				
-				if ( !TestTypeSupport ( p.ParameterType ) ) {
+				if ( !TestTypeSupport( p.ParameterType ) ) {
 					return false;
 				}
 				
 			}
 			
-			if ( methodInfo.ReturnType != typeof ( void ) && !TestTypeSupport ( methodInfo.ReturnType ) ) {
+			if ( methodInfo.ReturnType != typeof( void ) && !TestTypeSupport( methodInfo.ReturnType ) ) {
 				return false;
 			}
 			
@@ -120,7 +120,7 @@ namespace RubySharp {
 		}
 
 		
-		private static bool TestTypeIsPublic ( Type t ) {
+		private static bool TestTypeIsPublic( Type t ) {
 			return
 				t.IsVisible
 				&& t.IsPublic
@@ -133,6 +133,7 @@ namespace RubySharp {
 				&& !t.IsNestedFamORAssem
 				&& !t.IsNestedFamANDAssem;
 		}
+		
 	}
 
 }

@@ -1,6 +1,5 @@
 ﻿#if MRUBY
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -236,14 +235,14 @@ namespace RubySharp {
 				}
 
 
-				if ( this.m_IsAction ) {
+				if ( m_IsAction ) {
 					var lambda = Expression.Lambda< Action< object, object[] > >( fn, objinst, ep );
-					Interlocked.Exchange( ref m_OptimizedAction, lambda.Compile () );
+					Interlocked.Exchange( ref m_OptimizedAction, lambda.Compile() );
 				}
 				else {
 					var fnc = Expression.Convert( fn, typeof ( object ) );
 					var lambda = Expression.Lambda< Func< object, object[], object > >( fnc, objinst, ep );
-					Interlocked.Exchange( ref m_OptimizedFunc, lambda.Compile () );
+					Interlocked.Exchange( ref m_OptimizedFunc, lambda.Compile() );
 				}
 			// }
 		}

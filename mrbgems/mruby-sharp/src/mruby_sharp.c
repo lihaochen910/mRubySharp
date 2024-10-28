@@ -311,3 +311,13 @@ MRB_API void mrb_gc_arena_restore_ex(mrb_state *mrb, int idx)
 {
   mrb_gc_arena_restore(mrb, idx);
 }
+
+void
+mrb_mruby_csharp_gem_init(mrb_state *mrb)
+{
+}
+
+void
+mrb_mruby_csharp_gem_final(mrb_state *mrb)
+{
+}

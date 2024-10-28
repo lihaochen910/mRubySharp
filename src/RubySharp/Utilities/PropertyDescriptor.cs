@@ -1,9 +1,10 @@
 #if MRUBY
+using System;
+using System.Reflection;
+
+
 namespace RubySharp {
 	
-	using System;
-	using System.Reflection;
-
 	/// <summary>
 	/// Class providing easier marshalling of get / set CLR fields
 	/// </summary>

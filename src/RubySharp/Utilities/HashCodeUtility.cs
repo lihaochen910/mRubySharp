@@ -1,4 +1,4 @@
-namespace RubySharp.Core
+namespace RubySharp
 {
 	/// <summary>
 	/// Provides methods for manipulating and creating hash codes.

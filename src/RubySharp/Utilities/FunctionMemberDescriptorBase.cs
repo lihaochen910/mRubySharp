@@ -64,7 +64,7 @@ namespace RubySharp {
 			Parameters = parameters;
 
 			if ( isExtensionMethod )
-				this.ExtensionMethodType = Parameters[ 0 ].Type;
+				ExtensionMethodType = Parameters[ 0 ].Type;
 
 			if ( Parameters.Length > 0 && Parameters[ Parameters.Length - 1 ].IsVarArgs ) {
 				VarArgsArrayType   = Parameters[ Parameters.Length - 1 ].Type;

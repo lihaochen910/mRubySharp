@@ -16,7 +16,6 @@ namespace RubySharp {
 		/// Initializes a new instance of the <see cref="CallbackArguments" /> class.
 		/// </summary>
 		/// <param name="args">The arguments.</param>
-		/// <param name="isMethodCall">if set to <c>true</c> [is method call].</param>
 		public CallbackArguments( IList< R_VAL > args ) {
 			m_Args = args;
 

@@ -11,7 +11,7 @@ namespace RubySharp {
 	/// </summary>
 	public class UserDataUtility {
 		
-		private static Dictionary<string, string> operator_methods = new() {
+		private static Dictionary<string, string> operator_methods = new () {
 			// { "op_LogicalNot", "!" },
 			{ "op_Addition", "+" }, { "op_Subtraction", "-" }, { "op_Multiply", "*" },
 			{ "op_Division", "/" }, { "op_BitwiseAnd", "&" }, { "op_BitwiseOr", "|" },
@@ -53,7 +53,7 @@ namespace RubySharp {
 						char head = char.ToUpper( name[ 0 ] );
 						string newName = name;
 						newName = name.Remove( 0, 1 );
-						newName = newName.Insert( 0, head.ToString () );
+						newName = newName.Insert( 0, head.ToString() );
 						
 						Console.WriteLine( $"{name} -> {newName}" );
 						
@@ -125,11 +125,11 @@ namespace RubySharp {
 			Type type = typeof( T );
 
 			if ( type.IsEnum ) {
-				RegisterEnum < T >( state );
+				RegisterEnum< T >( state );
 				return;
 			}
 			
-			RegisterClass < T >( state );
+			RegisterClass< T >( state );
 		}
 		
 		
@@ -179,13 +179,13 @@ namespace RubySharp {
 						return self;
 					};
 
-					RubyDLL.r_define_method( state, @class, "initialize", rubyFunction, rb_args.REQ( (uint)publicCtor.GetParameters().Length ) );
+					RubyDLL.r_define_method( state, @class, "initialize", rubyFunction, rb_args.REQ( ( uint )publicCtor.GetParameters().Length ) );
 					registedTypeInfo.ctorFunction = rubyFunction;
 				}
 			}
 			
 			// Reg Public Field Get Set
-			IList<FieldInfo> publicFields = type.GetFields ( BindingFlags.Public | BindingFlags.Instance );
+			IList<FieldInfo> publicFields = type.GetFields( BindingFlags.Public | BindingFlags.Instance );
 			foreach ( var field in publicFields ) {
 
 				// skip Obsolete
@@ -255,7 +255,7 @@ namespace RubySharp {
 						return setFunc.SetCallbackTarget( obj ).Invoke( state, self );
 					};
 
-					RubyDLL.r_define_method( state, @class,  $"{property.Name}=", setFunction, rb_args.REQ ( 1 ) );
+					RubyDLL.r_define_method( state, @class,  $"{property.Name}=", setFunction, rb_args.REQ( 1 ) );
 					instanceFunction.Add( $"{property.Name}=", setFunction );
 				}
 			}
@@ -324,7 +324,7 @@ namespace RubySharp {
 			foreach ( var kv in operator_methods ) {
 				
 				var methodInfo = type.GetMethods( BindingFlags.Public | BindingFlags.Static )
-				                     .Where ( m => {
+				                     .Where( m => {
 					                     if ( !m.Name.Equals( kv.Key ) ) {
 						                     return false;
 					                     }
@@ -430,10 +430,11 @@ namespace RubySharp {
 			return true;
 		}
 		
-		
 		public static bool IsValueType( object obj ) {
 			Type t = obj.GetType();
 			return !t.IsEnum && t.IsValueType;
 		}
+		
 	}
+	
 }

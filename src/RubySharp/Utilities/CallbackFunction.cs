@@ -102,7 +102,7 @@ namespace RubySharp {
 			MethodMemberDescriptor descr = new MethodMemberDescriptor( del.Method );
 			descr.DataTypePtr = dataTypePtr;
 #endif
-			return descr.GetCallbackFunction ().SetCallbackTarget( del.Target );
+			return descr.GetCallbackFunction().SetCallbackTarget( del.Target );
 		}
 
 

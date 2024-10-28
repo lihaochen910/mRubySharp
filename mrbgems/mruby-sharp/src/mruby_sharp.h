@@ -89,6 +89,9 @@ MRB_API mrb_value mrb_exc_detail(mrb_state*);
 MRB_API int mrb_gc_arena_save_ex(mrb_state *mrb);
 MRB_API void mrb_gc_arena_restore_ex(mrb_state *mrb, int idx);
 
+void mrb_mruby_csharp_gem_init(mrb_state *mrb);
+void mrb_mruby_csharp_gem_final(mrb_state *mrb);
+
 MRB_END_DECL
 
 #endif /* MRUBY_SHARP_H */

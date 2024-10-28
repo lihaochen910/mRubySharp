@@ -1,10 +1,20 @@
 #if MRUBY
+#define MRB_INT32
+#define MRB_USE_FLOAT32
 using System;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 
-using mrb_float = System.Double;
+#if MRB_INT32
 using mrb_int = System.Int32;
+#elif MRB_INT64
+using mrb_int = System.Int64;
+#endif
+#if MRB_USE_FLOAT32
+using mrb_float = System.Single;
+#else
+using mrb_float = System.Double;
+#endif
 using mrb_sym = System.UInt32;
 using mrb_bool = System.Boolean;
 
@@ -577,8 +587,8 @@ namespace RubySharp {
 		public static extern void r_ary_push( IntPtr mrb, R_VAL array, R_VAL value );
 
 
-		[DllImport(__DllName, EntryPoint = "mrb_ary_ref", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
-		public static extern R_VAL r_ary_ref( IntPtr mrb, R_VAL ary, mrb_int n );
+		[DllImport(__DllName, EntryPoint = "mrb_ary_entry", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL r_ary_entry( R_VAL ary, mrb_int n );
 		
 
 		//
@@ -599,15 +609,15 @@ namespace RubySharp {
 		//
 		// Context
 		//
-		[DllImport(__DllName, EntryPoint = "mrbc_context_new", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		[DllImport(__DllName, EntryPoint = "mrb_ccontext_new", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
 		public static extern IntPtr mrbc_context_new( IntPtr mrb );
 
 
-		[DllImport(__DllName, EntryPoint = "mrbc_context_free", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		[DllImport(__DllName, EntryPoint = "mrb_ccontext_free", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
 		public static extern void mrbc_context_free( IntPtr mrb, IntPtr mrbc_context );
 
 
-		[DllImport(__DllName, EntryPoint = "mrbc_filename", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		[DllImport(__DllName, EntryPoint = "mrb_ccontext_filename", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
 		public static extern void mrbc_filename( IntPtr mrb, IntPtr mrbc_context, string name );
 
 		
@@ -709,8 +719,11 @@ namespace RubySharp {
 		
 		[DllImport(__DllName, EntryPoint = "mrb_full_gc", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
 		public static extern void mrb_full_gc( IntPtr mrb );
-
 		
+		
+		[DllImport(__DllName, EntryPoint = "mrb_incremental_gc", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern void mrb_incremental_gc( IntPtr mrb );
+
 		
 		//public static unsafe void rb_check_frozen(VALUE obj)
 		//{
@@ -822,10 +835,12 @@ namespace RubySharp {
 	/// </summary>
 	[StructLayout( LayoutKind.Sequential )]
 	public struct rb_args {
-		
-		public UInt32 Value;
 
-		public rb_args( UInt32 value ) {
+		// public static rb_args NONE { get; } = new rb_args( 0 );
+
+		public uint Value;
+
+		public rb_args( uint value ) {
 			Value = value;
 		}
 		
@@ -846,7 +861,7 @@ namespace RubySharp {
 		}
 
 		public static rb_args ARGS( uint req, uint opt ) {
-			return rb_args.REQ( req ) | rb_args.OPT( opt );
+			return REQ( req ) | OPT( opt );
 		}
 
 		public static rb_args BLOCK() {
@@ -970,7 +985,7 @@ namespace RubySharp {
 
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]
         public static R_VAL Create( IntPtr mrb_state, double dbl ) {
-            return RubyDLL.mrb_float_value( mrb_state, dbl );
+            return RubyDLL.mrb_float_value( mrb_state, ( float )dbl );
         }
 
 		[MethodImpl( MethodImplOptions.AggressiveInlining )]

@@ -21,7 +21,7 @@ namespace RubySharp {
         /// <summary>
         /// 保存当前VM从C#传入mruby的方法指针，防止C#方法指针进入mruby后被C#端GC掉
         /// </summary>
-        public List< Delegate > MethodDelegates { get; private set; } = new ();
+        public List< Delegate > MethodDelegates { get; } = new ();
         
         /// <summary>
         /// search path
@@ -66,8 +66,7 @@ namespace RubySharp {
 #endif
         }
 
-		
-        internal void InitBaseTypeBinding() {
+		private void InitBaseTypeBinding() {
 #if MRUBY
             // SystemObjectRClass = UserDataUtility.DefineCSharpClass ( this, typeof( System.Object ) );
 			
@@ -97,7 +96,7 @@ namespace RubySharp {
 		}
 
 		
-        public unsafe R_VAL DoString( string str ) {
+        public R_VAL DoString( string str ) {
 #if MRUBY
             int arena = RubyDLL.mrb_gc_arena_save( rb_state );
             IntPtr mrbc_context = RubyDLL.mrbc_context_new( rb_state );
@@ -120,7 +119,7 @@ namespace RubySharp {
         }
         
 		
-        public unsafe R_VAL DoFile( string path ) {
+        public R_VAL DoFile( string path ) {
             
             if ( !File.Exists( path ) ) {
                 return R_VAL.NIL;
@@ -227,7 +226,7 @@ namespace RubySharp {
 
             builder.AppendLine( "trace:" );
             for ( var i = 0; i < RubyDLL.r_funcall( rb_state, backtrace, "size", 0 ); ++i ) {
-                R_VAL v = RubyDLL.r_ary_ref( rb_state, backtrace, i );
+                R_VAL v = RubyDLL.r_ary_entry( backtrace, i );
                 builder.AppendLine( $"  [{i}] {v.ToString( rb_state )}" );
             }
 
@@ -265,7 +264,7 @@ namespace RubySharp {
 
             builder.AppendLine( "trace:" );
             for ( var i = 0; i < RubyDLL.r_funcall( mrb, backtrace, "size", 0 ); ++i ) {
-                R_VAL v = RubyDLL.r_ary_ref( mrb, backtrace, i );
+                R_VAL v = RubyDLL.r_ary_entry( backtrace, i );
                 builder.AppendLine( $"  [{i}] {v.ToString ( mrb )}" );
             }
             
@@ -295,7 +294,7 @@ namespace RubySharp {
             
             builder.AppendLine( "trace:" );
             for ( var i = 0; i < RubyDLL.r_funcall( rb_state, backtrace, "size", 0 ); ++i ) {
-                R_VAL v = RubyDLL.r_ary_ref( rb_state, backtrace, i );
+                R_VAL v = RubyDLL.r_ary_entry( backtrace, i );
                 builder.AppendLine( $"  [{i}] {v.ToString ( rb_state )}" );
             }
             
@@ -685,7 +684,7 @@ namespace RubySharp {
 			}
 
 			if ( desiredType == typeof( object ) || ( desiredType.IsClass && desiredType != typeof( string ) ) ) {
-				return RubyState.ValueToRefObject( mrb, value, dataTypePtr );
+				return ValueToRefObject( mrb, value, dataTypePtr );
 			}
 
 			Type nt = Nullable.GetUnderlyingType( desiredType );
@@ -765,8 +764,7 @@ namespace RubySharp {
 				return default;
 			}
 
-			int index;
-			if ( state._typedReferenceMap.Forward.TryGetValue( RubyDLL.mrb_data_get_ptr( state, value, data_type ), out index ) ) {
+			if ( state._typedReferenceMap.Forward.TryGetValue( RubyDLL.mrb_data_get_ptr( state, value, data_type ), out var index ) ) {
 				return ( T )state._translator.GetObject( index );
 			}
 
@@ -781,7 +779,7 @@ namespace RubySharp {
 		/// <param name="obj"></param>
 		/// <returns></returns>
 		/// <exception cref="Exception"></exception>
-		public static unsafe R_VAL ObjectToValue( RubyState state, object obj ) {
+		public static R_VAL ObjectToValue( RubyState state, object obj ) {
 
 			if ( obj == null ) {
 				return R_VAL.NIL;
@@ -806,10 +804,10 @@ namespace RubySharp {
 					return RubyDLL.mrb_fixnum_value( state, ( ( int? )obj ).HasValue ? ( ( int? )obj ).Value : 0 );
 				}
 				else if ( type == typeof( float ) || type == typeof( double ) ) {
-					return RubyDLL.mrb_float_value( state, Convert.ToDouble( obj ) );
+					return RubyDLL.mrb_float_value( state, Convert.ToSingle( obj ) );
 				}
 				else if ( type == typeof( float? ) || type == typeof( double? ) ) {
-					return RubyDLL.mrb_float_value( state, ( ( double? )obj ).HasValue ? ( ( double? )obj ).Value : 0f );
+					return RubyDLL.mrb_float_value( state, ( ( float? )obj ).HasValue ? ( ( float? )obj ).Value : 0f );
 				}
 				else if ( type == typeof( bool ) ) {
 					return R_VAL.Create ( ( bool )obj );
@@ -820,11 +818,11 @@ namespace RubySharp {
 				else if ( type.IsArray ) {
 					// csValueToValue = $"RubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( typeof( System.Array ) )}.@class, {GetWrapperClassName ( typeof( System.Array ) )}.data_type_ptr, {retVarName} )";
 					RegistedTypeInfo info = state.GetRegistedTypeInfo( type );
-					return RubyState.DataObjectToValue( state, info.@class, info.dataTypePtr, obj );
+					return DataObjectToValue( state, info.@class, info.dataTypePtr, obj );
 				}
 				else if ( System.Nullable.GetUnderlyingType( type ) != null ) {
 					// csValueToValue = $"RubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( System.Nullable.GetUnderlyingType ( type ) )}.@class, {GetWrapperClassName ( System.Nullable.GetUnderlyingType ( type ) )}.data_type_ptr, {retVarName} )";
-					return RubyState.DataObjectToValue( state, state.SystemObjectRClass, RubyState.ObjectDataTypePtr, obj );
+					return DataObjectToValue( state, state.SystemObjectRClass, RubyState.ObjectDataTypePtr, obj );
 				}
 				else {
 					// csValueToValue = $"RubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( type )}.@class, {GetWrapperClassName ( type )}.data_type_ptr, {retVarName} )";
@@ -835,7 +833,7 @@ namespace RubySharp {
 						return state._dataValueMap.Forward[ obj ];
 					}
 					RegistedTypeInfo info = state.GetRegistedTypeInfo( type );
-					R_VAL ret = RubyState.DataObjectToValue( state, info.@class, info.dataTypePtr, obj );
+					R_VAL ret = DataObjectToValue( state, info.@class, info.dataTypePtr, obj );
 					state.AddCRInstanceMap( obj, ret );
 					return ret;
 				}
@@ -852,7 +850,7 @@ namespace RubySharp {
 				else if ( type == typeof( System.Type ) ) {
 					// csValueToValue = $"RubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( typeof( System.Object ) )}.@class, {GetWrapperClassName ( typeof( System.Object ) )}.data_type_ptr, {retVarName} )";
 					RegistedTypeInfo info = state.GetRegistedTypeInfo( type );
-					return RubyState.DataObjectToValue( state, info.@class, info.dataTypePtr, obj );
+					return DataObjectToValue( state, info.@class, info.dataTypePtr, obj );
 				}
 				else {
 					// csValueToValue = $"RubyDLL.DataObjectToValue ( mrb, {GetWrapperClassName ( type )}.@class, {GetWrapperClassName ( type )}.data_type_ptr, {retVarName} )";
@@ -863,7 +861,7 @@ namespace RubySharp {
 						return state._dataValueMap.Forward[ obj ];
 					}
 					RegistedTypeInfo info = state.GetRegistedTypeInfo( type );
-					R_VAL ret = RubyState.DataObjectToValue( state, info.@class, info.dataTypePtr, obj );
+					R_VAL ret = DataObjectToValue( state, info.@class, info.dataTypePtr, obj );
 					state.AddCRInstanceMap( obj, ret );
 					return ret;
 				}
@@ -893,9 +891,8 @@ namespace RubySharp {
 		// 	
 		// 	return R_VAL.NIL;
 		// }
-		
-		
-		internal static object IntToType( Type type, int i ) {
+
+		private static object IntToType( Type type, int i ) {
 			type = Nullable.GetUnderlyingType( type ) ?? type;
 
 			if ( type == typeof( double ) ) return i;
@@ -915,7 +912,7 @@ namespace RubySharp {
 		#endregion
 
         
-        unsafe void IDisposable.Dispose() {
+		void IDisposable.Dispose() {
 #if MRUBY
             RubyDLL.mrb_close( rb_state );
 #else
@@ -964,7 +961,7 @@ namespace RubySharp {
                 throw new ArgumentException( $"RubyState.DoFile parameter type mismatch: require String but got {RubyDLL.r_type( args[ 0 ] )}." );
             }
 
-            return RubyState.DoFile( mrb, args[ 0 ].ToString( mrb ) );
+            return DoFile( mrb, args[ 0 ].ToString( mrb ) );
         }
 #endif
 		
@@ -1004,6 +1001,7 @@ namespace RubySharp {
 		public static IntPtr EnumDataTypePtr => _EnumDataTypePtr;
 #endif
         #endregion
+		
     }
 
 

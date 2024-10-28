@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.InteropServices;
 
 
 namespace RubySharp.Sample {
@@ -26,7 +27,7 @@ namespace RubySharp.Sample {
 			// Console.WriteLine ( (GC.GetTotalMemory(false) / 1048576f).ToString("F") + " MB" );
 			
             _state = new RubyState( ( IntPtr )RubyDLL.mrb_open() );
-			_state.DoString( "puts \"ruby #{RUBY_VERSION}\"" );
+			_state.DoString( "puts \"ruby: #{RUBY_VERSION}\"" );
 
 			// Console.WriteLine ( (GC.GetTotalMemory(false) / 1048576f).ToString("F") + " MB" );
 
@@ -109,12 +110,13 @@ namespace RubySharp.Sample {
 			}
 #endif
 			
-			( _state as IDisposable ).Dispose();
+			( ( IDisposable )_state ).Dispose();
             
             // Console.ReadKey();
         }
 
 #if MRUBY
+		// [UnmanagedCallersOnly]
         static R_VAL WriteLine( IntPtr state, R_VAL context ) {
             R_VAL[] args = RubyDLL.GetFunctionArgs( state );
 
@@ -126,7 +128,7 @@ namespace RubySharp.Sample {
         }
 
         static R_VAL ShowBackTrace( IntPtr state, R_VAL context ) {
-            Console.WriteLine( Program._state.GetExceptionBackTrace() );
+            Console.WriteLine( _state.GetExceptionBackTrace() );
             return context;
         }
 

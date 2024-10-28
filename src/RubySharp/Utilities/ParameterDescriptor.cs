@@ -157,5 +157,7 @@ namespace RubySharp {
 			m_OriginalType = Type;
 			Type           = type;
 		}
+		
 	}
+	
 }

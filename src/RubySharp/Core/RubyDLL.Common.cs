@@ -17,7 +17,7 @@ namespace RubySharp {
         /// 使用平台特定API加载动态库
         /// </summary>
         [Obsolete]
-		private static IntPtr RubyLibrary = GetNativeLibrary();
+		private static IntPtr RubyLibrary = IntPtr.Zero;
 
 		[Obsolete]
 		private static IntPtr GetNativeLibrary() {

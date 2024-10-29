@@ -27,8 +27,8 @@ namespace RubySharp {
 
 		private Func< object, object[], object > m_OptimizedFunc = null;
 		private Action< object, object[] > m_OptimizedAction = null;
-		private bool m_IsAction = false;
-		private bool m_IsArrayCtor = false;
+		private bool m_IsAction;
+		private bool m_IsArrayCtor;
 
 		
 		/// <summary>

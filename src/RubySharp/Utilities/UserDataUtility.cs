@@ -55,7 +55,7 @@ namespace RubySharp {
 						newName = name.Remove( 0, 1 );
 						newName = newName.Insert( 0, head.ToString() );
 						
-						Console.WriteLine( $"{name} -> {newName}" );
+						// Console.WriteLine( $"{name} -> {newName}" );
 						
 						validName = newName;
 					}
@@ -100,7 +100,7 @@ namespace RubySharp {
 						newName = name.Remove( 0, 1 );
 						newName = newName.Insert( 0, head.ToString() );
 						
-						Console.WriteLine( $"{name} -> {newName}" );
+						// Console.WriteLine( $"{name} -> {newName}" );
 						
 						validName = newName;
 					}
@@ -266,7 +266,7 @@ namespace RubySharp {
 			foreach ( var method in publicMethods ) {
 
 				if ( !TestFunctionSupport( method ) ) {
-					Console.WriteLine( $"{type.Name}.{method.Name} not support." );
+					// Console.WriteLine( $"{type.Name}.{method.Name} not support." );
 					continue;
 				}
 				
@@ -283,11 +283,11 @@ namespace RubySharp {
 
 				RubyDLL.RubyCSFunction rubyFunction = ( mrb, self ) => {
 					// T obj = RubyDLL.ValueToDataObject< T > ( mrb, self, dataTypePtr );
-					object obj = RubyState.ValueToRefObject( state, self, dataTypePtr );
+					var obj = RubyState.ValueToRefObject( state, self, dataTypePtr );
 					return function.SetCallbackTarget( obj ).Invoke( state, self );
 				};
 
-				RubyDLL.r_define_method( state, @class, method.Name, rubyFunction, rb_args.ANY () );
+				RubyDLL.r_define_method( state, @class, method.Name, rubyFunction, rb_args.ANY() );
 				instanceFunction.Add( method.Name, rubyFunction );
 			}
 			
@@ -296,7 +296,7 @@ namespace RubySharp {
 			foreach ( var method in publicStaticMethods ) {
 
 				if ( !TestFunctionSupport( method ) ) {
-					Console.WriteLine( $"{type.Name}.{method.Name} not support." );
+					// Console.WriteLine( $"{type.Name}.{method.Name} not support." );
 					continue;
 				}
 				

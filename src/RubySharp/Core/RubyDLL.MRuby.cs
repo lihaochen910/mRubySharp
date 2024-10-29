@@ -1275,10 +1275,10 @@ namespace RubySharp {
         //    return RubyDLL.Encoding.GetString(bytes);
         //}
 
-        public string ToString( IntPtr mrb_state ) {
-            var str = RubyDLL.mrb_obj_as_string( mrb_state, this );
+        public string ToString( IntPtr mrb ) {
+            var str = RubyDLL.mrb_obj_as_string( mrb, this );
             int length = 0;
-            IntPtr ptr = RubyDLL.mrb_string_value_cstr( mrb_state, ref str );
+            IntPtr ptr = RubyDLL.mrb_string_value_cstr( mrb, ref str );
             unsafe {
                 byte* p = ( byte* )ptr;
                 while ( *p != 0 ) {

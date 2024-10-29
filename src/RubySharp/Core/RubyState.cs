@@ -366,6 +366,15 @@ namespace RubySharp {
 #endif
         }
 #endif
+		
+		
+		public void UndefineMethod( string name, RubyDLL.RubyCSFunction receiver ) {
+			MethodDelegates.Remove( receiver );
+
+#if MRUBY
+			RubyDLL.r_undef_class_method( rb_state, rb_kernel_module, name );
+#endif
+		}
 
 
 		#region 查询注册类信息

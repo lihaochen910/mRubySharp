@@ -458,6 +458,14 @@ namespace RubySharp {
 		[DllImport(__DllName, EntryPoint = "mrb_define_singleton_method", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
 		public static extern void mrb_define_singleton_method( IntPtr mrb, IntPtr klass, string name, RubyCSFunction func, rb_args aspec );
 
+		
+		[DllImport(__DllName, EntryPoint = "mrb_undef_method", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern void r_undef_method( IntPtr mrb, IntPtr klass, string name );
+
+		
+		[DllImport(__DllName, EntryPoint = "mrb_undef_class_method", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern void r_undef_class_method( IntPtr mrb, IntPtr klass, string name );
+
 
 		//public static void mrb_define_method(IntPtr klass, string name, MRubyCSFunction func, mrb_args aspec)
 		//{

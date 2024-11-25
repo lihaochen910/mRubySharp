@@ -381,8 +381,40 @@ namespace RubySharp {
 
 		[DllImport(__DllName, EntryPoint = "mrb_const_get", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
 		public static extern R_VAL mrb_const_get( IntPtr mrb, R_VAL obj, mrb_sym sym );
+		
+		
+		[DllImport(__DllName, EntryPoint = "mrb_const_set", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_const_set( IntPtr mrb, R_VAL obj, mrb_sym sym, R_VAL val );
+		
+		
+		[DllImport(__DllName, EntryPoint = "mrb_gv_get", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_gv_get( IntPtr mrb, mrb_sym sym );
+		
+		
+		[DllImport(__DllName, EntryPoint = "mrb_gv_set", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_gv_set( IntPtr mrb, mrb_sym sym, R_VAL val );
+		
+		
+		[DllImport(__DllName, EntryPoint = "mrb_gv_remove", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_gv_remove( IntPtr mrb, mrb_sym sym );
+		
+		
+		[DllImport(__DllName, EntryPoint = "mrb_cv_get", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_cv_get( IntPtr mrb, R_VAL mod, mrb_sym sym );
 
+		
+		[DllImport(__DllName, EntryPoint = "mrb_mod_cv_set", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_mod_cv_set( IntPtr mrb, IntPtr c, mrb_sym sym, R_VAL v );
+		
+		
+		[DllImport(__DllName, EntryPoint = "mrb_cv_set", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_cv_set( IntPtr mrb, R_VAL mod, mrb_sym sym, R_VAL v );
+		
+		
+		[DllImport(__DllName, EntryPoint = "mrb_cv_defined", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_bool mrb_cv_defined( IntPtr mrb, R_VAL mod, mrb_sym sym );
 
+		
 		//
 		// module, class
 		//
@@ -581,6 +613,18 @@ namespace RubySharp {
 
 		[DllImport(__DllName, EntryPoint = "mrb_iv_set", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
 		public static extern void mrb_iv_set( IntPtr mrb, R_VAL obj, mrb_sym sym, R_VAL v );
+		
+		
+		[DllImport(__DllName, EntryPoint = "mrb_iv_defined", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_bool mrb_iv_defined( IntPtr mrb, R_VAL obj, mrb_sym sym );
+		
+		
+		[DllImport(__DllName, EntryPoint = "mrb_iv_remove", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern R_VAL mrb_iv_remove( IntPtr mrb, R_VAL obj, mrb_sym sym );
+		
+		
+		[DllImport(__DllName, EntryPoint = "mrb_iv_copy", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern void mrb_iv_copy( IntPtr mrb, R_VAL dst, R_VAL src );
 
 
 		[DllImport(__DllName, EntryPoint = "mrb_obj_iv_get", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
@@ -590,7 +634,11 @@ namespace RubySharp {
 		[DllImport(__DllName, EntryPoint = "mrb_obj_iv_set", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
 		public static extern void mrb_obj_iv_set( IntPtr mrb, IntPtr obj, mrb_sym sym, R_VAL v );
 
+		
+		[DllImport(__DllName, EntryPoint = "mrb_obj_iv_defined", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+		public static extern mrb_bool mrb_obj_iv_defined( IntPtr mrb, IntPtr obj, mrb_sym sym );
 
+		
 		//
 		// 配列
 		//
@@ -1076,6 +1124,9 @@ namespace RubySharp {
                 return ( int )value.value.f;
             }
 
+#if DEBUG
+			throw new InvalidCastException();
+#endif
             return 0;
         }
         
@@ -1088,6 +1139,9 @@ namespace RubySharp {
                 return ( float )value.value.i;
             }
 
+#if DEBUG
+			throw new InvalidCastException();
+#endif
             return 0f;
         }
 
@@ -1100,6 +1154,9 @@ namespace RubySharp {
                 return value.value.i;
             }
 
+#if DEBUG
+			throw new InvalidCastException();
+#endif
             return 0f;
         }
 

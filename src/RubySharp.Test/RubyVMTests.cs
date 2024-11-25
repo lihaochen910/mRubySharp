@@ -1,3 +1,4 @@
+using System.Text;
 using NUnit.Framework;
 
 
@@ -96,6 +97,93 @@ public unsafe class RubyVMTests {
 		Assert.That( R_VAL.IsTrue( methodReturn ) );
 		Assert.That( methodCalled );
 		_rubyState.UndefineMethod( "a_method", AMethod );
+	}
+
+	[Test]
+	public void TestDefineMethod_02() {
+		bool methodCalled = false;
+
+		R_VAL AMethod( IntPtr mrb, R_VAL context ) {
+			methodCalled = true;
+			var args = RubyDLL.GetFunctionArgs( mrb );
+			Assert.That( 3, Is.EqualTo( ( int )args[ 0 ] ) );
+			Assert.That( 2.0f, Is.EqualTo( ( float )args[ 1 ] ) );
+			Assert.That( R_VAL.IsTrue( args[ 2 ] ) );
+			return R_VAL.Create( mrb, 0 );
+		}
+		
+		_rubyState.DefineMethod( "b_method", AMethod, rb_args.ANY() );
+		R_VAL methodReturn = _rubyState.DoString( "b_method(3, 2.0, true)" );
+		Assert.That( 0, Is.EqualTo( ( int )methodReturn ) );
+		Assert.That( methodCalled );
+		_rubyState.UndefineMethod( "b_method", AMethod );
+	}
+
+	[Test]
+	public void TestMRubyGV() {
+		const string ScriptDefineGV = "$var = 9";
+		_rubyState.DoString( ScriptDefineGV );
+
+		var symVal = RubyDLL.mrb_intern_cstr( _rubyState, "$var"u8.ToArray() );
+		var mrbVal = RubyDLL.mrb_gv_get( _rubyState, symVal );
+		TestContext.WriteLine( $"var is {( int )mrbVal}" );
+		Assert.That( 9, Is.EqualTo( ( int )mrbVal ) );
+		
+		RubyDLL.mrb_gv_set( _rubyState, symVal, R_VAL.Create( _rubyState, 10 ) );
+		
+		mrbVal = RubyDLL.mrb_gv_get( _rubyState, symVal );
+		TestContext.WriteLine( "after mrb_gv_set..." );
+		TestContext.WriteLine( $"var is {( int )mrbVal}" );
+		Assert.That( 10, Is.EqualTo( ( int )mrbVal ) );
+	}
+
+	[Test]
+	public void TestMRubyInternalGC() {
+		TestContext.WriteLine( $"GC已启用: {( bool )_rubyState.DoString( "MRuby.gc_enabled?" )}" );
+		TestContext.WriteLine( $"当前对象数: {( int )_rubyState.DoString( "MRuby.object_count" )}" );
+
+		const string ScriptDefineGV = "$var = 9";
+		_rubyState.DoString( ScriptDefineGV );
+
+		var mrbVal = RubyDLL.mrb_gv_get( _rubyState, RubyDLL.mrb_intern_cstr( _rubyState, Encoding.ASCII.GetBytes( "$var" ) ) );
+		Assert.That( 9, Is.EqualTo( ( int )mrbVal ) );
+		
+		const string Script = """
+							  # 打印当前的GC状态
+							  def print_gc_status
+							    puts "当前GC状态:"
+							    # puts "  GC已启用: #{MRuby.gc_enabled?}"
+							    # puts "  当前对象数: #{MRuby.object_count}"
+							  end
+							  
+							  # 打印初始状态
+							  print_gc_status
+							  
+							  # 创建大量对象以测试GC
+							  100_000.times do |i|
+							    obj = "对象 #{i}"
+							  end
+							  
+							  # 强制进行垃圾回收
+							  GC.start
+							  
+							  # 打印GC后的状态
+							  print_gc_status
+							  
+							  # 创建更多对象
+							  100_000.times do |i|
+							    obj = "新对象 #{i}"
+							  end
+							  
+							  # 再次强制进行垃圾回收
+							  GC.start
+							  
+							  # 打印最终状态
+							  print_gc_status
+							  """;
+
+		_rubyState.DoString( Script );
+		Assert.Pass( "测试通过" );
 	}
 
 }
